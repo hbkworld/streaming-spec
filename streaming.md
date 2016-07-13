@@ -5,6 +5,11 @@
 
 This document describes the DAQ Stream Protocol provided by HBM devices. 
 
+## License
+
+This document ist published under the terms of the [Creative Commons No
+Derivative Works (CC BY-ND)](https://creativecommons.org/licenses/by-nd/4.0/).
+
 ## Overview
 
 The data streaming mechanism is intended to enable client programs to receive 
