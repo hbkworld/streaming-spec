@@ -60,11 +60,11 @@ Information](#init-meta).
       [Init Meta Information](#init-meta) as soon as possible.
     - Among other things the Init Meta Information contains the available command interface(s).
     - After sending the [Version Meta Information](#api-version) and the
-      [Init Meta Information](#init-meta) the device MAY send further [Available Meta Information](#available-meta-information) or [Optional Meta Information](#optional-features-meta-information).
+      [Init Meta Information](#init-meta) the device MAY send further [Available Meta Information](#available-meta-information) or [Optional Meta Information](#optional-features--meta-information).
 
 2) Streaming
     - The device MAY further send [Signal Related Meta Information](#signal-related-meta-information) or
-      [Optional Meta Information](#optional-features-meta-information).
+      [Optional Meta Information](#optional-features--meta-information).
     - The client MAY [subscribe](#subscribe-signal) signals at any time via 
       command interface as described in the [Init Meta Information](#init-meta).
     - Once subscribed the device confirms the operation with a 
@@ -195,7 +195,7 @@ stream socket.
 
 The Init Meta information provides the Stream ID (required for
 [subscribing signals](#command-interfaces)) and a set of
-[optional features](#optional-features-meta-information) supported by the device. 
+[optional features](#optional-features--meta-information) supported by the device. 
 This Meta information MUST be send directly after the [Version Meta Information](#api-version).
 
 ~~~~ {.javascript}
@@ -226,7 +226,7 @@ This Meta information MUST be send directly after the [Version Meta Information]
 
 "supported":
 
-:    An Object which holds all [optional features](#optional-features-meta-information)
+:    An Object which holds all [optional features](#optional-features--meta-information)
      supported by the device. If no optional features are supported, this object MAY be empty.
      The "supported" field's keys always refer to the respective optional feature name. 
      E.g. the key "alive" refers to the
