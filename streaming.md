@@ -26,13 +26,9 @@ The protocol was designed with the following constraints in mind:
 
 ## Definitions
 
-Undefined
+Undefined: The Javascript values `undefined`, `null` and `NaN`
 
-:    The Javascript values `undefined`, `null` and `NaN`
-
-Defined
-
-:    All non _undefined_ Javascript values.
+Defined: All non _undefined_ Javascript values.
 
 
 ## Requirements
@@ -102,13 +98,9 @@ block of data. The structure of the header is depicted below.
 The `Type` sub-field allows to distinguish the type of payload, which can be either
 [Signal Data](#signal-data) or [Meta Information](#meta-information):
 
-Signal Data
+Signal Data: 0x01
 
-:    0x01
-
-Meta Information
-
-:    0x02
+Meta Information: 0x02
 
 #### Reserved
 
@@ -163,11 +155,7 @@ The Metainfo_Type indicates how data in the Metainfo_Data block is
 encoded. This 32 bit word is always transmitted in network byte order
 (big endian).
 
-: Metainfo_Type
-
----------- -------------------------------------------------
-0x01       The Meta data is encoded using [JSON](http://www.ietf.org/rfc/rfc4627.txt).
-------------------------------------------------------------
+Metainfo_Type: 0x01 The Meta data is encoded using [JSON](http://www.ietf.org/rfc/rfc4627.txt).
 
 Meta information is always encoded in [JSON](http://www.ietf.org/rfc/rfc4627.txt). There are
 [Stream Related Meta Information](#stream-related-meta-information) and
@@ -218,23 +206,17 @@ This Meta information MUST be send directly after the [Version Meta Information]
 }
 ~~~~
 
-"streamId":
-
-:    A unique ID identifying the stream instance. It is required for
+"streamId": A unique ID identifying the stream instance. It is required for
      using the [Command Interface](#command-interfaces).
 
-"supported":
-
-:    An Object which holds all [optional features](#optional-features--meta-information)
+"supported": An Object which holds all [optional features](#optional-features--meta-information)
      supported by the device. If no optional features are supported, this object MAY be empty.
      The "supported" field's keys always refer to the respective optional feature name. 
      E.g. the key "alive" refers to the
      [Alive Meta Information](#alive-meta-information). The field's value MUST
      comply to the respective Feature Value description.
 
-"commandInterfaces":
-
-:    An Object which MUST hold at least one command interface (descriptions)
+"commandInterfaces": An Object which MUST hold at least one command interface (descriptions)
      provided by the device. A command interface is required to
      [subscribe](#subscribe-signal) or [unsubscribe](#unsubscribe-signal) a signal. 
      The key `<command_interface>` MUST be a String which specifies the name of
@@ -258,17 +240,11 @@ This Meta information MUST be send directly after the [Version Meta Information]
 This Meta information is always sent on errors.
 
 
-"code":
+"code": A Number that indicates the error type that occurred. This MUST be an integer.
 
-:    A Number that indicates the error type that occurred. This MUST be an integer.
+"message": A String providing a short description of the error.
 
-"message":
-
-:	 A String providing a short description of the error.
-
-"data":
-
-:    A Primitive or Structured value that contains additional information about the error. This may be omitted.
+"data": A Primitive or Structured value that contains additional information about the error. This may be omitted.
 
 
 #### Available Meta Information
@@ -280,9 +256,7 @@ This Meta information is always sent on errors.
 }
 ~~~~
 
-"params":
-
-:    An array of strings describing unique signal IDs.
+"params": An array of strings describing unique signal IDs.
 
 
 The signal specified SHOULD be available to be [subscribed](#subscribe-signal).
@@ -298,9 +272,7 @@ respective [Unavailable Meta information](#unavailable-meta-information) has not
 }
 ~~~~
 
-"params":
-
-:    An array of strings describing unique signal IDs.
+"params": An array of strings describing unique signal IDs.
 
 ### Signal Related Meta Information
 
@@ -316,9 +288,7 @@ the next [Available Meta information](#available-meta-information) arrives.
 }
 ~~~~
 
-"params":
-
-:    An array containing one element with the signal ID of the subscribed signal.
+"params": An array containing one element with the signal ID of the subscribed signal.
 
 
 The string value of the subscribe key always carries the unique signal
@@ -362,17 +332,11 @@ No more [Signal Data](#signal-data) or [Meta Information](#meta-information) wit
 ~~~~
 
 
-"stamp":
+"stamp": A [Time object](#time-objects), e.g. ntp.
 
-:    A [Time object](#time-objects), e.g. ntp.
+"scale": An optional string describing the time scale, e.g. UTC, TAI, GPS.
 
-"scale":
-
-:    An optional string describing the time scale, e.g. UTC, TAI, GPS.
-
-"epoch":
-
-:    An optional string that carries information about the epoch of the
+"epoch": An optional string that carries information about the epoch of the
      stamp key. This key is necessary if an absolute time is delivered. 
      The format of the epoch string MUST stick to ISO 8601:2004:
      YYYY-MM-DDThh:mm:ss.f
@@ -394,13 +358,9 @@ first sample that follows.
 }
 ~~~~
 
-"samples":
+"samples": The number of measurement values the "delta" key refers to.
 
-:    The number of measurement values the "delta" key refers to.
-
-"delta":
-
-:    A relative [Time object](#time-objects) (without "scale" and "epoch" key) 
+"delta": A relative [Time object](#time-objects) (without "scale" and "epoch" key) 
      describing the time delta between samples
      measurement values.
 
@@ -433,26 +393,20 @@ the [Transport Layer](#transport-layer) must be interpreted.
 }
 ~~~~
 
-"pattern":
-
-:    Describes the data pattern of [Signal Data](#signal-data), either
+"pattern": Describes the data pattern of [Signal Data](#signal-data), either
 
      - "V"; No timestamps, values only. This pattern is used only for synchronous values.
      - "TV"; One timestamp per value, first comes the timestamp, then the value. This pattern is used for asynrchonous values.
      - "TB"; One timestamp per signal block. The timestamp corresponds to the first sample in the signal block.
 
 
-"endian":
-
-:    Describes the byte endianess of the [Signal Data](#signal-data) and timestamps, either
+"endian": Describes the byte endianess of the [Signal Data](#signal-data) and timestamps, either
 
     - "big"; Big endian byte order (network byte order).
     - "little"   Little endian byte order.
 
 
-"valueType":
-
-:    Describes the data type of the [Signal Data](#signal-data), either
+"valueType": Describes the data type of the [Signal Data](#signal-data), either
 
     - "u32"; unsigned int 32 bit
     - "s32"; signed int 32 bit
@@ -462,8 +416,7 @@ the [Transport Layer](#transport-layer) must be interpreted.
     - "real64"; IEEE754 float double precision
 
 
-"timeStamp":
-:   Describes the format of a timestamp, if timestamps are delivered
+"timeStamp": Describes the format of a timestamp, if timestamps are delivered
     (only if "pattern" is either "TV" or "TB"). Please note the special
 	handling of [8 byte timestamps in "ntp" format](#ntp).
 
@@ -478,9 +431,7 @@ the [Transport Layer](#transport-layer) must be interpreted.
 }
 ~~~~
 
-"unit":
-
-:	A UTF-8 encoded string containing the unit describing the signal.
+"unit":A UTF-8 encoded string containing the unit describing the signal.
 
 
 #### Time Objects
@@ -557,21 +508,13 @@ The description MUST be as follows:
 }
 ```
 
-"httpMethod":
+"httpMethod": The HTTP Method to use (e.g. POST)
 
-:    The HTTP Method to use (e.g. POST)
+"httpPath": The HTTP URI / path of the [JSON-RPC](http://www.jsonrpc.org/specification) service.
 
-"httpPath":
+"httpVersion": The HTTP Version the device supports, either "1.0" or "1.1".
 
-:    The HTTP URI / path of the [JSON-RPC](http://www.jsonrpc.org/specification) service.
-
-"httpVersion":
-
-:    The HTTP Version the device supports, either "1.0" or "1.1".
-
-"port":
-
-:    Specifies the port via either a String denoting a service name or a Number. The service
+"port": Specifies the port via either a String denoting a service name or a Number. The service
      name implies a port (e.g. via device scan).
      
 #### Example of an http post
@@ -627,9 +570,7 @@ Content-Length: 20
 }
 ~~~~
 
-"params":
-
-:    An array of strings describing unique signal IDs.
+"params": An array of strings describing unique signal IDs.
 
 Subscribes signal IDs to the stream specified int the method name.
 All signal ids subscribed successfully appear as a 
@@ -679,9 +620,7 @@ been subscribed:
 }
 ~~~~
 
-"data":
-
-:    An array of strings of signal IDs for which the subscribe failed.
+"data": An array of strings of signal IDs for which the subscribe failed.
 
 #### Unsubscribe Signal
 
@@ -696,9 +635,7 @@ been subscribed:
 }
 ~~~~
 
-"params":
-
-:    An array of strings describing unique signal IDs.
+"params": An array of strings describing unique signal IDs.
 
 Unsubscribes signal IDs from the stream specified in the method name. All
 signal ids unsubscribed successfully appear as a [unsubscribe Meta
@@ -747,9 +684,7 @@ been unsubscribed:
 }
 ~~~~
 
-"data":
-
-:    An array of strings of signal IDs for which the unsubscribe failed.
+"data": An array of strings of signal IDs for which the unsubscribe failed.
 
 ## Optional Features / Meta Information
 
@@ -769,9 +704,7 @@ signal was connected.
 }
 ~~~~
 
-"params":
-
-:    Array of unique signal IDs of the signals that were connected.
+"params": Array of unique signal IDs of the signals that were connected.
 
 #### Connect Feature Value
 
@@ -794,9 +727,7 @@ signal was disconnected.
 }
 ~~~~
 
-"params":
-
-:    Array of unique signal IDs of the signals that where disconnected.
+"params": Array of unique signal IDs of the signals that where disconnected.
 
 #### Disconnect Feature Value
 
@@ -820,9 +751,7 @@ true
 }
 ~~~~
 
-"stamp":
-
-:    A [Time Object](#time-objects) that carries the internal time of the device.
+"stamp": A [Time Object](#time-objects) that carries the internal time of the device.
      This time has only a weak relation to timestamps for measurement
      signals and must not be used to align the measurement values. Due to signal
      runtime, signals may carry timestamps older than `time`. This is a stream related
