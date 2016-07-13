@@ -25,7 +25,7 @@ The protocol was designed with the following constraints in mind:
     gather information via the setup interface to interpret the acquired
     signals.
 
-# Definitions {#definitions}
+# Definitions
 
 Undefined
 
@@ -50,31 +50,30 @@ address translation) might change the the number of forwarded ports. The port
 number of the [JSON-RPC](http://www.jsonrpc.org/specification) service is
 determined from the Command Interfaces Objects in the [Init Meta
 Information](#init-meta). 
-
-# Workflow
+ Workflow
 
 1) Start of Stream
     - A client MAY connect to a known Stream address (IP and port (7411)). 
       The device MAY refuse connection due to resource limits. If the device accepts
       the connection a Stream instance is created.
-    - The device MUST send the [Version Meta Information](#version-meta) and the
+    - The device MUST send the [Version Meta Information](#api-version) and the
       [Init Meta Information](#init-meta) as soon as possible.
     - Among other things the Init Meta Information contains the available command interface(s).
-    - After sending the [Version Meta Information](#version-meta) and the
-      [Init Meta Information](#init-meta) the device MAY send further [Available Meta Information](#available-meta) or [Optional Meta Information](#optional).
+    - After sending the [Version Meta Information](#api-version) and the
+      [Init Meta Information](#init-meta) the device MAY send further [Available Meta Information](#available-meta-information) or [Optional Meta Information](#optional-features-meta-information).
 
 2) Streaming
-    - The device MAY further send [Signal Related Meta Information](#signal-related-meta) or
-      [Optional Meta Information](#optional).
+    - The device MAY further send [Signal Related Meta Information](#signal-related-meta-information) or
+      [Optional Meta Information](#optional-features-meta-information).
     - The client MAY [subscribe](#subscribe-signal) signals at any time via 
       command interface as described in the [Init Meta Information](#init-meta).
     - Once subscribed the device confirms the operation with a 
-      [Subscribe Meta Information](#subscribe-meta) for each signal and all relevant 
-      [Signal Releated Meta Information](#signal-related-meta). Afterwards the device MUST 
+      [Subscribe Meta Information](#subscribe-meta-information) for each signal and all relevant 
+      [Signal Releated Meta Information](#signal-related-meta-information). Afterwards the device MUST 
       send the respective [Signal Data](#signal-data) as it becomes available internally and 
       MUST NOT leave out Signal Data or 
-      [Signal Related Meta Information](#signal-related-meta). The device MAY further send
-	  [Unit Meta Information](#signal-unit-meta).
+      [Signal Related Meta Information](#signal-related-meta-information). The device MAY further send
+	  [Unit Meta Information](#unit).
     - Once subscribed, the client MAY [unsubscribe](#unsubscribe-signal) signals at any time via command interface.
 
 3) End of Stream
@@ -88,7 +87,7 @@ There are three main components involved. A [transport layer](#transport-layer) 
 data send over the Stream socket by the device. [Command Interface(s)](#command-interfaces)
 allow to subscribe or unsubscribe signals to a streaming instance.
 
-# Transport Layer {#transport-layer}
+# Transport Layer
 
 The transport layer consists of a header and a variable length
 block of data. The structure of the header is depicted below.
@@ -123,14 +122,14 @@ Indicates the length in bytes of the data block that follows.
 If `Size` equals 0x00, the length of the following data block is
 determined by the (optional) `Data Byte Count` field.
 
-## Signal Number {#signal-number}
+## Signal Number
 
 The `Signal Number` field indicates to which signal the following data
 block belongs to. It MUST within a single device. Different
 devices MAY use the same signal numbers. The `Signal Number` is required
 to carry more than one single signal over a single socket connection.
 
-`0` is the `Signal Number` reserved for [Stream Related Meta Information](#stream-related-meta).
+`0` is the `Signal Number` reserved for [Stream Related Meta Information](#stream-related-meta-information).
 
 ## Data Byte Count
 
@@ -139,18 +138,18 @@ so, `Data Byte Count` represents the length in byte of the data block that
 follows. This 32 bit word is always transmitted in network byte order
 (big endian).
 
-# Presentation Layer {#presentation-layer}
+# Presentation Layer
 
-## Signal Data {#signal-data}
+## Signal Data
 
 The `Data` section contains signal data (measurement data acquired by the device) related to the
 respective `Signal_Number`. [Meta Information](#meta-information) MAY be necessary to interpret Signal Data.
 
-## Meta Information {#meta-information}
+## Meta Information
 
 The `Data` section contains additional ("Meta") information related to
 the respective `Signal_Number`. Some [Signal Related
-Metainformation](#signal-related-meta) is REQUIRED to correctly
+Metainformation](#signal-related-meta-information) is REQUIRED to correctly
 interpret the respective [Signal Data](#signal-data). Meta Information
 may also carry information about certain events which MAY happen on a
 device like changes of the output rate or time resynchronization.
@@ -172,15 +171,15 @@ encoded. This 32 bit word is always transmitted in network byte order
 ------------------------------------------------------------
 
 Meta information is always encoded in [JSON](http://www.ietf.org/rfc/rfc4627.txt). There are
-[Stream Related Meta Information](#stream-related-meta) and
-[Signal Related Meta Information](#signal-related-meta).
+[Stream Related Meta Information](#stream-related-meta-information) and
+[Signal Related Meta Information](#signal-related-meta-information).
 
-## Stream Related Meta Information {#stream-related-meta}
+## Stream Related Meta Information
 
 Stream related Meta information is always sent with [Signal Number](#signal-number) `= 0`
 on the transport layer.
 
-### API Version {#version-meta}
+### API Version
 
 ~~~~ {.javascript}
 {
@@ -192,12 +191,12 @@ on the transport layer.
 This Meta information is always sent directly after connecting to the
 stream socket.
 
-### Init Meta {#init-meta}
+### Init Meta
 
 The Init Meta information provides the Stream ID (required for
 [subscribing signals](#command-interfaces)) and a set of
-[optional features](#optional) supported by the device. 
-This Meta information MUST be send directly after the [Version Meta Information](#version-meta).
+[optional features](#optional-features-meta-information) supported by the device. 
+This Meta information MUST be send directly after the [Version Meta Information](#api-version).
 
 ~~~~ {.javascript}
 {
@@ -227,11 +226,11 @@ This Meta information MUST be send directly after the [Version Meta Information]
 
 "supported":
 
-:    An Object which holds all [optional features](#optional)
+:    An Object which holds all [optional features](#optional-features-meta-information)
      supported by the device. If no optional features are supported, this object MAY be empty.
      The "supported" field's keys always refer to the respective optional feature name. 
      E.g. the key "alive" refers to the
-     [Alive Meta Information](#alive-meta). The field's value MUST
+     [Alive Meta Information](#alive-meta-information). The field's value MUST
      comply to the respective Feature Value description.
 
 "commandInterfaces":
@@ -244,7 +243,7 @@ This Meta information MUST be send directly after the [Version Meta Information]
      describes the command interface in further detail.
 
 
-### Error {#error-meta}
+### Error
 
 ~~~~ {.javascript}
 {
@@ -273,7 +272,7 @@ This Meta information is always sent on errors.
 :    A Primitive or Structured value that contains additional information about the error. This may be omitted.
 
 
-### Available Meta Information {#available-meta}
+### Available Meta Information
 
 ~~~~ {.javascript}
 {
@@ -289,9 +288,9 @@ This Meta information is always sent on errors.
 
 The signal specified SHOULD be available to be [subscribed](#subscribe-signal).
 [Subscribing](#subscribe-signal) the signal id provided MAY fail, even if the 
-respective [Unavailable Meta information](#unavailable-meta) has not arrived yet.
+respective [Unavailable Meta information](#unavailable-meta-information) has not arrived yet.
 
-### Unavailable Meta Information {#unavailable-meta}
+### Unavailable Meta Information
 
 ~~~~ {.javascript}
 {
@@ -304,12 +303,12 @@ respective [Unavailable Meta information](#unavailable-meta) has not arrived yet
 
 :    An array of strings describing unique signal IDs.
 
-## Signal Related Meta Information {#signal-related-meta}
+## Signal Related Meta Information
 
 The signal specified SHOULD not be available to [subscribe](#subscribe-signal) before
-the next [Available Meta information](#available-meta) arrives.
+the next [Available Meta information](#available-meta-information) arrives.
 
-### Subscribe Meta Information {#subscribe-meta}
+### Subscribe Meta Information
 
 ~~~~ {.javascript}
 {
@@ -335,7 +334,7 @@ signal](#subscribe-signal) it SHOULD be send as soon as possible and MUST be sen
 before any other [Signal Data](#signal-data) or [Meta Information](#meta-information) 
 with the same `Signal_Number`.
 
-### Unsubscribe Meta Information {#unsubscribe-meta}
+### Unsubscribe Meta Information
 
 ~~~~ {.javascript}
 {
@@ -413,7 +412,7 @@ information is never send for asynchronous signals.
 For synchronous signals, the signal rate Meta information must be sent
 before the first measurement value is transmitted.
 
-### Data {#data-meta}
+### Data
 
 This Meta information describes how the [Signal Data](#signal-data) in
 the [Transport Layer](#transport-layer) must be interpreted.
@@ -467,9 +466,9 @@ the [Transport Layer](#transport-layer) must be interpreted.
 "timeStamp":
 :   Describes the format of a timestamp, if timestamps are delivered
     (only if "pattern" is either "TV" or "TB"). Please note the special
-	handling of [8 byte timestamps in "ntp" format](#ntp-time-object).
+	handling of [8 byte timestamps in "ntp" format](#ntp).
 
-### Unit {#signal-unit-meta}
+### Unit
 
 ~~~~ {.javascript}
 {
@@ -485,7 +484,7 @@ the [Transport Layer](#transport-layer) must be interpreted.
 :	A UTF-8 encoded string containing the unit describing the signal.
 
 
-### Time Objects {#time-objects}
+### Time Objects
 
 Some Meta information carries information about time. It follows a section that
 does not describe complete Meta information but
@@ -494,7 +493,7 @@ objects. The definition of other time objects in addition to NTP is encouraged.
 Time Objects MUST provide a key named `type` to allow reacting programatically
 to different Time Objects.
 
-#### NTP {#ntp-time-object}
+#### NTP
 
 The NTP timestamp format is specified as follows:
 
@@ -516,13 +515,13 @@ adheres to the "NTP Date Format" specified in [RFC
 Please note that it is allowed to truncate the 16 byte NTP timestamp to
 8 bytes. This truncation is necessary to keep the timestamp overhead
 under control especially if one timestamp per value is sent (pattern
-"TV"). The "timeStamp" sub-object of the [data meta object](#data-meta)
+"TV"). The "timeStamp" sub-object of the [data meta object](#data)
 typically specifies only 8 byte timestamps. 
 
 The 16 byte ntp timestamp is truncated to 8 bytes by omission of the era
 and subFraction field.
 
-# Command Interfaces {#command-interfaces}
+# Command Interfaces
 
 A command interface MUST provide means to subscribe and unsubscribe signals to
 a stream instance. To issue any stream related commands, the streamId is
@@ -616,7 +615,7 @@ Content-Length: 20
 * The same rules as for requests do apply here
 * Content equals the json rpc response to the request
 
-### Subscribe Signal {#subscribe-signal}
+### Subscribe Signal
 
 #### Request
 
@@ -635,8 +634,8 @@ Content-Length: 20
 
 Subscribes signal IDs to the stream specified int the method name.
 All signal ids subscribed successfully appear as a 
-[subscribe Meta information](#subscribe-meta) in the associated
-Stream. Even if the signal IDs provided are [available](#available-meta), this call MAY fail. 
+[subscribe Meta information](#subscribe-meta-information) in the associated
+Stream. Even if the signal IDs provided are [available](#available-meta-information), this call MAY fail. 
 
 #### Response
 
@@ -685,7 +684,7 @@ been subscribed:
 
 :    An array of strings of signal IDs for which the subscribe failed.
 
-### Unsubscribe Signal {#unsubscribe-signal}
+### Unsubscribe Signal
 
 #### Request
 
@@ -704,7 +703,7 @@ been subscribed:
 
 Unsubscribes signal IDs from the stream specified in the method name. All
 signal ids unsubscribed successfully appear as a [unsubscribe Meta
-information](#unsubscribe-meta) in the associated Stream. Params must be an
+information](#unsubscribe-meta-information) in the associated Stream. Params must be an
 array of strings.
 
 #### Response
@@ -753,7 +752,7 @@ been unsubscribed:
 
 :    An array of strings of signal IDs for which the unsubscribe failed.
 
-# Optional Features / Meta Information {#optional}
+# Optional Features / Meta Information
 
 All optional features supported by the device MUST be specified in the
 [Init Meta information`s](#init-meta) "supported" field with a value according to the 
@@ -839,7 +838,7 @@ MUST have a field named "time" with this value:
 true
 ~~~~
 
-## Alive Meta Information {#alive-meta}
+## Alive Meta Information
 
 Is send periodically to confirm the device`s stream infrastructure is still alive.
 
