@@ -51,7 +51,7 @@ number of the [JSON-RPC](http://www.jsonrpc.org/specification) service is
 determined from the Command Interfaces Objects in the [Init Meta
 Information](#init-meta). 
 
-# Workflow {#workflow}
+# Workflow
 
 1) Start of Stream
     - A client MAY connect to a known Stream address (IP and port (7411)). 
