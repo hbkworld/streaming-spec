@@ -419,7 +419,7 @@ the [Transport Layer](#transport-layer) must be interpreted.
     - "s64"; signed int 64 bit
     - "real32"; IEEE754 float single precision
     - "real64"; IEEE754 float double precision
-    - "CanRaw";
+    - "canRaw";
     
       ![The can raw data type format](images/CanRaw2.png)
 
