@@ -30,4 +30,5 @@
 2018-06-15  Matthias Loy  <matthias.loy@hbm.com>
 
 	* Added valueType CanRaw
+	* Change CanRaw to canRaw
 
