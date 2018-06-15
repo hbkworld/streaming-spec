@@ -1,0 +1,33 @@
+2013-02-05  Gerhard Preuss  <gerhard.preuss@hbm.com>
+	* add commandInterfaces field to Init Meta Information (replaces
+	former Command Meta)
+	* Some minor Meta Information fixes
+
+2013-01-30  Tim Sander  <tim.sander@hbm.com>
+	* change Meta Information to jsonrpc notification format
+
+2013-01-29  Gerhard Preuss  <gerhard.preuss@hbm.com>
+
+	* CamelCase all JSON field names
+	* JSON-RPC URI is fix
+	* Command Meta Information removed
+	* Init Meta Information with optional features added
+	* Remove "stream." prefix of JSON-RPC Methods
+	* "stream.list" command removed and semantically replaced with "Available" Meta Information
+	* "Principle of Operation" replaced with "Workflow" section
+	* "QuantumX Addendum" replaced with "Optional Features"
+	* Improvement of wording and phrases
+	* Improvement of internal links
+	* Restructured as markdown for pandoc
+
+2015-09-26  Matthias Loy  <matthias.loy@hbm.com>
+
+	* subscribe Meta Information does carry exactly one signal ID.
+	Otherwise it won't be possible to relate to the signal number.
+	* Added something about the command interface to the workflow section
+	* Add simple example for http post
+
+2018-06-15  Matthias Loy  <matthias.loy@hbm.com>
+
+	* Added valueType CanRaw
+
