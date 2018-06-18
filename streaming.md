@@ -419,6 +419,22 @@ the [Transport Layer](#transport-layer) must be interpreted.
     - "s64"; signed int 64 bit
     - "real32"; IEEE754 float single precision
     - "real64"; IEEE754 float double precision
+    - "canRaw";
+    
+      ![The can raw data type format](images/CanRaw2.png)
+
+	  "**Format (3bit)**":
+	  format of the can identifier (Bit 31 = 0: 11 bit, Bit 31 = 1: 29 Bit).
+
+	  "**CAN-Id (29bit)**":
+	  can identifier
+
+	  "**DLC (8bit)**":
+	  number of bytes in the data block
+
+	  "**Data**":
+	  data block of the can message
+	  
 
 
 `"timeStamp"`: Describes the format of a timestamp, if timestamps are delivered
