@@ -407,6 +407,10 @@ the [Transport Layer](#transport-layer) must be interpreted.
      - "TA"; Like "A" but for asynrchonous values.
      value of the following array data and an increment meta information with the $\delta x$ between to array values. No timestamps are send.
 
+Patterns A and TA describe one dimensional arrays. One dimensional arrays carry several values in another domain but time, like frequency.
+The array values are in this domain. Pattern V and TV may be seen as special cases where the array has one value only.
+
+
 
 `"endian"`: Describes the byte endianess of the [Signal Data](#signal-data) and timestamps, either
 
@@ -496,9 +500,6 @@ The 16 byte ntp timestamp is truncated to 8 bytes by omission of the era
 and subFraction field.
 
 #### One Dimensional Array Description
-
-Patterns A and TA describe one dimensional arrays. One dimensional arrays carry several values in another domain but time, like frequency.
-The values are äquidistant in the unit of domain. Pattern V and TV may be seen as special cases where the array has one value only.
 
 ~~~~ {.javascript}
 {
