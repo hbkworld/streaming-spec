@@ -495,17 +495,23 @@ typically specifies only 8 byte timestamps.
 The 16 byte ntp timestamp is truncated to 8 bytes by omission of the era
 and subFraction field.
 
-#### First $x$ Coordinate
+#### Next Absolute $x$ Coordinate
 
-$x$ of the next value in the following one dimensional array data.
+Absolute $x$ coordinate of the next value in the following one dimensional array data.
+
+~~~~ {.javascript}
+{
+  "xAbsolute": < coordinate >
+}
+~~~~
 
 #### One Dimensional Array Description
 
 ~~~~ {.javascript}
 {
-  "increment": < delta x>,
-  "start": < start coordinate x>
-  "end": < end coordinate x>
+  "xIncrement": < delta x>,
+  "xStart": < start coordinate x>
+  "xEnd": < end coordinate x>
 }
 ~~~~
 
