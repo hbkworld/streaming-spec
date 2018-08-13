@@ -407,7 +407,7 @@ the [Transport Layer](#transport-layer) must be interpreted.
      - "TA"; Like "A" but for asynrchonous values.
      value of the following array data and an increment meta information with the $\delta x$ between to array values. No timestamps are send.
 
-Patterns A and TA describe one dimensional arrays. One dimensional arrays carry several values in another domain but time, like frequency.
+Patterns A and TA describe one dimensional arrays. One dimensional arrays carry several values in another dimension (domain) but time, like frequency.
 The array values are in this domain. Pattern V and TV may be seen as special cases where the array has one value only.
 
 
