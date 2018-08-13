@@ -495,6 +495,19 @@ typically specifies only 8 byte timestamps.
 The 16 byte ntp timestamp is truncated to 8 bytes by omission of the era
 and subFraction field.
 
+#### One Dimensional Array Description
+
+One dimensional array carry several values in another domain but time, like frequency.
+The values are äquidistant in the unit of domain.
+
+~~~~ {.javascript}
+{
+  "xIncrement": < delta x>,
+  "xStart": < start coordinate x>
+  "xEnd": < end coordinate x>
+}
+~~~~
+
 #### Next Absolute $x$ Coordinate
 
 Absolute $x$ coordinate of the next value in the following one dimensional array data.
@@ -505,20 +518,9 @@ Absolute $x$ coordinate of the next value in the following one dimensional array
 }
 ~~~~
 
-#### One Dimensional Array Description
-
-~~~~ {.javascript}
-{
-  "xIncrement": < delta x>,
-  "xStart": < start coordinate x>
-  "xEnd": < end coordinate x>
-}
-~~~~
-
-
-- increment: $\delta x$ between two values of the following one dimensional array
-- start: first $x$ coordinate
-- end: last $x$ coordinate
+- increment: $\delta x$ between two values of the one dimensional array
+- start: first $x$ coordinate of the array
+- end: last $x$ coordinate of the array
 
 ## Command Interfaces
 
