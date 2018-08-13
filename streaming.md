@@ -403,8 +403,8 @@ the [Transport Layer](#transport-layer) must be interpreted.
      - "V"; No timestamps, values only. This pattern is used only for synchronous values.
      - "TV"; One timestamp per value, first comes the timestamp, then the value. This pattern is used for asynrchonous values.
      - "TB"; One timestamp per signal block. The timestamp corresponds to the first sample in the signal block.
-     - "A"; One dimensional array of values $y_0 - y_n$. Before sending such data, The meta information with the $x$ coordinate of the first 
-     value of the following array data and an increment meta information with the $\delta x$ between to array values. No timesatmps are send.
+     - "A"; One dimensional array of values $y_0, y_1.. y_n$. Before sending such data, The meta information with the $x$ coordinate of the first 
+     value of the following array data and an increment meta information with the $\delta x$ between to array values. No timestamps are send.
 
 
 `"endian"`: Describes the byte endianess of the [Signal Data](#signal-data) and timestamps, either
