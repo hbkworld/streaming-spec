@@ -497,8 +497,8 @@ and subFraction field.
 
 #### One Dimensional Array Description
 
-One dimensional array carry several values in another domain but time, like frequency.
-The values are äquidistant in the unit of domain.
+Patterns A and TA describe one dimensional arrays. One dimensional arrays carry several values in another domain but time, like frequency.
+The values are äquidistant in the unit of domain. Pattern V and TV may be seen as special cases where the array has one value only.
 
 ~~~~ {.javascript}
 {
