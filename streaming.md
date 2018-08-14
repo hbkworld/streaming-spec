@@ -504,7 +504,8 @@ and subFraction field.
 ~~~~ {.javascript}
 {
   "xIncrement": < delta x>,
-  "xStart": < start coordinate x>
+  "xUnit": < unit of dimension x >,
+  "xStart": < start coordinate x>,
   "xEnd": < end coordinate x>
 }
 ~~~~
