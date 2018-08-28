@@ -448,6 +448,18 @@ The array values are in this domain. Pattern V and TV may be seen as special cas
     (only if "pattern" is either "TV" or "TB"). Please note the special
 	handling of [8 byte timestamps in "ntp" format](#ntp).
 
+#### Addtitional Signal Data
+
+Signals might deliver any kind of additional data.
+
+Each kind of additional data has an identification and, as the signal, 
+properties like pattern and format.
+
+##### Local Maxima
+
+An array of key value pairs. A pair contains a local peak value and the corresponding 
+x coordinate.
+
 #### Unit
 
 ~~~~ {.javascript}
