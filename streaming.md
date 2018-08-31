@@ -457,8 +457,10 @@ properties like pattern and format.
 
 ##### Local Maxima
 
-An array of key value pairs. A pair contains a local peak value and the corresponding 
-x coordinate.
+An array of key value pairs of local maxima detected within an one dimensional array.
+A pair contains a local maximum value and the corresponding 
+x coordinate. The number of pairs delivered is not fix. The device detects 
+local maxima dpending on the acquired signal data array.
 
 #### Unit
 
