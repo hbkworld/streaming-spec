@@ -526,7 +526,7 @@ and subFraction field.
 
 #### Next Absolute $x$ Coordinate
 
-Absolute $x$ coordinate of the next value in the following one dimensional array data.
+Absolute $x$ coordinate of the first value in the following one dimensional array.
 
 ~~~~ {.javascript}
 {
