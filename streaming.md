@@ -403,12 +403,12 @@ the [Transport Layer](#transport-layer) must be interpreted.
      - "V"; No timestamps, values only. This pattern is used only for synchronous values.
      - "TV"; One timestamp per value, first comes the timestamp, then the value. This pattern is used for asynrchonous values.
      - "TB"; One timestamp per signal block. The timestamp corresponds to the first sample in the signal block.
-     - "A"; One dimensional array of values $y_0, y_1.. y_n$. Before sending such data, The meta information with the $x$ coordinate of the first. This pattern is used only for synchronous values.
-     - "TA"; Like "A" but for asynrchonous values.
+     - "XA"; First $x$ coordinate $x_0$ followed by one dimensional array of values $y_0, y_1.. y_n$. 
+     - "TXA"; Like "XA" but with time stamp.
      value of the following array data and an increment meta information with the $\delta x$ between to array values. No timestamps are send.
 
-Patterns A and TA describe one dimensional arrays. One dimensional arrays carry several values in another dimension (domain) but time, like frequency.
-The array values are in this domain. Pattern V and TV may be seen as special cases where the array has one value only.
+Patterns XA and TXA describe one dimensional arrays. One dimensional arrays carry several values in another dimension (domain) but time, like frequency.
+The array values are in this domain. Before sending data of such a pattern, the [One Dimensional Array Description](#One-Dimensional-Array-Description) has to be send once.
 
 
 
@@ -507,16 +507,6 @@ and subFraction field.
   "xUnit": < unit of dimension x >,
   "xStart": < start coordinate x>,
   "xEnd": < end coordinate x>
-}
-~~~~
-
-#### Next Absolute $x$ Coordinate
-
-Absolute $x$ coordinate of the next value in the following one dimensional array data.
-
-~~~~ {.javascript}
-{
-  "xAbsolute": < coordinate >
 }
 ~~~~
 
