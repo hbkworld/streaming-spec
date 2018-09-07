@@ -404,12 +404,9 @@ the [Transport Layer](#transport-layer) must be interpreted.
      - "TV"; One timestamp per value, first comes the timestamp, then the value. This pattern is used for asynrchonous values.
      - "TB"; One timestamp per signal block. The timestamp corresponds to the first sample in the signal block.
      - "XA"; First $x$ coordinate $x_0$ followed by one dimensional array of values $y_0, y_1.. y_n$. 
-     - "TXA"; Like "XA" but with time stamp.
-     value of the following array data and an increment meta information with the $\delta x$ between to array values. No timestamps are send.
-
-Patterns XA and TXA describe one dimensional arrays. One dimensional arrays carry several values in another dimension (domain) but time, like frequency.
-The array values are in this domain. Before sending data of such a pattern, the [One Dimensional Array Description](#One-Dimensional-Array-Description) has to be send once.
-
+     - "TXA"; Like "XA" with time stamp.
+     - "AP"; array of points
+     - "TAP"; Like "AP" with time stamp.
 
 
 `"endian"`: Describes the byte endianess of the [Signal Data](#signal-data) and timestamps, either
@@ -501,18 +498,35 @@ and subFraction field.
 
 #### One Dimensional Array Description
 
+Patterns XA and TXA describe one dimensional arrays. One dimensional arrays carry several values in another dimension (domain) but time, like frequency.
+The array values are in this domain. Before sending data of such a pattern, the [One Dimensional Array Description](#One-Dimensional-Array-Description) has to be send once.
+
 ~~~~ {.javascript}
 {
   "xIncrement": < delta x>,
   "xUnit": < unit of dimension x >,
-  "xStart": < start coordinate x>,
-  "xEnd": < end coordinate x>
+  "xStart": < start coordinate x>, // optional
+  "xEnd": < end coordinate x> // optional
 }
 ~~~~
 
-- increment: $\delta x$ between two values of the one dimensional array
-- start: first $x$ coordinate of the array
-- end: last $x$ coordinate of the array
+- xIncrement: $\delta x$ between two values of the one dimensional array
+- xStart: optional start of $x$ coordinate of the array
+- xEnd: optional last $x$ coordinate of the array
+
+#### Array of Points Description
+
+Patterns TA and TAP describe a multi dimensional array, array of points.
+
+~~~~ {.javascript}
+{
+  "dimensions": < 2..n >
+  "units": [ < unit of dimension 1st > , < unit of dimension 2nd >, ..],
+}
+~~~~
+
+- dimensions: Has to be 2 or greater for dimension 1 use the one dimensional array
+- units: Array of units, one for each dimension
 
 ## Command Interfaces
 
