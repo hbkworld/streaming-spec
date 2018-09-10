@@ -503,16 +503,20 @@ The array values are in this domain. Before sending data of such a pattern, the 
 
 ~~~~ {.javascript}
 {
-  "xIncrement": < delta x>,
+  "count": < number of values >,
   "xUnit": < unit of dimension x >,
-  "xStart": < start coordinate x>, // optional
-  "xEnd": < end coordinate x> // optional
+  "xStart": < start coordinate x>,
+  "xEnd": < end coordinate x>
+  "xValueType" : < data type of the x coordinate >
+  "yValueType" : < data type of the y coordinate >
 }
 ~~~~
 
-- xIncrement: $\delta x$ between two values of the one dimensional array
-- xStart: optional start of $x$ coordinate of the array
-- xEnd: optional last $x$ coordinate of the array
+- count: Number of values in the one dimensional array
+- xStart: Start of $x$ coordinate of the array
+- xEnd: Last $x$ coordinate of the array
+- xValueType: Data type of x coordinate
+- yValueType: Data type of x coordinate
 
 #### Array of Points Description
 
@@ -521,12 +525,14 @@ Patterns TA and TAP describe a multi dimensional array, array of points.
 ~~~~ {.javascript}
 {
   "dimensions": < 2..n >
-  "units": [ < unit of dimension 1st > , < unit of dimension 2nd >, ..],
+  "units": [ < unit of 1st dimension > , < unit of 2nd dimension >, ..],
+  "valueTypes" : [ < data type of of 1st dimension, data type of of 2nd dimension > ]
 }
 ~~~~
 
 - dimensions: Has to be 2 or greater for dimension 1 use the one dimensional array
 - units: Array of units, one for each dimension
+- valueTypes: Array with the data type of all dimensions
 
 ## Command Interfaces
 
