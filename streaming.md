@@ -851,11 +851,11 @@ MUST have a field named "alive" with this value:
 The `number` specifies the period of time (in seconds) to elapse without
 receiving an Alive Meta information before the device SHOULD be considered "lost".
 
-### Fill Meta Information
+### Ringbuffer Fill Level
 
 Is send at will. The value of `fill` is a number
 between 0 and 100 which indicates the stream`s associated data buffer
-fill. A fill value of 0 means the buffer is empty. A fill value of 100
+fill level. A fill value of 0 means the buffer is empty. A fill value of 100
 means the buffer is full and the associated stream (and the associated
 socket) will be closed as soon as all previously acquired data has been
 send. This meta information is for monitoring purposes only and it is
