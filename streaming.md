@@ -425,7 +425,7 @@ the [Transport Layer](#transport-layer) must be interpreted.
     - "real64"; IEEE754 float double precision
     - "canRaw";
     
-      ![The can raw data type format](images/CanRaw2.png)
+![The can raw data type format](images/CanRaw2.png)
 
 	  "**Format (3bit)**":
 	  format of the can identifier (Bit 31 = 0: 11 bit, Bit 31 = 1: 29 Bit).
@@ -504,18 +504,18 @@ The array values are in this domain. Before sending data of such a pattern, the 
 ~~~~ {.javascript}
 {
   "count": < number of values >,
-  "xUnit": < unit of dimension x >,
+  "xValueType" : < data type of the x coordinate >
   "xStart": < start coordinate x>,
   "xEnd": < end coordinate x>
-  "xValueType" : < data type of the x coordinate >
+  "xUnit": < unit of dimension x >,
   "yValueType" : < data type of the y coordinate >
 }
 ~~~~
 
 - count: Number of values in the one dimensional array
+- xValueType: Data type of x coordinate
 - xStart: Start of $x$ coordinate of the array
 - xEnd: Last $x$ coordinate of the array
-- xValueType: Data type of x coordinate
 - yValueType: Data type of x coordinate
 
 #### Array of Points Description
