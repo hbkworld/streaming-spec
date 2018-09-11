@@ -388,7 +388,7 @@ the [Transport Layer](#transport-layer) must be interpreted.
     "pattern": <string>,
     "endian": <string>,
     "valueType": <string>,
-    "timeStamp": { //only emitted if pattern is either "TV" or "TB"
+    "timeStamp": { // only emitted for patterns with time stamp
       "type": <string>,
       "size": <number> // timestamp size in byte
     }
@@ -499,40 +499,37 @@ and subFraction field.
 #### One Dimensional Array Description
 
 Patterns XA and TXA describe one dimensional arrays. One dimensional arrays carry several values in another dimension (domain) but time, like frequency.
-The array values are in this domain. Before sending data of such a pattern, the [One Dimensional Array Description](#One-Dimensional-Array-Description) has to be send once.
+The array values are in this domain. Before sending data of such a pattern, 
+the [One Dimensional Array Description](#One-Dimensional-Array-Description) has to be send once.
+Both dimensions have the `valueType` described in the `data` meta inforation.
 
 ~~~~ {.javascript}
 {
   "count": < number of values >,
-  "xValueType" : < data type of the x coordinate >
   "xStart": < start coordinate x>,
   "xEnd": < end coordinate x>
   "xUnit": < unit of dimension x >,
-  "yValueType" : < data type of the y coordinate >
 }
 ~~~~
 
 - count: Number of values in the one dimensional array
-- xValueType: Data type of x coordinate
 - xStart: Start of $x$ coordinate of the array
 - xEnd: Last $x$ coordinate of the array
-- yValueType: Data type of x coordinate
 
 #### Array of Points Description
 
 Patterns TA and TAP describe a multi dimensional array, array of points.
+All dimensions have the `valueType` described in the `data` meta inforation.
 
 ~~~~ {.javascript}
 {
   "dimensions": < 2..n >
   "units": [ < unit of 1st dimension > , < unit of 2nd dimension >, ..],
-  "valueTypes" : [ < data type of of 1st dimension, data type of of 2nd dimension > ]
 }
 ~~~~
 
 - dimensions: Has to be 2 or greater for dimension 1 use the one dimensional array
 - units: Array of units, one for each dimension
-- valueTypes: Array with the data type of all dimensions
 
 ## Command Interfaces
 
