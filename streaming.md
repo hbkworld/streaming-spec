@@ -403,11 +403,14 @@ the [Transport Layer](#transport-layer) must be interpreted.
      - "V"; No timestamps, values only. This pattern is used only for synchronous values.
      - "TV"; One timestamp per value, first comes the timestamp, then the value. This pattern is used for asynrchonous values.
      - "TB"; One timestamp per signal block. The timestamp corresponds to the first sample in the signal block.
-     - "XA"; First $x$ coordinate $x_0$ followed by one dimensional array of values $y_0, y_1.. y_n$. 
+     - "XA"; First $x$ coordinate $x_0$ followed by one dimensional array of values $y_0, y_1.. y_n$. One dimensional arrays carry several values in another dimension (domain) but time, like frequency.
+Before sending data of such a pattern, the [One Dimensional Array Description](#One-Dimensional-Array-Description) has to be send once.
+Both dimensions have the `valueType` described in the `data` meta inforation.
      - "TXA"; Like "XA" with time stamp.
-     - "AP"; array of points
+     - "AP"; Multidimensional array or array of points. All dimensions have the `valueType` described in the `data` meta inforation.
      - "TAP"; Like "AP" with time stamp.
 
+`patternDetails`: Depends on the pattern
 
 `"endian"`: Describes the byte endianess of the [Signal Data](#signal-data) and timestamps, either
 
@@ -444,8 +447,42 @@ the [Transport Layer](#transport-layer) must be interpreted.
 `"timeStamp"`: Describes the format of a timestamp, if timestamps are delivered
     (only if "pattern" is either "TV" or "TB"). Please note the special
 	handling of [8 byte timestamps in "ntp" format](#ntp).
+	
+#### Pattern Details
+
+##### One Dimensional Array
+
+~~~~ {.javascript}
+{
+  "method": "patternDetails",
+  "params" : {
+    "count": < number of values >,
+    "xStart": < start coordinate x>,
+    "xEnd": < end coordinate x>
+  }
+}
+~~~~
+
+- count: Number of values in the one dimensional array
+- xStart: Start of $x$ coordinate of the array
+- xEnd: Last $x$ coordinate of the array
+
+##### Multidimensional Array
+
+~~~~ {.javascript}
+{
+  "method": "patternDetails",
+  "params" : {
+    "dimensions": < 2..n >
+  }
+}
+~~~~
+
+- dimensions: Has to be 2 or greater for dimension 1 use the one dimensional array
 
 #### Unit
+
+Relevant for one dimensional patterns only.
 
 ~~~~ {.javascript}
 {
@@ -457,6 +494,22 @@ the [Transport Layer](#transport-layer) must be interpreted.
 ~~~~
 
 `"unit"`: A UTF-8 encoded string containing the unit describing the signal.
+
+#### Units
+
+Relevant for patterns with more than one dimension.
+
+
+~~~~ {.javascript}
+{
+  "method": "unit",
+  "params": {
+    "units": [ <string>, <string>, .. ]
+  }
+}
+~~~~
+
+`"units"`: Array of UTF-8 encoded strings containing the units describing all dimensions of the signal.
 
 
 #### Time Objects
@@ -496,40 +549,6 @@ typically specifies only 8 byte timestamps.
 The 16 byte ntp timestamp is truncated to 8 bytes by omission of the era
 and subFraction field.
 
-#### One Dimensional Array Description
-
-Patterns XA and TXA describe one dimensional arrays. One dimensional arrays carry several values in another dimension (domain) but time, like frequency.
-The array values are in this domain. Before sending data of such a pattern, 
-the [One Dimensional Array Description](#One-Dimensional-Array-Description) has to be send once.
-Both dimensions have the `valueType` described in the `data` meta inforation.
-
-~~~~ {.javascript}
-{
-  "count": < number of values >,
-  "xStart": < start coordinate x>,
-  "xEnd": < end coordinate x>
-  "xUnit": < unit of dimension x >,
-}
-~~~~
-
-- count: Number of values in the one dimensional array
-- xStart: Start of $x$ coordinate of the array
-- xEnd: Last $x$ coordinate of the array
-
-#### Array of Points Description
-
-Patterns TA and TAP describe a multi dimensional array, array of points.
-All dimensions have the `valueType` described in the `data` meta inforation.
-
-~~~~ {.javascript}
-{
-  "dimensions": < 2..n >
-  "units": [ < unit of 1st dimension > , < unit of 2nd dimension >, ..],
-}
-~~~~
-
-- dimensions: Has to be 2 or greater for dimension 1 use the one dimensional array
-- units: Array of units, one for each dimension
 
 ## Command Interfaces
 
