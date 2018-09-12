@@ -398,35 +398,36 @@ the [Transport Layer](#transport-layer) must be interpreted.
 }
 ~~~~
 
-`"pattern"`: Describes the data pattern of [Signal Data](#signal-data), either
 
-     - "V"; No timestamps, values only. This pattern is used only for synchronous values.
-     - "TV"; One timestamp per value, first comes the timestamp, then the value. This pattern is used for asynrchonous values.
-     - "TB"; One timestamp per signal block. The timestamp corresponds to the first sample in the signal block.
-     - "XA"; First $x$ coordinate $x_0$ followed by one dimensional array of values $y_0, y_1.. y_n$. One dimensional arrays carry several values in another dimension (domain) but time, like frequency.
-Before sending data of such a pattern, the [One Dimensional Array Description](#One-Dimensional-Array-Description) has to be send once.
-Both dimensions have the `valueType` described in the `data` meta inforation.
-     - "TXA"; Like "XA" with time stamp.
-     - "AP"; Multidimensional array or array of points. All dimensions have the `valueType` described in the `data` meta inforation.
-     - "TAP"; Like "AP" with time stamp.
+-`"pattern"`: Describes the data pattern of [Signal Data](#signal-data), either
 
-`patternDetails`: Depends on the pattern
+  - "V"; No timestamps, values only. This pattern is used only for synchronous values.
+  - "TV"; One timestamp per value, first comes the timestamp, then the value. This pattern is used for asynrchonous values.
+  - "TB"; One timestamp per signal block. The timestamp corresponds to the first sample in the signal block.
+  - "XA"; First $x$ coordinate $x_0$ followed by one dimensional array of values $y_0, y_1.. y_n$. 
+  One dimensional arrays carry several values in another dimension (domain) but time, like frequency. 
+  Before sending any data the `patternDetails` meta information has to be send once. 
+  Both dimensions have the `valueType` described in the `data` meta inforation.
+  - "TXA"; Like "XA" with time stamp.
+  - "AP"; Multidimensional array or array of points. Before sending any data the `patternDetails` meta information has to be send once.
+  All dimensions have the `valueType` described in the `data` meta inforation.
+  - "TAP"; Like "AP" with time stamp.
 
-`"endian"`: Describes the byte endianess of the [Signal Data](#signal-data) and timestamps, either
+-`"endian"`: Describes the byte endianess of the [Signal Data](#signal-data) and timestamps, either
 
-    - "big"; Big endian byte order (network byte order).
-    - "little"   Little endian byte order.
+  - "big"; Big endian byte order (network byte order).
+  - "little"; Little endian byte order.
 
 
-`"valueType"`: Describes the data type of the [Signal Data](#signal-data), either
+-`"valueType"`: Describes the data type of the [Signal Data](#signal-data), either
 
-    - "u32"; unsigned int 32 bit
-    - "s32"; signed int 32 bit
-    - "u64"; unsigned int 64 bit
-    - "s64"; signed int 64 bit
-    - "real32"; IEEE754 float single precision
-    - "real64"; IEEE754 float double precision
-    - "canRaw";
+  - "u32"; unsigned int 32 bit
+  - "s32"; signed int 32 bit
+  - "u64"; unsigned int 64 bit
+  - "s64"; signed int 64 bit
+  - "real32"; IEEE754 float single precision
+  - "real64"; IEEE754 float double precision
+  - "canRaw";
     
 ![The can raw data type format](images/CanRaw2.png)
 
@@ -444,9 +445,9 @@ Both dimensions have the `valueType` described in the `data` meta inforation.
 	  
 
 
-`"timeStamp"`: Describes the format of a timestamp, if timestamps are delivered
-    (only if "pattern" is either "TV" or "TB"). Please note the special
-	handling of [8 byte timestamps in "ntp" format](#ntp).
+-`"timeStamp"`: Describes the format of a timestamp, if timestamps are delivered
+ (only if "pattern" is either "TV" or "TB"). Please note the special
+ handling of [8 byte timestamps in "ntp" format](#ntp).
 	
 #### Pattern Details
 
