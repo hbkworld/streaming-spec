@@ -454,9 +454,9 @@ the [Transport Layer](#transport-layer) must be interpreted.
 {
   "method": "patternDetails",
   "params" : {
-    "count": < number of values >,
-    "xStart": < start coordinate x>,
-    "xEnd": < end coordinate x>
+    "count": <number>,
+    "xStart": <number>,
+    "xEnd": <number>
   }
 }
 ~~~~
@@ -471,7 +471,7 @@ the [Transport Layer](#transport-layer) must be interpreted.
 {
   "method": "patternDetails",
   "params" : {
-    "dimensions": < 2..n >
+    "dimensions": <number>
   }
 }
 ~~~~
