@@ -480,6 +480,7 @@ the [Transport Layer](#transport-layer) must be interpreted.
 
 #### Unit
 
+This meta information is Deprecated! Plase use `Units` instead.
 Relevant for one dimensional patterns only.
 
 ~~~~ {.javascript}
