@@ -454,16 +454,12 @@ the [Transport Layer](#transport-layer) must be interpreted.
 {
   "method": "patternDetails",
   "params" : {
-    "count": <number>,
-    "xStart": <number>,
-    "xEnd": <number>
+    "xDelta": <number>,
   }
 }
 ~~~~
 
-- count: Number of values in the one dimensional array
-- xStart: Start of $x$ coordinate of the array
-- xEnd: Last $x$ coordinate of the array
+- xDelta: Increment of $x$ coordinate between each array value
 
 ##### Multidimensional Array
 
