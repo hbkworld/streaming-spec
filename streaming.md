@@ -404,11 +404,7 @@ the [Transport Layer](#transport-layer) must be interpreted.
   - "V"; No timestamps, values only. This pattern is used only for synchronous values.
   - "TV"; One timestamp per value, first comes the timestamp, then the value. This pattern is used for asynrchonous values.
   - "TB"; One timestamp per signal block. The timestamp corresponds to the first sample in the signal block.
-  - "TXAV"; Timestamp, First $x$ coordinate $x_0$ followed by one dimensional array of values $y_0, y_1.. y_n$. 
-  One dimensional arrays carry several values in another dimension (domain) but time, like frequency. 
-  Before sending any data the `patternDetails` meta information has to be send once. 
-  Both dimensions have the `valueType` described in the `data` meta inforation.
-  - "TAP"; Timesatmp, Multidimensional array or array of points. Before sending any data the `patternDetails` meta information has to be send once.
+  - "TAP"; Timestamp and array of points. Before sending any data the `patternDetails` meta information has to be send once to allow interpretation of data.
 
 -`"endian"`: Describes the byte endianess of the [Signal Data](#signal-data) and timestamps, either
 
@@ -448,36 +444,58 @@ the [Transport Layer](#transport-layer) must be interpreted.
 	
 #### Pattern Details
 
-##### One Dimensional Array
+##### Array of Points
+
+Points have at least 2 dimensions. The coordinates of each dimension might be equidistant are not.
+
+![Non equidistant 2 dimensional points](images/non_equidistant_points.png)
+
+For non equidistant dimensions, each point has a absolute coordinate for this dimension
+
+![Equidistant 2 dimensional points](images/equidistant_points.png)
+
+For equidistant dimensions, points are described by an absolute start 
+value for the dimension of the first point and a relative delta in this 
+dimension between the following points.
+
+
+
 
 ~~~~ {.javascript}
 {
   "method": "patternDetails",
   "params" : {
-    "xDelta": <number>,
+    "dimensions": [
+      "unit": <string>,
+      "delta": <number>,
+      "minRange" : <number>,
+      "maxRange" : <number>
+      ]
   }
 }
 ~~~~
+- dimensions: An array of objects each desribing a dimension
+- unit: Unit of the dimension
+- delta: If this parameter does exist, the coordinates of this dimension 
+  are equidistant. In this case, each value block will have a start 
+  coordinate for this dimension of the first data point for this dimension
+  and there will be no values for this coordinate.
+  If this parameter is missing for a dimension, value blocks won't have
+  a start value for this dimension but a value for each point.
+- minRange: Optional parameter
+- maxRange: Optional parameter
 
-- xDelta: Increment of $x$ coordinate between each array value
+After the pattern details were send, data block are to be interpreted as follows:
 
-##### Multidimensional Array
+- Each data block begins with a time stamp
+- The number of points in this block
+- Next comes an absolute start value for each dimension with equidistant values.
+- Finally tuples with coordinates of all non-equidistant dimensions.
 
-~~~~ {.javascript}
-{
-  "method": "patternDetails",
-  "params" : {
-    "dimensions": <number>
-  }
-}
-~~~~
-
-- dimensions: Has to be 2 or greater for dimension 1 use the one dimensional array
 
 #### Unit
 
-This meta information is Deprecated! Plase use `Units` instead.
-Relevant for one dimensional patterns only.
+This meta information available for the patterns  `V`, `TV` and `TB` only.
 
 ~~~~ {.javascript}
 {
@@ -489,22 +507,6 @@ Relevant for one dimensional patterns only.
 ~~~~
 
 `"unit"`: A UTF-8 encoded string containing the unit describing the signal.
-
-#### Units
-
-Relevant for patterns with more than one dimension.
-
-
-~~~~ {.javascript}
-{
-  "method": "unit",
-  "params": {
-    "units": [ <string>, <string>, .. ]
-  }
-}
-~~~~
-
-`"units"`: Array of UTF-8 encoded strings containing the units describing all dimensions of the signal.
 
 
 #### Time Objects
