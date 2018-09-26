@@ -404,7 +404,7 @@ the [Transport Layer](#transport-layer) must be interpreted.
   - "V"; No timestamps, values only. This pattern is used only for synchronous values.
   - "TV"; One timestamp per value, first comes the timestamp, then the value. This pattern is used for asynrchonous values.
   - "TB"; One timestamp per signal block. The timestamp corresponds to the first sample in the signal block.
-  - "TXAV"; Timestamp, First $x$ coordinate $x_0$ followed by one dimensional array of values $y_0, y_1.. y_n$. 
+  - "TXAV"; Timestamp, First absolute $x$ coordinate $x_0$ followed by one dimensional array of values $y_0, y_1.. y_n$. 
   One dimensional arrays carry several values in another dimension (domain) but time, like frequency. 
   Before sending any data the `patternDetails` meta information has to be send once. 
   Both dimensions have the `valueType` described in the `data` meta inforation.
@@ -448,36 +448,52 @@ the [Transport Layer](#transport-layer) must be interpreted.
 	
 #### Pattern Details
 
-##### One Dimensional Array
+##### Equidistant two dimensional Array
+
+![Equidistant 2 dimensional points](images/equidistant_points.png)
+
+Points are described by an absolute start value for the $x$ coordinate of the first point and a relative delta for the $x$ coordinate between the following points.
+
 
 ~~~~ {.javascript}
 {
   "method": "patternDetails",
   "params" : {
     "xDelta": <number>,
+    "xUnit": <string>,
+    "minRange" : <number>,
+    "maxRange" : <number>
   }
 }
 ~~~~
 
 - xDelta: Increment of $x$ coordinate between each array value
+- xUnit: Unit of the $x$ coordinate
+- minRange: Optional parameter
+- maxRange: Optional parameter
 
 ##### Multidimensional Array
+
+![Non equidistant 2 dimensional points](images/non_equidistant_points.png)
+
+Each point has a absolute coordinate for this dimension
 
 ~~~~ {.javascript}
 {
   "method": "patternDetails",
   "params" : {
-    "dimensions": <number>
+    "dimensions": <number>,
+    "units": [ <string> ]
   }
 }
 ~~~~
 
-- dimensions: Has to be 2 or greater for dimension 1 use the one dimensional array
+- dimensions: Has to be 2 or greater
+- units: Array with a unit for each dimension
 
 #### Unit
 
-This meta information is Deprecated! Plase use `Units` instead.
-Relevant for one dimensional patterns only.
+This meta information available for the patterns  `V`, `TV`, `TB` and TXAV.
 
 ~~~~ {.javascript}
 {
@@ -490,21 +506,6 @@ Relevant for one dimensional patterns only.
 
 `"unit"`: A UTF-8 encoded string containing the unit describing the signal.
 
-#### Units
-
-Relevant for patterns with more than one dimension.
-
-
-~~~~ {.javascript}
-{
-  "method": "unit",
-  "params": {
-    "units": [ <string>, <string>, .. ]
-  }
-}
-~~~~
-
-`"units"`: Array of UTF-8 encoded strings containing the units describing all dimensions of the signal.
 
 
 #### Time Objects
