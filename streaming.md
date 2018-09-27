@@ -404,12 +404,12 @@ the [Transport Layer](#transport-layer) must be interpreted.
   - "V"; No timestamps, values only. This pattern is used only for synchronous values.
   - "TV"; One timestamp per value, first comes the timestamp, then the value. This pattern is used for asynrchonous values.
   - "TB"; One timestamp per signal block. The timestamp corresponds to the first sample in the signal block.
-  - "TXAV"; Timestamp, First absolute $x$ coordinate $x_0$ followed by one dimensional array of values $y_0, y_1.. y_n$. 
-  One dimensional arrays carry several values in another dimension (domain) but time, like frequency. 
+  - "TXAV"; Timestamp, First absolute $x$ coordinate $x_0$ followed by 
+  an array of values $y_0, y_1.. y_n$ equidistant in dimension $x$.   
   Before sending any data the `patternDetails` meta information has to be send once. 
-  Both dimensions have the `valueType` described in the `data` meta inforation.
-  - "TAP"; Timesatmp, Multidimensional array or array of points. Before sending any data the `patternDetails` meta information has to be send once.
-
+  - "TAP"; Timestamp, array of points.
+  Before sending any data the `patternDetails` meta information has to be send once.
+  
 -`"endian"`: Describes the byte endianess of the [Signal Data](#signal-data) and timestamps, either
 
   - "big"; Big endian byte order (network byte order).
@@ -450,10 +450,12 @@ the [Transport Layer](#transport-layer) must be interpreted.
 
 ##### Equidistant two dimensional Array
 
+Equidistant two dimensional arrays carry several values in another dimension (domain) $x$ but time, like frequency. 
+
 ![Equidistant 2 dimensional points](images/equidistant_points.png)
 
-Points are described by an absolute start value for the $x$ coordinate of the first point and a relative delta for the $x$ coordinate between the following points.
-
+Points are described by an absolute start value $x_0$ for the $x$ coordinate of the first point and a relative $delta$ for the $x$ coordinate between two points.
+Both dimensions have the same `valueType` as described in the `data` meta inforation.
 
 ~~~~ {.javascript}
 {
@@ -472,28 +474,38 @@ Points are described by an absolute start value for the $x$ coordinate of the fi
 - xMin: Optional parameter
 - xMax: Optional parameter
 
-##### Multidimensional Array
+##### Array of Points
 
 ![Non equidistant 2 dimensional points](images/non_equidistant_points.png)
 
-Each point has a absolute coordinate for this dimension
+Each point has an absolute coordinate for each dimension
+All dimensions have the same `valueType` as described in the `data` meta inforation.
 
 ~~~~ {.javascript}
 {
   "method": "patternDetails",
   "params" : {
-    "dimensions": <number>,
-    "units": [ <string> ]
+    "dimensions": [
+      {
+        "unit": <string>,
+        "min" : <number>,
+        "max" : <number>        
+      }
+    ]
   }
 }
 ~~~~
 
-- dimensions: Has to be 2 or greater
-- units: Array with a unit for each dimension
+- dimensions: Array containing objects, describing each dimension. The 
+  number of elements in the array equals the number of dimensions of each point.
+- unit: Unit of the dimension
+- min: Optional parameter
+- max: Optional parameter
+
 
 #### Unit
 
-This meta information available for the patterns  `V`, `TV`, `TB` and TXAV.
+This meta information is available for the patterns  `V`, `TV`, `TB` and `TXAV`.
 
 ~~~~ {.javascript}
 {
