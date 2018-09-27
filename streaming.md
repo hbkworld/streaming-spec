@@ -461,16 +461,16 @@ Points are described by an absolute start value for the $x$ coordinate of the fi
   "params" : {
     "xDelta": <number>,
     "xUnit": <string>,
-    "minRange" : <number>,
-    "maxRange" : <number>
+    "xMin" : <number>,
+    "xMax" : <number>
   }
 }
 ~~~~
 
 - xDelta: Increment of $x$ coordinate between each array value
 - xUnit: Unit of the $x$ coordinate
-- minRange: Optional parameter
-- maxRange: Optional parameter
+- xMin: Optional parameter
+- xMax: Optional parameter
 
 ##### Multidimensional Array
 
