@@ -468,8 +468,8 @@ dimension between the following points.
     "dimensions": [
       "unit": <string>,
       "delta": <number>,
-      "minRange" : <number>,
-      "maxRange" : <number>
+      "min" : <number>,
+      "max" : <number>
       ]
   }
 }
