@@ -462,17 +462,19 @@ Both dimensions have the same `valueType` as described in the `data` meta infora
   "method": "patternDetails",
   "params" : {
     "xDelta": <number>,
-    "xUnit": <string>,
     "xMin" : <number>,
-    "xMax" : <number>
+    "xMax" : <number>,
+    "xUnit": <string>,
+    "yUnit": <string>
   }
 }
 ~~~~
 
 - xDelta: Increment of $x$ coordinate between each array value
-- xUnit: Unit of the $x$ coordinate
 - xMin: Optional parameter
 - xMax: Optional parameter
+- xUnit: Unit of the $x$ coordinate
+- yUnit: Unit of the $y$ coordinate
 
 ##### Array of Points
 
@@ -505,7 +507,7 @@ All dimensions have the same `valueType` as described in the `data` meta inforat
 
 #### Unit
 
-This meta information is available for the patterns  `V`, `TV`, `TB` and `TXAV`.
+This meta information is available for the patterns  `V`, `TV`, `TB`.
 
 ~~~~ {.javascript}
 {
