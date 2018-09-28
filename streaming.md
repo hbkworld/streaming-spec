@@ -471,8 +471,8 @@ Both dimensions have the same `valueType` as described in the `data` meta infora
 ~~~~
 
 - xDelta: Increment of $x$ coordinate between each array value
-- xMin: Optional parameter
-- xMax: Optional parameter
+- xMin: Minimum of value range of $x$ coordinate (Optional parameter)
+- xMax: Maxmum of value range of $x$ coordinate (Optional parameter)
 - xUnit: Unit of the $x$ coordinate
 - yUnit: Unit of the $y$ coordinate
 
@@ -501,8 +501,9 @@ All dimensions have the same `valueType` as described in the `data` meta inforat
 - dimensions: Array containing objects, describing each dimension. The 
   number of elements in the array equals the number of dimensions of each point.
 - unit: Unit of the dimension
-- min: Optional parameter
-- max: Optional parameter
+- min: Minimum of value range of the dimension (Optional parameter)
+- max: Maxmum of value range of the dimension (Optional parameter)
+
 
 
 #### Unit
