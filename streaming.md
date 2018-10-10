@@ -908,6 +908,10 @@ true
 
 ## Changes
 
+### Version 1.1
+
+added support for value type CAN raw
+
 ### Version 1.2
 
 Added patterns "TXAV" and "TAP"
