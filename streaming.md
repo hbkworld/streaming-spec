@@ -1,4 +1,4 @@
-# DAQ Stream Protocol Specification, Version 1.1
+# DAQ Stream Protocol Specification, Version 1.2
 ## Hottinger Baldwin Messtechnik GmbH
 
 ## Scope
@@ -906,7 +906,13 @@ If this feature is supported, the [Init Meta information`s](#init-meta)
 true
 ~~~~
 
-## Principle of Client Operation
+## Changes
+
+### Version 1.2
+
+Added patterns "TXAV" and "TAP"
+
+
 
 
 ## Glossary
