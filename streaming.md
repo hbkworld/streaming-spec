@@ -1,4 +1,4 @@
-# DAQ Stream Protocol Specification, Version 1.1
+# DAQ Stream Protocol Specification, Version 1.2
 ## Hottinger Baldwin Messtechnik GmbH
 
 ## Scope
@@ -388,7 +388,7 @@ the [Transport Layer](#transport-layer) must be interpreted.
     "pattern": <string>,
     "endian": <string>,
     "valueType": <string>,
-    "timeStamp": { //only emitted if pattern is either "TV" or "TB"
+    "timeStamp": { // only emitted for patterns with time stamp
       "type": <string>,
       "size": <number> // timestamp size in byte
     }
@@ -398,30 +398,35 @@ the [Transport Layer](#transport-layer) must be interpreted.
 }
 ~~~~
 
-`"pattern"`: Describes the data pattern of [Signal Data](#signal-data), either
 
-     - "V"; No timestamps, values only. This pattern is used only for synchronous values.
-     - "TV"; One timestamp per value, first comes the timestamp, then the value. This pattern is used for asynrchonous values.
-     - "TB"; One timestamp per signal block. The timestamp corresponds to the first sample in the signal block.
+-`"pattern"`: Describes the data pattern of [Signal Data](#signal-data), either
+
+  - "V"; No timestamps, values only. This pattern is used only for synchronous values.
+  - "TV"; One timestamp per value, first comes the timestamp, then the value. This pattern is used for asynrchonous values.
+  - "TB"; One timestamp per signal block. The timestamp corresponds to the first sample in the signal block.
+  - "TXAV"; Timestamp, First absolute $x$ coordinate $x_0$ followed by 
+  an array of values $y_0, y_1.. y_n$ equidistant in dimension $x$.   
+  Before sending any data the `patternDetails` meta information has to be send once. 
+  - "TAP"; Timestamp, array of points.
+  Before sending any data the `patternDetails` meta information has to be send once.
+  
+-`"endian"`: Describes the byte endianess of the [Signal Data](#signal-data) and timestamps, either
+
+  - "big"; Big endian byte order (network byte order).
+  - "little"; Little endian byte order.
 
 
-`"endian"`: Describes the byte endianess of the [Signal Data](#signal-data) and timestamps, either
+-`"valueType"`: Describes the data type of the [Signal Data](#signal-data), either
 
-    - "big"; Big endian byte order (network byte order).
-    - "little"   Little endian byte order.
-
-
-`"valueType"`: Describes the data type of the [Signal Data](#signal-data), either
-
-    - "u32"; unsigned int 32 bit
-    - "s32"; signed int 32 bit
-    - "u64"; unsigned int 64 bit
-    - "s64"; signed int 64 bit
-    - "real32"; IEEE754 float single precision
-    - "real64"; IEEE754 float double precision
-    - "canRaw";
+  - "u32"; unsigned int 32 bit
+  - "s32"; signed int 32 bit
+  - "u64"; unsigned int 64 bit
+  - "s64"; signed int 64 bit
+  - "real32"; IEEE754 float single precision
+  - "real64"; IEEE754 float double precision
+  - "canRaw";
     
-      ![The can raw data type format](images/CanRaw2.png)
+![The can raw data type format](images/CanRaw2.png)
 
 	  "**Format (3bit)**":
 	  format of the can identifier (Bit 31 = 0: 11 bit, Bit 31 = 1: 29 Bit).
@@ -437,11 +442,73 @@ the [Transport Layer](#transport-layer) must be interpreted.
 	  
 
 
-`"timeStamp"`: Describes the format of a timestamp, if timestamps are delivered
-    (only if "pattern" is either "TV" or "TB"). Please note the special
-	handling of [8 byte timestamps in "ntp" format](#ntp).
+-`"timeStamp"`: Describes the format of a timestamp, if timestamps are delivered
+ (only if "pattern" is either "TV" or "TB"). Please note the special
+ handling of [8 byte timestamps in "ntp" format](#ntp).
+	
+#### Pattern Details
+
+##### Equidistant two dimensional Array
+
+Equidistant two dimensional arrays carry several values in another dimension (domain) $x$ but time, like frequency. 
+
+![Equidistant 2 dimensional points](images/equidistant_points.png)
+
+Points are described by an absolute start value $x_0$ for the $x$ coordinate of the first point and a relative $delta$ for the $x$ coordinate between two points.
+Both dimensions have the same `valueType` as described in the `data` meta inforation.
+
+~~~~ {.javascript}
+{
+  "method": "patternDetails",
+  "params" : {
+    "xDelta": <number>,
+    "xMin" : <number>,
+    "xMax" : <number>,
+    "xUnit": <string>,
+    "yUnit": <string>
+  }
+}
+~~~~
+
+- xDelta: Increment of $x$ coordinate between each array value
+- xMin: Minimum of value range of $x$ coordinate (Optional parameter)
+- xMax: Maxmum of value range of $x$ coordinate (Optional parameter)
+- xUnit: Unit of the $x$ coordinate
+- yUnit: Unit of the $y$ coordinate
+
+##### Array of Points
+
+![Non equidistant 2 dimensional points](images/non_equidistant_points.png)
+
+Each point has an absolute coordinate for each dimension
+All dimensions have the same `valueType` as described in the `data` meta inforation.
+
+~~~~ {.javascript}
+{
+  "method": "patternDetails",
+  "params" : {
+    "dimensions": [
+      {
+        "unit": <string>,
+        "min" : <number>,
+        "max" : <number>        
+      }
+    ]
+  }
+}
+~~~~
+
+- dimensions: Array containing objects, describing each dimension. The 
+  number of elements in the array equals the number of dimensions of each point.
+- unit: Unit of the dimension
+- min: Minimum of value range of the dimension (Optional parameter)
+- max: Maxmum of value range of the dimension (Optional parameter)
+
+
 
 #### Unit
+
+This meta information is available for the patterns  `V`, `TV`, `TB`.
 
 ~~~~ {.javascript}
 {
@@ -453,6 +520,7 @@ the [Transport Layer](#transport-layer) must be interpreted.
 ~~~~
 
 `"unit"`: A UTF-8 encoded string containing the unit describing the signal.
+
 
 
 #### Time Objects
@@ -491,6 +559,7 @@ typically specifies only 8 byte timestamps.
 
 The 16 byte ntp timestamp is truncated to 8 bytes by omission of the era
 and subFraction field.
+
 
 ## Command Interfaces
 
@@ -809,11 +878,11 @@ MUST have a field named "alive" with this value:
 The `number` specifies the period of time (in seconds) to elapse without
 receiving an Alive Meta information before the device SHOULD be considered "lost".
 
-### Fill Meta Information
+### Ringbuffer Fill Level
 
 Is send at will. The value of `fill` is a number
 between 0 and 100 which indicates the stream`s associated data buffer
-fill. A fill value of 0 means the buffer is empty. A fill value of 100
+fill level. A fill value of 0 means the buffer is empty. A fill value of 100
 means the buffer is full and the associated stream (and the associated
 socket) will be closed as soon as all previously acquired data has been
 send. This meta information is for monitoring purposes only and it is
@@ -837,7 +906,17 @@ If this feature is supported, the [Init Meta information`s](#init-meta)
 true
 ~~~~
 
-## Principle of Client Operation
+## Changes
+
+### Version 1.1
+
+added support for value type CAN raw
+
+### Version 1.2
+
+Added patterns "TXAV" and "TAP"
+
+
 
 
 ## Glossary
