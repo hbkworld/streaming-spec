@@ -1,4 +1,4 @@
-# DAQ Stream Protocol Specification, Version 1.1
+# DAQ Stream Protocol Specification, Version 1.2
 ## Hottinger Baldwin Messtechnik GmbH
 
 ## Scope
@@ -385,7 +385,6 @@ the [Transport Layer](#transport-layer) must be interpreted.
 {
   "method": "data",
   "params" : {
-    "pattern": <string>,
     "endian": <string>,
     "valueType": <string>,
     "timeStamp": { // only emitted for patterns with time stamp
@@ -398,13 +397,6 @@ the [Transport Layer](#transport-layer) must be interpreted.
 }
 ~~~~
 
-
--`"pattern"`: Describes the data pattern of [Signal Data](#signal-data), either
-
-  - "V"; No timestamps, values only. This pattern is used only for synchronous values.
-  - "TV"; One timestamp per value, first comes the timestamp, then the value. This pattern is used for asynrchonous values.
-  - "TB"; One timestamp per signal block. The timestamp corresponds to the first sample in the signal block.
-  - "TAP"; Timestamp and array of points. Before sending any data the `patternDetails` meta information has to be send once to allow interpretation of data.
 
 -`"endian"`: Describes the byte endianess of the [Signal Data](#signal-data) and timestamps, either
 
@@ -493,20 +485,19 @@ After the pattern details were send, data block are to be interpreted as follows
 - Finally tuples with coordinates of all non-equidistant dimensions.
 
 
-#### Unit
+#### Units
 
-This meta information available for the patterns  `V`, `TV` and `TB` only.
 
 ~~~~ {.javascript}
 {
   "method": "unit",
   "params": {
-    "unit": <string>
+    "units": [ <string>, <string>, .. ]
   }
 }
 ~~~~
 
-`"unit"`: A UTF-8 encoded string containing the unit describing the signal.
+`"units"`: Array of UTF-8 encoded strings containing the units. One elemen per dimension of the signal.
 
 
 #### Time Objects
@@ -892,7 +883,17 @@ If this feature is supported, the [Init Meta information`s](#init-meta)
 true
 ~~~~
 
-## Principle of Client Operation
+## Changes
+
+### Version 1.1
+
+added support for value type CAN raw
+
+### Version 1.2
+
+Added patterns "TXAV" and "TAP"
+
+
 
 
 ## Glossary
