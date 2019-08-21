@@ -6,6 +6,7 @@ This is a proposal how we might describe multiple dimensions within a new stream
 
 Points have at least 2 dimensions. The coordinates of each dimension might be equidistant are not. 
 
+\pagebreak
 
 ## Non Equidistant Points
 ![Non equidistant 2 dimensional points](images/non_equidistant_points.png)
@@ -15,6 +16,7 @@ Points have at least 2 dimensions. The coordinates of each dimension might be eq
 
 For non equidistant dimensions, each point has a absolute coordinate for this dimension
 
+\pagebreak
 
 ## Equidistant Points
 ![Equidistant 2 dimensional points](images/equidistant_points.png)
@@ -23,9 +25,11 @@ For non equidistant dimensions, each point has a absolute coordinate for this di
 
 
 For equidistant dimensions, coordinates of this dimension are described by a relative delta between two points and an absolute start
-value for coordinate within the first point. 
+value for the next point. 
 
-We use equidistant representation to grealy reduce the amount of data to be transferred, stored and processed.
+We use equidistant representation to greatly reduce the amount of data to be transferred, stored and processed.
+
+\pagebreak
 
 
 ## Where HBM comes from
