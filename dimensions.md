@@ -50,12 +50,13 @@ There is a meta information that describes all dimensions of the signal (psuedo 
 {
   "method": "dimensions",
   "params" : [
-    "<dimension id>": {
-      "valueType": <string>,
-      "unit": <unit object>,
-      "delta": <value>
-      "min" : <value>,
-      "max" : <value>
+      "<dimension id>": {
+        "valueType": <string>,
+        "unit": <unit object>,
+        "delta": <value>
+        "min" : <value>,
+        "max" : <value>
+      }
     ]
   }
 }
@@ -65,38 +66,47 @@ There is a meta information that describes all dimensions of the signal (psuedo 
 - params: An array of objects each desribing a dimension.
 - dimension id: A fixed id or name of the dimension. By using this instead of an array of objects we easyily might resend partial meta information. There might also be following meta information that refer to that dimension id.
 - valueType: Describes the data type of the dimension (i.e. a number format ("u32", "s32", "u64", "s64", "real32", "real64"), time (We talked about this in prior sessions), raw data)
-- unit: Unit of the dimension
-- delta: (A value according to valueType) If this parameter does exist, the coordinates of this dimension 
-  are equidistant. There will be no absolute value for this dimesnsion in the delivered data blocks. The coordinate of the dimension has to be calculated using an absolute start value, the delta and the number of points delivered.
+- unit: Unit of the dimension (Out of scope of this document)
+- delta: (A value according to valueType) If this parameter does exist, the values of this dimension 
+  are equidistant. There will be no absolute value for this dimesnsion in the delivered data blocks. 
+  The absolute coordinate of the dimension has to be calculated using an absolute start value, 
+  the delta and the number of points delivered.
   
-  If this parameter is missing for a dimension, each delivered point will carry a absolute value for the dimension.
+  If this parameter is missing for a dimension, each delivered point in measured value data blocks will carry a absolute value for the dimension.
   
-  The value might be negative. 
+  The value might be negative. 0 is invalid!
 - min: (A value according to valueType) Optional parameter
 - max: (A value according to valueType) Optional parameter
 
-## Start coordinates
+## Absolute Values
+
 To calculate the abolute coordinate of the dimensions. There needs to be an absolute start value.
 This will be delivered by a separate meta information. 
 
 - The device might deliver the absolute coordinate before delivering the first data point.
 - When using incremental encoders as signal source the absolute start value might be delivered when crossing the start position.
 - Absolute value for the time might be resend if the device resynchronized.
-- There might be no absolute corrdinate at all. As a result only a relative value can be acquired.
+- There might be no absolute corrdinate at all. As a result only a relative value can be acquired. In this case absolute start value is 0.
 
 ~~~~ {.javascript}
 {
-  "method": "startValues",
-  "params" : [ <value for each equidistant corrdinate according to valueType> ]
+  "method": "absoluteValues",
+  "params" : [
+    "<dimension id>": <value according to valueType>
+  ]  
 }
 ~~~~
 
-After the dimension details were send, measured data blocks are to be interpreted as follows:
+## How to Interprete Measured Data
+
+After the dimension details were send, delivered measured data blocks are to be interpreted as follows:
 
 - Each data block contains complete points
 - Each point is a tuple with one value for every non-equidistant dimension
+- Theoretically a signal might contain equidistant dimensions only. There won't be no measured data to be transferred. We would deliver just data blocks without any data payload.
 
-Coordinates of equidistant dimensions are calculated using the last absolute start values the delta and the number of points since then
+Coordinates of equidistant dimensions are calculated using the last absolute start values the delta and the number of points since then.
+When there was no absolute start value yet the absolute start value is 0.
 
 
 ## Examples
