@@ -434,9 +434,7 @@ the [Transport Layer](#transport-layer) must be interpreted.
  (only if "pattern" is either "TV" or "TB"). Please note the special
  handling of [8 byte timestamps in "ntp" format](#ntp).
 	
-#### Pattern Details
-
-##### Array of Points
+#### Dimension Details
 
 Points have at least 2 dimensions. The coordinates of each dimension might be equidistant are not.
 
@@ -446,16 +444,15 @@ For non equidistant dimensions, each point has a absolute coordinate for this di
 
 ![Equidistant 2 dimensional points](images/equidistant_points.png)
 
-For equidistant dimensions, points are described by an absolute start 
-value for the dimension of the first point and a relative delta in this 
-dimension between the following points.
+For equidistant dimensions, coordinates of this dimension are described by a relative delta between two points and an absolute start 
+value for coordinate within the first point.
 
 
 
 
 ~~~~ {.javascript}
 {
-  "method": "patternDetails",
+  "method": "dimensionDetails",
   "params" : {
     "dimensions": [
       "unit": <string>,
@@ -477,25 +474,32 @@ dimension between the following points.
 - minRange: Optional parameter
 - maxRange: Optional parameter
 
-After the pattern details were send, data block are to be interpreted as follows:
+Before receiving data from a signal with equidistant dimensions. There needs to be an absolute start value for each equidistant dimension.
+This will be delivered by a separate meta information before measured data blocks are delivered. 
 
-- Each data block begins with a time stamp
-- The number of points in this block
-- Next comes an absolute start value for each dimension with equidistant values.
-- Finally tuples with coordinates of all non-equidistant dimensions.
-
-
-#### Units
-
+There might be cases in the running acquisition when values are not equidistant. If so, new absolte coordinates are send in the same way.
 
 ~~~~ {.javascript}
 {
-  "method": "unit",
-  "params": {
-    "units": [ <string>, <string>, .. ]
+  "method": "next",
+  "params" : {
+    "dimensions": [
+      "unit": <string>,
+      "delta": <number>,
+      "min" : <number>,
+      "max" : <number>
+      ]
   }
 }
 ~~~~
+
+After the dimension details were send, measured data blocks are to be interpreted as follows:
+
+- Each data block contains complete points
+- Each point is a tuple with one value for every non equidistant dimension
+
+
+
 
 `"units"`: Array of UTF-8 encoded strings containing the units. One elemen per dimension of the signal.
 
