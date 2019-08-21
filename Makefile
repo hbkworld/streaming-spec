@@ -1,4 +1,4 @@
-all: streaming.pdf streaming.html dimensions.html
+all: streaming.pdf streaming.html dimensions.html dimensions.pdf
 
 #%.pdf: %.org
 #	pandoc -s -S --normalize --toc -N \
@@ -8,12 +8,12 @@ all: streaming.pdf streaming.html dimensions.html
 #	--template=templates/pdf-confidential-gitinfo.tex \
 #	-R -f org $< -o $@
 
-#%.pdf: %.md
-#	pandoc -s -S --normalize -N --toc --toc-depth=2 \
-#	--latex-engine=xelatex \
-#	--variable=papersize:a4paper \
-#	--variable=fontsize:9pt \
-#	-R -f markdown $< -o $@
+%.pdf: %.md
+	pandoc -s -N --toc --toc-depth=2 \
+	--pdf-engine=xelatex \
+	--variable=papersize:a4paper \
+	--variable=fontsize:9pt \
+	-f markdown $< -o $@
 
 #%.tex: %.md
 #	pandoc -s -S --normalize -N --toc --toc-depth=2 \

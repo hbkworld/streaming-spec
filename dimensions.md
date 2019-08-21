@@ -80,7 +80,7 @@ There is a meta information that describes all dimensions of the signal (psuedo 
 
 ## Absolute Values
 
-To calculate the abolute coordinate of the dimensions. There needs to be an absolute start value.
+To calculate the absolute coordinate of the dimensions. There needs to be an absolute start value.
 This will be delivered by a separate meta information. 
 
 - The device might deliver the absolute coordinate before delivering the first data point.
@@ -108,6 +108,7 @@ After the dimension details were send, delivered measured data blocks are to be 
 Coordinates of equidistant dimensions are calculated using the last absolute start values the delta and the number of points since then.
 When there was no absolute start value yet the absolute start value is 0.
 
+\pagebreak
 
 ## Examples
 
