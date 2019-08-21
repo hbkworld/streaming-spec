@@ -38,7 +38,21 @@ We use equidistant representation to greatly reduce the amount of data to be tra
 
 HBM Streaming Protocol differentiates between meta information, and measured data.
 The meta information describes a stream or signal and tells how to interprete the measured data of a signal.
-There is meta information concerning the whole device or data stream and there is meta information concerning a specific signal.
+
+#### Stream Specific Meta Information
+
+Everything concerning the whole device or the stream. Examples:
+
+* Endianness of the binary data transferred.
+* Available Signals
+
+#### Signal Specific Meta Information
+
+Everything describing the signal. Examples:
+
+* Signal name
+* Signal unit information
+
 
 ### Shortcomings of HBM Streaming Protocol
 
@@ -51,11 +65,12 @@ After specifying the HBM Streaming Protocol we recognized, that limiting to 2 di
 We had to add something to support anything that did not fit in our scheme. Those additions resulted in so called patterns. 
 There are several patterns for representing the different kinds of signals.
 
-Following, I would like to introduce one representation that covers all kinds of signals we came across yet.
+
+\pagebreak
 
 ## Describing Multiple Dimensions
 
-This is an idea how to describe any of the mentioned signals in the future.
+This is an idea how to describe any of the mentioned signals in one generic way.
 
 There is a meta information that describes all dimensions of the signal (psuedo code). 
 
@@ -78,7 +93,7 @@ There is a meta information that describes all dimensions of the signal (psuedo 
 - params: An array of objects each desribing a dimension.
 - dimension id: There is a fixed id for each dimension of a signal.
 - name: Name of the dimension (i.e. voltage, sound level, time)
-- valueType: Describes the data type of the dimension (i.e. a number format ("u8" (raw data), "u32", "s32", "u64", "s64", "real32", "real64"), time (We talked about this in prior sessions), raw data)
+- valueType: Describes the data type of the dimension (i.e. a number format ("u8", "u32", "s32", "u64", "s64", "real32", "real64"), time (We talked about this in prior sessions), other known types)
 - unit: Unit of the dimension (Out of scope of this document)
 - delta: (A value according to valueType) If this parameter does exist, the values of this dimension .
   are equidistant. There will be no absolute value for this dimesnsion in the delivered data blocks. 
@@ -93,6 +108,8 @@ There is a meta information that describes all dimensions of the signal (psuedo 
 
 There might be meta information that refers to a specific dimension of a signal.
 To do so the header of the meta information has to contain signal id (as in HBM Streaming Protocol) and dimension id.
+
+\pagebreak
 
 ## Absolute Values
 
@@ -120,13 +137,16 @@ It might also reduce processing time on the client.
 
 HBM Streeaming Protocol does not specify meta information in binary form. This can easily added.
 
+\pagebreak
+
 ## How to Interprete Measured Data
 
 After the dimension details were send, delivered measured data blocks are to be interpreted as follows:
 
-- Each data block contains complete points
+- Each data block contains complete points. 
+- A block may contain many points. They are arranged point by point.
 - Each point is a tuple with one value for every non-equidistant dimension
-- Theoretically a signal might contain equidistant dimensions only. There won't be no measured data to be transferred. We would deliver just data blocks without any data payload.
+- Theoretically a signal might contain equidistant dimensions only. There won't be measured data to be transferred. We would deliver just data blocks without any data payload.
 
 Coordinates of equidistant dimensions are calculated using the last absolute start values the delta and the number of points since then.
 When there was no absolute start value yet the absolute start value is 0.
