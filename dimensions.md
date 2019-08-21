@@ -51,6 +51,7 @@ There is a meta information that describes all dimensions of the signal (psuedo 
   "method": "dimensions",
   "params" : [
       "<dimension id>": {
+        "name": <string>,
         "valueType": <string>,
         "unit": <unit object>,
         "delta": <value>
@@ -64,10 +65,11 @@ There is a meta information that describes all dimensions of the signal (psuedo 
 
 
 - params: An array of objects each desribing a dimension.
-- dimension id: A fixed id or name of the dimension. By using this instead of an array of objects we easyily might resend partial meta information. There might also be following meta information that refer to that dimension id.
+- dimension id: See below for details.
+- name: Name of the dimension (i.e. voltage, sound level, time)
 - valueType: Describes the data type of the dimension (i.e. a number format ("u32", "s32", "u64", "s64", "real32", "real64"), time (We talked about this in prior sessions), raw data)
 - unit: Unit of the dimension (Out of scope of this document)
-- delta: (A value according to valueType) If this parameter does exist, the values of this dimension 
+- delta: (A value according to valueType) If this parameter does exist, the values of this dimension .
   are equidistant. There will be no absolute value for this dimesnsion in the delivered data blocks. 
   The absolute coordinate of the dimension has to be calculated using an absolute start value, 
   the delta and the number of points delivered.
@@ -77,6 +79,15 @@ There is a meta information that describes all dimensions of the signal (psuedo 
   The value might be negative. 0 is invalid!
 - min: (A value according to valueType) Optional parameter
 - max: (A value according to valueType) Optional parameter
+
+### Dimension Id
+
+A fixed id of the dimension. By using this instead of an array of objects we easyily might resend partial meta information. 
+
+There might also be following meta information that refer to that dimension id. The HBM Streaming Protocol defines that a meta information belongs to a signal.
+Using singal id and dimension id, this can be extended so that the information belongs to a dimension of a signal.
+To do so the header of the meta information has to contain signal id (as in HBM Streaming Protocol) and dimension id.
+
 
 ## Absolute Values
 
@@ -96,6 +107,13 @@ This will be delivered by a separate meta information.
   ]  
 }
 ~~~~
+
+### Binary Representation
+
+If we expect absolute values to be transferred often, it might be a good idea to transfer it in binary form to save bandwith.
+It might also reduce processing time on the client.
+
+HBM Streeaming Protocol does not specify meta information in binary form. This can easily added.
 
 ## How to Interprete Measured Data
 
