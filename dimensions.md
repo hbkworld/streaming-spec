@@ -6,6 +6,10 @@ This is a proposal how we might describe multiple dimensions within a new stream
 
 Points have at least 2 dimensions. The coordinates of each dimension might be equidistant are not. 
 
+### Time 
+
+One special dimension is the time which is mandatory.
+
 \pagebreak
 
 ## Non Equidistant Points
@@ -68,17 +72,44 @@ There are several patterns for representing the different kinds of signals.
 
 \pagebreak
 
-## Describing Multiple Dimensions
+## Time
 
-This is an idea how to describe any of the mentioned signals in one generic way.
+The time is mandatory for each signal. It can be equidistant or non-equidistant.
 
-There is a meta information that describes all dimensions of the signal (psuedo code). 
+### Absolute Time
+
+To calculate the absolute time for an equidistant time, There needs to be an absolute start value.
+This can be delivered by a separate, signal specific, meta information. 
+
+- The device might deliver the absolute time before delivering the first data point.
+- The device might resend this whenever its clock is being set (resynchronization).
+- If the device does not possess a clock, there might be no absolute time at all.
 
 ~~~~ {.javascript}
 {
-  "method": "dimensions",
+  "method": "absoluteTime",
   "params" : [
-      "<dimension id>": {
+    "time": <time object>
+  ]  
+}
+~~~~
+
+
+\pagebreak
+
+## Describing Multiple Value Dimensions
+
+This is an idea how to describe any value of the mentioned signals in one generic way.
+The second dimension carrying the values in the HBM streaming protocol is replaced with several value dimensions.
+
+There is a meta information that describes all value dimensions of the signal (psuedo code).
+
+
+~~~~ {.javascript}
+{
+  "method": "valueDimensions",
+  "params" : [
+      "<value dimension id>": {
         "name": <string>,
         "valueType": <string>,
         "unit": <unit object>,
@@ -91,7 +122,7 @@ There is a meta information that describes all dimensions of the signal (psuedo 
 
 
 - params: An array of objects each desribing a dimension.
-- dimension id: There is a fixed id for each dimension of a signal.
+- value dimension id: There is a fixed id for each value dimension of a signal.
 - name: Name of the dimension (i.e. voltage, sound level, time)
 - valueType: Describes the data type of the dimension (i.e. a number format ("u8", "u32", "s32", "u64", "s64", "real32", "real64"), time (We talked about this in prior sessions), other known types)
 - unit: Unit of the dimension (Out of scope of this document)
@@ -106,15 +137,15 @@ There is a meta information that describes all dimensions of the signal (psuedo 
 
 ### Dimension Specific Meta Information
 
-There might be meta information that refers to a specific dimension of a signal.
+There might be meta information that refers to a specific value dimension of a signal.
 To do so the header of the meta information has to contain signal id (as in HBM Streaming Protocol) and dimension id.
 
 \pagebreak
 
-## Absolute Values
+### Absolute Values
 
-To calculate the absolute coordinate of the dimensions. There needs to be an absolute start value.
-This will be delivered by a separate meta information. 
+To calculate the absolute coordinate of equidistant value dimensions. There needs to be an absolute start value.
+This can be delivered by a separate meta information. 
 
 - The device might deliver the absolute coordinate before delivering the first data point.
 - When using incremental encoders as signal source the absolute start value might be delivered when crossing the start position.
@@ -137,11 +168,11 @@ It might also reduce processing time on the client.
 
 HBM Streeaming Protocol does not specify meta information in binary form. This can easily added.
 
-\pagebreak
 
-## How to Interprete Measured Data
 
-After the dimension details were send, delivered measured data blocks are to be interpreted as follows:
+### How to Interprete Measured Data
+
+After the value dimension details were send, delivered measured data blocks are to be interpreted as follows:
 
 - Each data block contains complete points. 
 - A block may contain many points. They are arranged point by point.
@@ -150,6 +181,18 @@ After the dimension details were send, delivered measured data blocks are to be 
 
 Coordinates of equidistant dimensions are calculated using the last absolute start values the delta and the number of points since then.
 When there was no absolute start value yet the absolute start value is 0.
+
+\pagebreak
+
+
+
+## Simple and Composed Data
+
+A measured value might be described completely by as single point (i.e. the measured strain at a point in time).
+Other measured values consist of a sequence of several points (i.e. a spectum that contains several points over a frequency with a value).
+
+To map a sequence of points that belong together, a signal might deliver an array of points.
+The number of points in the array is expressed by a meta information of the signal.
 
 \pagebreak
 
