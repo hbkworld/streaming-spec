@@ -194,53 +194,59 @@ Other measured values consist of a sequence of several points (i.e. a spectum th
 To map a sequence of points that belong together, a signal might deliver an array of points.
 The number of points in the array is expressed by a meta information of the signal.
 
+Composed signal tell their array size in the meta information describing the signal.
+
 \pagebreak
 
 ## Examples
 
 ### A Voltage Sensor
 
-The signal has 2 dimensions
+The signal has 1 value dimension
 
-- The time is equidistant. The device sends an initial absolute value.
 - The voltage is non-equidistant
+- Each value point carries the absolute voltage only
 
-Each point carries the absolute voltage only
+The time is equidistant. The device sends an initial absolute value.
+
+
 
 ### A CAN Decoder
 
-- The time is non-equidistant.
+The signal has 1 value dimension. 
+
 - The value is non-equidistant
 
-Each point carries absolute time and value
+The time is non-equidistant. Each value point is time stamped and carries the absolute value
 
 ### A Simple Counter
 
-The signal has 2 dimensions
+The signal has 1 value dimension
 
-- The time is non-equidistant.
-- The count value is equidistant, it runs in one directions. The device sends an initial absolute value.
+- The count value is equidistant, it runs in one directions
+- The device sends an initial absolute value.
 
-Each point delivers the absolute time only.
+The time is non-equidistant. There are absolute time stamps only, no value data
 
 ### A Rotary Incremental Encoder with start Position
 
-The signal has 2 dimensions
+The signal has 1 value dimension
 
-- The time is non-equidistant.
-- The angle is equidistant, it can go back and forth and gives an absolute start position when crossing a start position. No initial absolute value.
+- The angle is equidistant, it can go back and forth
+- Absolute start position when crossing a start position. 
+- No initial absolute value.
 
-Each point delivers the absolute time stamp only
+The time is non-equidistant. There is an absolute time stamp for each points. The point itself contains no data.
 When changing the direction, delta meta information is resend for the angle dimension.
 
 ### An Optical Sprectrum
 
-The signal has 3 dimensions
+The signal has 2 value dimensions. A spectrum consists of an array of value points
 
-- The time is equidistant, there might be a absolute start when the frequency sweep begins.
-- The Frequency is equidistant, there is an abolute start when the frequency sweep begins.
+- The Frequency is equidistant, there is an abolute start value when the frequency sweep begins.
 - The amplitude is non-equidistant
+- Value Each Point carries the absolute amplitude only
 
-Each Point carries the absolute amplitude only
+There is a time stamp for each complete spectrum
 
 
