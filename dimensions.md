@@ -78,21 +78,28 @@ The time is mandatory for each signal. It can be equidistant or non-equidistant.
 
 ### Absolute Time
 
-To calculate the absolute time for an equidistant time, There needs to be an absolute start value.
-This can be delivered by a separate, signal specific, meta information. 
+To calculate the absolute time for an equidistant time, There needs to be an absolute start value and a delta time.
+Both can be delivered by a separate, signal specific, meta information. 
 
-- The device might deliver the absolute time before delivering the first data point.
+- For a signal with values non-equidistant in time there is no meat information about time. 
+  Time is delivered always as absolute time in the measured data block.
+- For a signal with values equidistant in time, the delta is mandatory.
+- The device might deliver the absolute time before delivering the first value point.
 - The device might resend this whenever its clock is being set (resynchronization).
 - If the device does not possess a clock, there might be no absolute time at all.
 
 ~~~~ {.javascript}
 {
-  "method": "absoluteTime",
+  "method": "time",
   "params" : [
-    "time": <time object>
+    "absolute": <time object>
+    "delta": <teim object>
   ]  
 }
 ~~~~
+
+-`"absolute"`: The absolute timestamp for the next value point.
+-`"delta"`: The time difference between two value points
 
 
 \pagebreak
@@ -186,15 +193,39 @@ When there was no absolute start value yet the absolute start value is 0.
 
 
 
-## Simple and Composed Data
+## Simple Point or Series of Points
 
 A measured value might be described completely by as single point (i.e. the measured strain at a point in time).
-Other measured values consist of a sequence of several points (i.e. a spectum that contains several points over a frequency with a value).
+Other measured values consist of a series of several points (i.e. a spectum that contains several points over a frequency with a value).
 
-To map a sequence of points that belong together, a signal might deliver an array of points.
+To map a series of points that belong together, a signal might deliver an array of points.
 The number of points in the array is expressed by a meta information of the signal.
 
 Composed signal tell their array size in the meta information describing the signal.
+
+~~~~ {.javascript}
+{
+  "method": "signal",
+  "params" : 
+    {
+      "endian": <string>,
+      "data": 
+      {
+    	"arraySize: <number
+      },
+      "time":
+      {
+        "delta", <time object>
+      }
+    "timeStamp": { // only emitted for patterns with time stamp
+      "type": <string>,
+      "size": <number> // timestamp size in byte
+    }
+    "time": { // deprecated, shall never be used by client software
+    }
+  }
+}
+~~~~
 
 \pagebreak
 
@@ -243,9 +274,8 @@ When changing the direction, delta meta information is resend for the angle dime
 
 The signal has 2 value dimensions. A spectrum consists of an array of value points
 
-- The Frequency is equidistant, there is an abolute start value when the frequency sweep begins.
-- The amplitude is non-equidistant
-- Value Each Point carries the absolute amplitude only
+- The Frequency is equidistant, there is an absolute start value when the frequency sweep begins.
+- The amplitude is non-equidistant, hence each Point carries the absolute amplitude only
 
 There is a time stamp for each complete spectrum
 
