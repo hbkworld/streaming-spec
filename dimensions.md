@@ -15,21 +15,15 @@ One special dimension is the time which is mandatory.
 ## Non Equidistant Points
 ![Non equidistant 2 dimensional points](images/non_equidistant_points.png)
 
-
-
-
-For non equidistant dimensions, each point has a absolute coordinate for this dimension
+For non equidistant dimensions, each point has an absolute coordinate for this dimension
 
 \pagebreak
 
 ## Equidistant Points
 ![Equidistant 2 dimensional points](images/equidistant_points.png)
 
-
-
-
-For equidistant dimensions, coordinates of this dimension are described by a relative delta between two points and an absolute start
-value for the next point. 
+For equidistant dimensions, coordinates of this dimension are described by an absolute start
+value and a relative delta between two points and. 
 
 We use equidistant representation to greatly reduce the amount of data to be transferred, stored and processed.
 
@@ -47,26 +41,30 @@ The meta information describes a stream or signal and tells how to interprete th
 
 Everything concerning the whole device or the stream. Examples:
 
-* Endianness of the binary data transferred.
 * Available Signals
+* Device status information
 
 #### Signal Specific Meta Information
 
 Everything describing the signal. Examples:
 
+* Endianness of the binary data transferred.
 * Signal name
 * Signal unit information
 
 
 ### Shortcomings of HBM Streaming Protocol
 
-The existing HBM Streaming Protocol emphasized on two dimensional signals. 
+The existing HBM Streaming Protocol emphasized on two dimensional signals.
 The first idea was a signal from a sensor that measures a quantity over time.
 Then we recognized that there are synchronous and asynchronous signals. Synchronous signals deliver values with a fixed data rate.
 Asynchronous signals deliver values at any time without a fixed rate (CAN bus).
 
 After specifying the HBM Streaming Protocol we recognized, that limiting to 2 dimensions was short sighted. There are sensors that deliver more than two dimensions.
-We had to add something to support anything that did not fit in our scheme. Those additions resulted in so called patterns. 
+
+Furthermore there are signal types, like for example a spectrum, where one "value" is not just a single point but a collection of several points.
+
+We had to add something to support anything that did not fit in original scheme. Those additions resulted in so called patterns. 
 There are several patterns for representing the different kinds of signals.
 
 
@@ -76,16 +74,14 @@ There are several patterns for representing the different kinds of signals.
 
 The time is mandatory for each signal. It can be equidistant or non-equidistant.
 
-### Absolute Time
 
+### Equidistant Time
 To calculate the absolute time for an equidistant time, There needs to be an absolute start value and a delta time.
 Both can be delivered by a separate, signal specific, meta information. 
 
-- For a signal with values non-equidistant in time there is no meat information about time. 
-  Time is delivered always as absolute time in the measured data block.
 - For a signal with values equidistant in time, the delta is mandatory.
 - The device might deliver the absolute time before delivering the first value point.
-- The device might resend this whenever its clock is being set (resynchronization).
+- The device might the absolute time whenever its clock is being set (resynchronization).
 - If the device does not possess a clock, there might be no absolute time at all.
 
 ~~~~ {.javascript}
@@ -101,15 +97,62 @@ Both can be delivered by a separate, signal specific, meta information.
 -`"absolute"`: The absolute timestamp for the next value point.
 -`"delta"`: The time difference between two value points
 
+### Non Equidistant Time
+For a signal with values non-equidistant in time there is no meta information about time. 
+Time is delivered always as absolute time for each value point.
+
+
+Signals with non-equidistant time deliver an absolute time with each value.
+
+\pagebreak
+
+
+## Simple Point or Series of Points
+
+A measured value might be described completely by as single point (i.e. the measured strain at a point in time).
+Other measured values consist of a series of several points (i.e. a spectum that contains several points over a frequency with an amplitude).
+
+To map a series of points that belong together, a signal might deliver an array of points.
+The number of points in the array is expressed by a meta information of the signal.
+
+Composed signals tell their array size in the meta information describing the signal.
+
+~~~~ {.javascript}
+{
+  "method": "signal",
+  "params" : 
+    {
+      "endian": <string>,
+      "data": 
+      {
+    	"arraySize: <number>
+      },
+      "time":
+      {
+        "delta", <time object>
+        "time": <time object>
+        "size": <number>
+      }
+    }
+  }
+}
+~~~~
+
+
+- delta: Time between to equidistant points (for equidistant time)
+- time: Absolute time of the next point (for equidistant time)
+- size: Size of the time delivered with each point (for non-equidistant time)
+
+
 
 \pagebreak
 
 ## Describing Multiple Value Dimensions
 
 This is an idea how to describe any value of the mentioned signals in one generic way.
-The second dimension carrying the values in the HBM streaming protocol is replaced with several value dimensions.
+The second dimension carrying the values in the HBM streaming protocol is replaced with a value that has several dimensions.
 
-There is a meta information that describes all value dimensions of the signal (psuedo code).
+There is a meta information that describes all value dimensions of the signal (pseudo code).
 
 
 ~~~~ {.javascript}
@@ -193,41 +236,6 @@ When there was no absolute start value yet the absolute start value is 0.
 
 
 
-## Simple Point or Series of Points
-
-A measured value might be described completely by as single point (i.e. the measured strain at a point in time).
-Other measured values consist of a series of several points (i.e. a spectum that contains several points over a frequency with a value).
-
-To map a series of points that belong together, a signal might deliver an array of points.
-The number of points in the array is expressed by a meta information of the signal.
-
-Composed signal tell their array size in the meta information describing the signal.
-
-~~~~ {.javascript}
-{
-  "method": "signal",
-  "params" : 
-    {
-      "endian": <string>,
-      "data": 
-      {
-    	"arraySize: <number
-      },
-      "time":
-      {
-        "delta", <time object>
-      }
-    "timeStamp": { // only emitted for patterns with time stamp
-      "type": <string>,
-      "size": <number> // timestamp size in byte
-    }
-    "time": { // deprecated, shall never be used by client software
-    }
-  }
-}
-~~~~
-
-\pagebreak
 
 ## Examples
 
