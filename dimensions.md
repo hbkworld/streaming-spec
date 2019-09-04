@@ -80,9 +80,12 @@ To calculate the absolute time for an equidistant time, There needs to be an abs
 Both can be delivered by a separate, signal specific, meta information. 
 
 - For a signal with values equidistant in time, the delta is mandatory.
+- The absolute time always belongs to the next following value
 - The device might deliver the absolute time before delivering the first value point.
-- The device might the absolute time whenever its clock is being set (resynchronization).
+- The device might deliver the absolute time whenever its clock is being set (resynchronization).
 - If the device does not possess a clock, there might be no absolute time at all.
+
+
 
 ~~~~ {.javascript}
 {
@@ -131,17 +134,15 @@ Composed signals tell their array size in the meta information describing the si
       {
         "delta", <time object>
         "time": <time object>
-        "size": <number>
       }
     }
   }
 }
 ~~~~
 
-
+- arraySize: Number of points in each value series of the signal
 - delta: Time between to equidistant points (for equidistant time)
 - time: Absolute time of the next point (for equidistant time)
-- size: Size of the time delivered with each point (for non-equidistant time)
 
 
 
@@ -179,11 +180,8 @@ There is a meta information that describes all value dimensions of the signal (p
 - delta: (A value according to valueType) If this parameter does exist, the values of this dimension .
   are equidistant. There will be no absolute value for this dimesnsion in the delivered data blocks. 
   The absolute coordinate of the dimension has to be calculated using an absolute start value, 
-  the delta and the number of points delivered.
-  
-  If this parameter is missing for a dimension, each delivered point in measured value data blocks will carry a absolute value for the dimension.
-  
-  The value might be negative. 0 is invalid!
+  the delta and the number of points delivered. If this parameter is missing for a dimension, each delivered point in measured value data blocks will carry a absolute value for the dimension.  
+  The delta might be negative. 0 is invalid!
 
 ### Dimension Specific Meta Information
 
