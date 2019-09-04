@@ -138,7 +138,7 @@ follows. This 32 bit word is always transmitted in network byte order
 
 ### Signal Data
 
-The `Data` section contains signal data (measurement data acquired by the device) related to the
+The `Data` section contains a binary data block with signal data (measurement data acquired by the device) related to the
 respective `Signal_Number`. [Meta Information](#meta-information) MAY be necessary to interpret Signal Data.
 
 ### Meta Information
@@ -399,7 +399,7 @@ the [Transport Layer](#transport-layer) must be interpreted.
 ~~~~
 
 
--`"pattern"`: Describes the data pattern of [Signal Data](#signal-data), either
+-`"pattern"`: Describes the data pattern within a [Signal Data](#signal-data) block, either
 
   - "V"; No timestamps, values only. This pattern is used only for synchronous values.
   - "TV"; One timestamp per value, first comes the timestamp, then the value. This pattern is used for asynrchonous values.
