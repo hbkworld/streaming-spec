@@ -285,4 +285,20 @@ The signal has 2 value dimensions. A spectrum consists of an array of value poin
 
 There is a time stamp for each complete spectrum
 
+### Harmonic Analysis
 
+The result delivered from harmonic analysis done by HBM Genesis/Perception is fairly complex.
+One combined value consists of the following :
+- a scalar value distortion
+- a scalar value fundamental frequency
+- a two dimensional array with n arrays of points with frequency, FFT amplitude, FFT phase, where n is the number of dimensions
+
+
+The approach to describe multiple dimensions described here does not work for this structure because:
+- It expects that all dimensions have the same number of values (scalars and arrays, or more general arrays with different number of elements can not be used together).
+- There are no sub dimensions (two dimensional array have dimensions within each dimension).
+
+It would be possible to define a special `known type` that describes exatly this format (In this case n has to be constant). 
+In this case it would be a signal with one dimension of this type. Streaming client has to have inmplcit kmowledge about the `known type`and how to handle it. 
+
+The time would be non-equidistant. Each value point has on is time stamped and carries the absolute value.
