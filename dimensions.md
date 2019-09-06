@@ -130,11 +130,6 @@ Composed signals tell their array size in the meta information describing the si
       {
     	"arraySize: <number>
       },
-      "time":
-      {
-        "delta", <time object>
-        "time": <time object>
-      }
     }
   }
 }
