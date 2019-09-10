@@ -37,6 +37,8 @@ We use equidistant representation to greatly reduce the amount of data to be tra
 HBM Streaming Protocol differentiates between meta information, and measured data.
 The meta information describes a stream or signal and tells how to interprete the measured data of a signal.
 
+For both, there is a header telling the signal id, the data belongs to. If the data is related to the stream or device, the signal id is 0.
+
 #### Stream Specific Meta Information
 
 Everything concerning the whole device or the stream. Examples:
@@ -120,6 +122,8 @@ The number of points in the array is expressed by a meta information of the sign
 
 Composed signals tell their array size in the meta information describing the signal.
 
+The signal-related meta information looks like this:
+
 ~~~~ {.javascript}
 {
   "method": "signal",
@@ -137,7 +141,6 @@ Composed signals tell their array size in the meta information describing the si
 
 - arraySize: Number of points in each value series of the signal
 - delta: Time between to equidistant points (for equidistant time)
-- time: Absolute time of the next point (for equidistant time)
 
 
 
@@ -148,8 +151,7 @@ Composed signals tell their array size in the meta information describing the si
 This is an idea how to describe any value of the mentioned signals in one generic way.
 The second dimension carrying the values in the HBM streaming protocol is replaced with a value that has several dimensions.
 
-There is a meta information that describes all value dimensions of the signal (pseudo code).
-
+There is a signal-related meta information that describes all value dimensions of the signal:
 
 ~~~~ {.javascript}
 {
@@ -188,7 +190,7 @@ To do so the header of the meta information has to contain signal id (as in HBM 
 ### Absolute Values
 
 To calculate the absolute coordinate of equidistant value dimensions. There needs to be an absolute start value.
-This can be delivered by a separate meta information. 
+This can be delivered by a separate signal-related meta information. 
 
 - The device might deliver the absolute coordinate before delivering the first data point.
 - When using incremental encoders as signal source the absolute start value might be delivered when crossing the start position.
