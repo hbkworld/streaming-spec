@@ -256,16 +256,6 @@ The device sends the folloinwgsignal-specific meta information.
 
 ~~~~ {.javascript}
 {
-  "method": "time",
-  "params" : [
-    "absolute": <point in time of first value>
-    "delta": <10 ms>
-  ]  
-}
-~~~~
-
-~~~~ {.javascript}
-{
   "method": "valueDimensions",
   "params" : [
       "0": {
@@ -278,6 +268,15 @@ The device sends the folloinwgsignal-specific meta information.
 }
 ~~~~
 
+~~~~ {.javascript}
+{
+  "method": "time",
+  "params" : [
+    "absolute": <point in time of first value>
+    "delta": <10 ms>
+  ]  
+}
+~~~~
 
 Then follows a data block with at least one value of this signal as little endian encoded float
 
