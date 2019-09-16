@@ -94,7 +94,7 @@ Both can be delivered by a separate, signal specific, meta information.
   "method": "time",
   "params" : [
     "absolute": <time object>
-    "delta": <teim object>
+    "delta": <time object>
   ]  
 }
 ~~~~
@@ -104,8 +104,7 @@ Both can be delivered by a separate, signal specific, meta information.
 
 ### Non Equidistant Time
 For a signal with values non-equidistant in time there is no meta information about time. 
-Time is delivered always as absolute time for each value point.
-
+Time is delivered always as absolute time stamp in each value point.
 
 Signals with non-equidistant time deliver an absolute time with each value.
 
@@ -114,7 +113,7 @@ Signals with non-equidistant time deliver an absolute time with each value.
 
 ## Simple Point or Series of Points
 
-A measured value might be described completely by as single point (i.e. the measured strain at a point in time).
+A measured value might be described completely as single point (i.e. the measured strain at a point in time).
 Other measured values consist of a series of several points (i.e. a spectum that contains several points over a frequency with an amplitude).
 
 To map a series of points that belong together, a signal might deliver an array of points.
@@ -140,7 +139,6 @@ The signal-related meta information looks like this:
 ~~~~
 
 - arraySize: Number of points in each value series of the signal
-- delta: Time between to equidistant points (for equidistant time)
 
 
 
@@ -174,8 +172,7 @@ There is a signal-related meta information that describes all value dimensions o
 - name: Name of the dimension (i.e. voltage, sound level, time)
 - valueType: Describes the data type of the dimension (i.e. a number format ("u8", "u32", "s32", "u64", "s64", "real32", "real64"), time (We talked about this in prior sessions), other known types)
 - unit: Unit of the dimension (Out of scope of this document)
-- delta: (A value according to valueType) If this parameter does exist, the values of this dimension .
-  are equidistant. There will be no absolute value for this dimesnsion in the delivered data blocks. 
+- delta: (A value according to valueType) If this parameter does exist, the values of this dimension are equidistant. There will be no absolute value for this dimension in the delivered data blocks. 
   The absolute coordinate of the dimension has to be calculated using an absolute start value, 
   the delta and the number of points delivered. If this parameter is missing for a dimension, each delivered point in measured value data blocks will carry a absolute value for the dimension.  
   The delta might be negative. 0 is invalid!
@@ -236,13 +233,53 @@ When there was no absolute start value yet the absolute start value is 0.
 
 ### A Voltage Sensor
 
-The signal has 1 value dimension
+The signal has 1 value dimension. Synchronous output rate is 100 Hz
 
 - The voltage is non-equidistant
+- The device delivers scaled values in 32 bit float format
 - Each value point carries the absolute voltage only
 
-The time is equidistant. The device sends an initial absolute value.
+The time is equidistant.
 
+The device sends the folloinwgsignal-specific meta information.
+
+~~~~ {.javascript}
+{
+  "method": "signal",
+  "params" : 
+    {
+      "endian": "little",
+    }
+  }
+}
+~~~~
+
+~~~~ {.javascript}
+{
+  "method": "time",
+  "params" : [
+    "absolute": <point in time of first value>
+    "delta": <10 ms>
+  ]  
+}
+~~~~
+
+~~~~ {.javascript}
+{
+  "method": "valueDimensions",
+  "params" : [
+      "0": {
+        "name": "voltage",
+        "valueType": "real32",
+        "unit": <V>,
+      }
+    ]
+  }
+}
+~~~~
+
+
+Then follows a data block with at least one value of this signal as little endian encoded float
 
 
 ### A CAN Decoder
@@ -252,6 +289,36 @@ The signal has 1 value dimension.
 - The value is non-equidistant
 
 The time is non-equidistant. Each value point is time stamped and carries the absolute value
+
+The device sends the folloinwgsignal-specific meta information.
+
+~~~~ {.javascript}
+{
+  "method": "signal",
+  "params" : 
+    {
+      "endian": "little",
+    }
+  }
+}
+~~~~
+
+~~~~ {.javascript}
+{
+  "method": "valueDimensions",
+  "params" : [
+      "0": {
+        "name": "voltage",
+        "valueType": "u32",
+        "unit": <V>,
+      }
+    ]
+  }
+}
+~~~~
+
+As you can see, there is no time meta information. This is because the time is not equidistant. An absolute time stamp is delivered in each data block.
+When the next matching CAN message arrives, a data block with one time stamp and one u32 value, both in little endian, is being send by the device.
 
 ### A Simple Counter
 
