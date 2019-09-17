@@ -237,9 +237,7 @@ The signal has 1 value dimension. Synchronous output rate is 100 Hz
 
 - The voltage is non-equidistant
 - The device delivers scaled values in 32 bit float format
-- Each value point carries the absolute voltage only
-
-The time is equidistant.
+- The time is equidistant.
 
 The device sends the folloinwgsignal-specific meta information.
 
@@ -261,7 +259,7 @@ The device sends the folloinwgsignal-specific meta information.
       "0": {
         "name": "voltage",
         "valueType": "real32",
-        "unit": <V>,
+        "unit": "V",
       }
     ]
   }
@@ -272,24 +270,22 @@ The device sends the folloinwgsignal-specific meta information.
 {
   "method": "time",
   "params" : [
-    "absolute": <point in time of first value>
-    "delta": <10 ms>
+    "absolute": "high noon, 1st january 2019"
+    "delta": "10 ms"
   ]  
 }
 ~~~~
 
-Then follows a data block with at least one value of this signal as little endian encoded float
-
+Following data block has at least one value of this signal as little endian encoded float. No time stamps.
 
 ### A CAN Decoder
 
 The signal has 1 value dimension. 
 
-- The value is non-equidistant
+- The value is non-equidistant.
+- The time is non-equidistant.
 
-The time is non-equidistant. Each value point is time stamped and carries the absolute value
-
-The device sends the folloinwgsignal-specific meta information.
+The device sends the following signal-specific meta information:
 
 ~~~~ {.javascript}
 {
@@ -307,26 +303,66 @@ The device sends the folloinwgsignal-specific meta information.
   "method": "valueDimensions",
   "params" : [
       "0": {
-        "name": "voltage",
+        "name": "decoded",
         "valueType": "u32",
-        "unit": <V>,
+        "unit": "decoder unit",
       }
     ]
   }
 }
 ~~~~
 
-As you can see, there is no time meta information. This is because the time is not equidistant. An absolute time stamp is delivered in each data block.
-When the next matching CAN message arrives, a data block with one time stamp and one u32 value, both in little endian, is being send by the device.
+As you can see, there is no time meta information. This is because the time is not equidistant. 
+Each value pint has an absolute time stamp and one u32 value, both little endian.
 
 ### A Simple Counter
 
 The signal has 1 value dimension
 
-- The count value is equidistant, it runs in one directions
+- The count value is equidistant, it runs in one direction
 - The device sends an initial absolute value.
+- The time is non-equidistant.
 
-The time is non-equidistant. There are absolute time stamps only, no value data
+~~~~ {.javascript}
+{
+  "method": "signal",
+  "params" : 
+    {
+      "endian": "little",
+    }
+  }
+}
+~~~~
+
+~~~~ {.javascript}
+{
+  "method": "valueDimensions",
+  "params" : [
+      0: {
+        "name": "count",
+        "valueType": "u32",
+        "delta": 2
+      }
+    ]
+  }
+}
+~~~~
+
+Again, there is no time meta information because the time is not equidistant. There is one value dimension with the counter value. This one is equidistant with a step width of 2.
+We get a start value of the counter before the first values arrive:
+
+~~~~ {.javascript}
+{
+  "method": "absoluteValues",
+  "params" : [
+    0: 0
+  ]  
+}
+~~~~
+
+Data blocks will contain timestamps only. The counter changes by a known amount of 2 only the time of the steps is variable.
+
+
 
 ### A Rotary Incremental Encoder with start Position
 
@@ -335,9 +371,63 @@ The signal has 1 value dimension
 - The angle is equidistant, it can go back and forth
 - Absolute start position when crossing a start position. 
 - No initial absolute value.
+- The time is non-equidistant.
 
-The time is non-equidistant. There is an absolute time stamp for each points. The point itself contains no data.
-When changing the direction, delta meta information is resend for the angle dimension.
+~~~~ {.javascript}
+{
+  "method": "signal",
+  "params" : 
+    {
+      "endian": "little",
+    }
+  }
+}
+~~~~
+
+~~~~ {.javascript}
+{
+  "method": "valueDimensions",
+  "params" : [
+      0: {
+        "name": "counter",
+        "valueType": "i32",
+        "delta": 1
+      }
+    ]
+  }
+}
+~~~~
+
+
+This is similar to the simple counter. But the 
+Again, there is no time meta information because the time is not equidistant. There is one value dimension with the counter value. This one is equidistant with a step width of 2.
+Data blocks will contain timestamps only. The counter changes by a known amount of 2 only the time of the steps is variable.
+
+We get a start value of the counter every time when the zero idex is being crossed:
+
+~~~~ {.javascript}
+{
+  "method": "absoluteValues",
+  "params" : [
+    0: 0
+  ]  
+}
+~~~~
+
+If the rotation direction changes, we get a new delta. This happens through a partial meta information `valueDimension`:
+
+~~~~ {.javascript}
+{
+  "method": "valueDimensions",
+  "params" : [
+      0: {
+        "delta": -1
+      }
+    ]
+  }
+}
+~~~~
+
 
 ### An Optical Sprectrum
 
@@ -345,8 +435,57 @@ The signal has 2 value dimensions. A spectrum consists of an array of value poin
 
 - The Frequency is equidistant, there is an absolute start value when the frequency sweep begins.
 - The amplitude is non-equidistant, hence each Point carries the absolute amplitude only
+- Each spectrum consists 1024 points
+- The time is non-equidistant. Each complete spectrum has one time stamp.
 
-There is a time stamp for each complete spectrum
+~~~~ {.javascript}
+{
+  "method": "signal",
+  "params" : 
+    {
+      "endian": "little",
+      "array": 1024
+    }
+  }
+}
+~~~~
+
+~~~~ {.javascript}
+{
+  "method": "valueDimensions",
+  "params" : [
+      "0": {
+        "name": "frequency",
+        "valueType": "real32",
+        "unit": "f",
+        "delta" : "10Hz"
+      },
+      "1": {
+        "name": "amplitude",
+        "valueType": "real32",
+        "unit": "db",
+      }
+    ]
+  }
+}
+~~~~
+
+Before each spectrum arrives, we get a absolute start value for the equidistant frequency dimension:
+
+~~~~ {.javascript}
+{
+  "method": "absoluteValues",
+  "params" : [
+    0: 100
+  ]  
+}
+~~~~
+
+
+Data block will contain a absolute time stamp followed by 1042 points withe one value because the 1st dimension is equidistant.
+
+
+
 
 ### Harmonic Analysis
 
