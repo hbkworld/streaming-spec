@@ -490,6 +490,7 @@ Data block will contain a absolute time stamp followed by 1024 points withe one 
 
 A CPB (Constant Percentage Bandwidth) spectrum is a logarithmic frequency spectrum where the actual bands are defined by a standard (not exactly logarithmic).
 The spectrum is defined by the following values:
+
 - Number of fractions per octave (e.g. 3)
 - Id of the first band of the spectrum.
 - The logarithmic base of the spectrum (2 or 10)
