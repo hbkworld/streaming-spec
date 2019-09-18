@@ -429,7 +429,7 @@ If the rotation direction changes, we get a new delta. This happens through a pa
 ~~~~
 
 
-### An Optical Sprectrum
+### An Optical Spectrum
 
 The signal has 2 value dimensions. A spectrum consists of an array of value points
 
@@ -482,7 +482,177 @@ Before each spectrum arrives, we get a absolute start value for the equidistant 
 ~~~~
 
 
-Data block will contain a absolute time stamp followed by 1042 points withe one value because the 1st dimension is equidistant.
+Data block will contain a absolute time stamp followed by 1024 points withe one value because the 1st dimension is equidistant.
+
+
+
+### CPB Spectrum
+
+A CPB (Constant Percentage Bandwidth) spectrum is a logarithmic frequency spectrum where the actual bands are defined by a standard (not exactly logarithmic).
+The spectrum is defined by the following values:
+- Number of fractions per octave (e.g. 3)
+- Id of the first band of the spectrum.
+- The logarithmic base of the spectrum (2 or 10)
+- Number of bands
+
+The time is non-equidistant.
+In this example the spectrum is 5 octaves with 3 fractions per octave, so 15 lines in total.
+
+~~~~ {.javascript}
+{
+  "method": "signal",
+  "params" : 
+    {
+      "endian": "little",
+      "array": 15
+    }
+  }
+}
+~~~~
+
+~~~~ {.javascript}
+{
+  "method": "valueDimensions",
+  "params" : {
+      "0": {
+        "name": "frequency",
+        "valueType": "real32",
+        "unit": "Hz",
+        "indexmapping": "CPB",     (New: B&K calls this "indexmapping" (how does value map to index), could also be called axis type, or rule...)
+        "cpb.basesystem": 10,      (New: Specific for CPB)
+        "cpb.firstband": 2,   	   (New: Specific for CPB)
+        "cpb.numberfractions": 3,  (New: Specific for CPB)
+	"length": 15               (New: Matthias has this in the signal method, I would think it belongs here, so put it here as a suggestion)
+      },
+      "1": {
+        "name": "amplitude",
+        "valueType": "real32",
+        "unit": "db rel 20 uPa",
+      }
+    }
+  }
+}
+~~~~
+
+Data block will contain an absolute time stamp followed by 15 real32.
+
+
+
+### Statistics
+
+Statistics consists of N "counters" each covering a value interval. If the measured value is within a counter interval, then that counter is incremented.
+For instance the interval from 50 to 99 db might be covered by 50 counters. Each of these counters then would cover 1 dB.
+
+Often there also is a lower than lowest and higher than highest counter, and for performance reasons, there might be a total counter.
+
+
+Example: 50 - 99 dB statistics:
+Number of counters: 53 (50 normal counters plus a lower, a higher and a total counter).
+
+
+~~~~ {.javascript}
+{
+  "method": "signal",
+  "params" : 
+    {
+      "endian": "little",
+      "array": 780 (15*52)
+    }
+  }
+}
+~~~~
+
+~~~~ {.javascript}
+{
+  "method": "valueDimensions",
+  "params" : {
+      "0": {
+        "name": "amplitude",
+        "valueType": "real32",
+        "unit": "dB",
+        "indexmapping": "Statistics",     (New: B&K calls this "indexmapping" (how does value map to index), could also be called axis type, or rule...)
+        "statistics.lowercounter": true,  (New: Specific for statistics. Indicates whether the lower counter is there)
+        "statistics.highercounter": true, (New: Specific for statistics. Indicates whether the higher counter is there)
+        "statistics.totalcounter": true,  (New: Specific for statistics. Indicates whether the total counter is there)
+        "statistics.firstcounter": 50.0,  (New: Specific for statistics. Indicates the start of the first counter)
+        "statistics.counterwidth": 1.0,   (New: Specific for statistics. Indicates the with of all the counters)
+	"length": 53                      (New: Includes the optional extra counters)
+      },
+      "1": {
+        "name": "count",
+        "valueType": "int32",
+        "unit": "",
+      }
+    }
+  }
+}
+~~~~
+
+
+Data block will contain a absolute time stamp followed by 53 int32.
+
+
+
+### SpectralStatistics
+
+Spectral statistics adds a dimension to the statistics example.
+The first axis could for instance be a CPB axis, for each CPB band there is a statistics (which is 2 dimensions).
+
+
+
+Example: 50 - 99 dB spectral statistics on a 1/3 octave CPB:
+
+
+~~~~ {.javascript}
+{
+  "method": "signal",
+  "params" : 
+    {
+      "endian": "little",
+      "array": 53
+    }
+  }
+}
+~~~~
+
+~~~~ {.javascript}
+{
+  "method": "valueDimensions",
+  "params" : {
+      "0": {
+        "name": "frequency",
+        "valueType": "real32",
+        "unit": "Hz",
+        "indexmapping": "CPB",     (New: B&K calls this "indexmapping" (how does value map to index), could also be called axis type, or rule...)
+        "cpb.basesystem": 10,      (New: Specific for CPB)
+        "cpb.firstband": 2,   	   (New: Specific for CPB)
+        "cpb.numberfractions": 3,  (New: Specific for CPB)
+	"length": 15               (New: Matthias has this in the signal method, I would think it belongs here, so put it here as a suggestion)
+      },
+      "1": {
+        "name": "amplitude",
+        "valueType": "real32",
+        "unit": "dB",
+        "indexmapping": "Statistics",     (New: B&K calls this "indexmapping" (how does value map to index), could also be called axis type, or rule...)
+        "statistics.lowercounter": true,  (New: Specific for statistics. Indicates whether the lower counter is there)
+        "statistics.highercounter": true, (New: Specific for statistics. Indicates whether the higher counter is there)
+        "statistics.totalcounter": false,  (New: Specific for statistics. Indicates whether the total counter is there)
+        "statistics.firstcounter": 50.0,  (New: Specific for statistics. Indicates the start of the first counter)
+        "statistics.counterwidth": 1.0,   (New: Specific for statistics. Indicates the with of all the counters)
+	"length": 52                      (New: Includes the optional extra counters)
+      },
+      "2": {
+        "name": "count",
+        "valueType": "int32",
+        "unit": ""
+      }
+    }
+  }
+}
+~~~~
+
+
+Data block will contain a absolute time stamp followed by 780 (15 * 52) int32.
 
 
 
