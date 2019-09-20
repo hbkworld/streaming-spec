@@ -650,12 +650,73 @@ One combined value consists of the following :
 - a scalar value fundamental frequency
 - a two dimensional array with n arrays of points with frequency, FFT amplitude, FFT phase, where n is the number of dimensions
 
+~~~~ {.javascript}
+{
+  "method": "signal",
+  "params" : 
+    {
+      "endian": "little",
+    }
+  }
+}
+~~~~
 
-The approach to describe multiple dimensions described here does not work for this structure because:
-- It expects that all dimensions have the same number of values (scalars and arrays, or more general arrays with different number of elements can not be used together).
-- There are no sub dimensions (two dimensional array have dimensions within each dimension).
+~~~~ {.javascript}
+{
+  "method": "valueDimensions",
+  "params" : {
+      0: {
+        "name": "distortion",
+        "valueType": "real32",
+      },
+      1: {
+        "name": "fundamental frequency",
+        "valueType": "real32",
+      },
+      2: {
+        "name": "fft amplitude 1",
+        "valueType": "real32",
+        "unit": "dB",
+        "array": < number of FFT points >
+      },
+      3: {
+        "name": "fft phase 1",
+        "valueType": "real32",
+        "unit": "rad",
+        "delta" : 1,
+        "array": < number of FFT points >
+      },
+      4: {
+        "name": "fft amplitude 2",
+        "valueType": "real32",
+        "unit": "dB",
+        "array": < number of FFT points >
+      },
+      5: {
+        "name": "fft phase 2",
+        "valueType": "real32",
+        "unit": "rad",
+        "delta" : 1,
+        "array": < number of FFT points >
+      },
+    }
+  }
+}
+~~~~
 
-It would be possible to define a special `known type` that describes exatly this format (In this case n has to be constant). 
-In this case it would be a signal with one dimension of this type. Streaming client has to have inmplcit kmowledge about the `known type`and how to handle it. 
+Instead of having a field of spectra we have to all dimensions flat.
+
+~~~~ {.javascript}
+{
+  "method": "absoluteValues",
+  "params" : [
+    3: 0
+    5: 0
+  ]  
+}
+~~~~
+
+
+
 
 The time would be non-equidistant. Each value point has on is time stamped and carries the absolute value.
