@@ -617,7 +617,7 @@ Example: 50 - 99 dB spectral statistics on a 1/3 octave CPB:
         "cpb.basesystem": 10,      (New: Specific for CPB)
         "cpb.firstband": 2,   	   (New: Specific for CPB)
         "cpb.numberfractions": 3,  (New: Specific for CPB)
-	    "length": 15
+        "array": 15
       },
       "1": {
         "name": "amplitude",
@@ -629,7 +629,7 @@ Example: 50 - 99 dB spectral statistics on a 1/3 octave CPB:
         "statistics.totalcounter": false,  (New: Specific for statistics. Indicates whether the total counter is there)
         "statistics.firstcounter": 50.0,  (New: Specific for statistics. Indicates the start of the first counter)
         "statistics.counterwidth": 1.0,   (New: Specific for statistics. Indicates the with of all the counters)
-	    "array": 53
+        "array": 53
       },
     }
   }
