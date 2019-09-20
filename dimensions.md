@@ -111,17 +111,6 @@ Signals with non-equidistant time deliver an absolute time with each value.
 \pagebreak
 
 
-## Simple Point or Series of Points
-
-A measured value might be described completely as single point (i.e. the measured strain at a point in time).
-Other measured values consist of a series of several points (i.e. a spectum that contains several points over a frequency with an amplitude).
-
-To map a series of points that belong together, a signal might deliver an array of points.
-The number of points in the array is expressed by a meta information of the signal.
-
-Composed signals tell their array size in the meta information describing the signal.
-
-The signal-related meta information looks like this:
 
 ~~~~ {.javascript}
 {
@@ -129,16 +118,10 @@ The signal-related meta information looks like this:
   "params" : 
     {
       "endian": <string>,
-      "data": 
-      {
-    	"arraySize: <number>
-      },
     }
   }
 }
 ~~~~
-
-- arraySize: Number of points in each value series of the signal
 
 
 
@@ -148,6 +131,15 @@ The signal-related meta information looks like this:
 
 This is an idea how to describe any value of the mentioned signals in one generic way.
 The second dimension carrying the values in the HBM streaming protocol is replaced with a value that has several dimensions.
+
+### Scalar value or Series of values
+
+A dimension of a measured value might be described completely as single point (i.e. the measured strain at a point in time).
+In other cases a dimension of ameasured values might consist of a series of several values (i.e. a spectum that contains several points over a frequency with an amplitude).
+
+To map a series of values that belong together, a dimension might deliver an array of points for each measured value.
+The number of values in the array is expressed by a meta information of the dimension.
+
 
 There is a signal-related meta information that describes all value dimensions of the signal:
 
@@ -160,6 +152,7 @@ There is a signal-related meta information that describes all value dimensions o
         "valueType": <string>,
         "unit": <unit object>,
         "delta": <value>
+       	"arraySize: <number>
       }
     ]
   }
@@ -176,6 +169,8 @@ There is a signal-related meta information that describes all value dimensions o
   The absolute coordinate of the dimension has to be calculated using an absolute start value, 
   the delta and the number of points delivered. If this parameter is missing for a dimension, each delivered point in measured value data blocks will carry a absolute value for the dimension.  
   The delta might be negative. 0 is invalid!
+- arraySize: Number of points in each value series for this dimension
+
 
 ### Dimension Specific Meta Information
 
@@ -435,7 +430,7 @@ The signal has 2 value dimensions. A spectrum consists of an array of value poin
 
 - The Frequency is equidistant, there is an absolute start value when the frequency sweep begins.
 - The amplitude is non-equidistant, hence each Point carries the absolute amplitude only
-- Each spectrum consists 1024 points
+- Every dimension consists 1024 points to describe a complete spectrum
 - The time is non-equidistant. Each complete spectrum has one time stamp.
 
 ~~~~ {.javascript}
@@ -444,7 +439,6 @@ The signal has 2 value dimensions. A spectrum consists of an array of value poin
   "params" : 
     {
       "endian": "little",
-      "array": 1024
     }
   }
 }
@@ -459,11 +453,13 @@ The signal has 2 value dimensions. A spectrum consists of an array of value poin
         "valueType": "real32",
         "unit": "f",
         "delta" : "10Hz"
+        "array": 1024
       },
       "1": {
         "name": "amplitude",
         "valueType": "real32",
         "unit": "db",
+        "array": 1024
       }
     ]
   }
@@ -505,7 +501,6 @@ In this example the spectrum is 5 octaves with 3 fractions per octave, so 15 lin
   "params" : 
     {
       "endian": "little",
-      "array": 15
     }
   }
 }
@@ -523,12 +518,13 @@ In this example the spectrum is 5 octaves with 3 fractions per octave, so 15 lin
         "cpb.basesystem": 10,      (New: Specific for CPB)
         "cpb.firstband": 2,   	   (New: Specific for CPB)
         "cpb.numberfractions": 3,  (New: Specific for CPB)
-	"length": 15               (New: Matthias has this in the signal method, I would think it belongs here, so put it here as a suggestion)
+	    "array": 15
       },
       "1": {
         "name": "amplitude",
         "valueType": "real32",
         "unit": "db rel 20 uPa",
+   	    "array": 15
       }
     }
   }
@@ -557,7 +553,6 @@ Number of counters: 53 (50 normal counters plus a lower, a higher and a total co
   "params" : 
     {
       "endian": "little",
-      "array": 780 (15*52)
     }
   }
 }
@@ -569,7 +564,7 @@ Number of counters: 53 (50 normal counters plus a lower, a higher and a total co
   "params" : {
       "0": {
         "name": "amplitude",
-        "valueType": "real32",
+        "valueType": "u32",
         "unit": "dB",
         "indexmapping": "Statistics",     (New: B&K calls this "indexmapping" (how does value map to index), could also be called axis type, or rule...)
         "statistics.lowercounter": true,  (New: Specific for statistics. Indicates whether the lower counter is there)
@@ -577,20 +572,15 @@ Number of counters: 53 (50 normal counters plus a lower, a higher and a total co
         "statistics.totalcounter": true,  (New: Specific for statistics. Indicates whether the total counter is there)
         "statistics.firstcounter": 50.0,  (New: Specific for statistics. Indicates the start of the first counter)
         "statistics.counterwidth": 1.0,   (New: Specific for statistics. Indicates the with of all the counters)
-	"length": 53                      (New: Includes the optional extra counters)
+	    "array": 53                      (New: Includes the optional extra counters)
       },
-      "1": {
-        "name": "count",
-        "valueType": "int32",
-        "unit": "",
-      }
     }
   }
 }
 ~~~~
 
 
-Data block will contain a absolute time stamp followed by 53 int32.
+Data block will contain a absolute time stamp followed by 53 uint32.
 
 
 
@@ -610,7 +600,6 @@ Example: 50 - 99 dB spectral statistics on a 1/3 octave CPB:
   "params" : 
     {
       "endian": "little",
-      "array": 53
     }
   }
 }
@@ -622,17 +611,17 @@ Example: 50 - 99 dB spectral statistics on a 1/3 octave CPB:
   "params" : {
       "0": {
         "name": "frequency",
-        "valueType": "real32",
+        "valueType": "u32",
         "unit": "Hz",
         "indexmapping": "CPB",     (New: B&K calls this "indexmapping" (how does value map to index), could also be called axis type, or rule...)
         "cpb.basesystem": 10,      (New: Specific for CPB)
         "cpb.firstband": 2,   	   (New: Specific for CPB)
         "cpb.numberfractions": 3,  (New: Specific for CPB)
-	"length": 15               (New: Matthias has this in the signal method, I would think it belongs here, so put it here as a suggestion)
+	    "length": 15
       },
       "1": {
         "name": "amplitude",
-        "valueType": "real32",
+        "valueType": "u32",
         "unit": "dB",
         "indexmapping": "Statistics",     (New: B&K calls this "indexmapping" (how does value map to index), could also be called axis type, or rule...)
         "statistics.lowercounter": true,  (New: Specific for statistics. Indicates whether the lower counter is there)
@@ -640,20 +629,15 @@ Example: 50 - 99 dB spectral statistics on a 1/3 octave CPB:
         "statistics.totalcounter": false,  (New: Specific for statistics. Indicates whether the total counter is there)
         "statistics.firstcounter": 50.0,  (New: Specific for statistics. Indicates the start of the first counter)
         "statistics.counterwidth": 1.0,   (New: Specific for statistics. Indicates the with of all the counters)
-	"length": 52                      (New: Includes the optional extra counters)
+	    "array": 53
       },
-      "2": {
-        "name": "count",
-        "valueType": "int32",
-        "unit": ""
-      }
     }
   }
 }
 ~~~~
 
 
-Data block will contain a absolute time stamp followed by 780 (15 * 52) int32.
+Data block will contain a absolute time stamp followed by 795 (15 * 53) uint32.
 
 
 
