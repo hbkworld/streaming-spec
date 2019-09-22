@@ -152,7 +152,10 @@ There is a signal-related meta information that describes all value dimensions o
         "valueType": <string>,
         "unit": <unit object>,
         "delta": <value>
-       	"arraySize: <number>
+        "array": {
+          "size": <number>,
+          "start": <value of valueType>
+        }
       }
     ]
   }
@@ -169,7 +172,8 @@ There is a signal-related meta information that describes all value dimensions o
   The absolute coordinate of the dimension has to be calculated using an absolute start value, 
   the delta and the number of points delivered. If this parameter is missing for a dimension, each delivered point in measured value data blocks will carry a absolute value for the dimension.  
   The delta might be negative. 0 is invalid!
-- arraySize: Number of points in each value series for this dimension
+- array/size: Number of points in each value series for this dimension
+- array/start: (Optional) If this is set, the equidistant array starts always with this value (i.e. frquency of a spectrum).
 
 
 ### Dimension Specific Meta Information
@@ -428,7 +432,7 @@ If the rotation direction changes, we get a new delta. This happens through a pa
 
 The signal has 2 value dimensions. A spectrum consists of an array of value points
 
-- The Frequency is equidistant, there is an absolute start value when the frequency sweep begins.
+- The Frequency is equidistant, it has an absolute start value of 100.
 - The amplitude is non-equidistant, hence each Point carries the absolute amplitude only
 - Every dimension consists 1024 points to describe a complete spectrum
 - The time is non-equidistant. Each complete spectrum has one time stamp.
@@ -452,8 +456,11 @@ The signal has 2 value dimensions. A spectrum consists of an array of value poin
         "name": "frequency",
         "valueType": "real32",
         "unit": "f",
-        "delta" : "10Hz"
-        "array": 1024
+        "delta" : 10
+        "array": {
+          "size" : 1024,
+          "start": 100
+        }
       },
       "1": {
         "name": "amplitude",
@@ -463,17 +470,6 @@ The signal has 2 value dimensions. A spectrum consists of an array of value poin
       }
     ]
   }
-}
-~~~~
-
-Before each spectrum arrives, we get a absolute start value for the equidistant frequency dimension:
-
-~~~~ {.javascript}
-{
-  "method": "absoluteValues",
-  "params" : [
-    0: 100
-  ]  
 }
 ~~~~
 
@@ -518,13 +514,17 @@ In this example the spectrum is 5 octaves with 3 fractions per octave, so 15 lin
         "cpb.basesystem": 10,      (New: Specific for CPB)
         "cpb.firstband": 2,   	   (New: Specific for CPB)
         "cpb.numberfractions": 3,  (New: Specific for CPB)
-	    "array": 15
+	    "array": {
+	      "size: 15,
+	    }
       },
       "1": {
         "name": "amplitude",
         "valueType": "real32",
         "unit": "db rel 20 uPa",
-   	    "array": 15
+   	    "array": {
+            "size": 15,
+          }
       }
     }
   }
@@ -572,7 +572,9 @@ Number of counters: 53 (50 normal counters plus a lower, a higher and a total co
         "statistics.totalcounter": true,  (New: Specific for statistics. Indicates whether the total counter is there)
         "statistics.firstcounter": 50.0,  (New: Specific for statistics. Indicates the start of the first counter)
         "statistics.counterwidth": 1.0,   (New: Specific for statistics. Indicates the with of all the counters)
-	    "array": 53                      (New: Includes the optional extra counters)
+        "array": {
+	      "size: 15,
+	  }
       },
     }
   }
@@ -617,7 +619,9 @@ Example: 50 - 99 dB spectral statistics on a 1/3 octave CPB:
         "cpb.basesystem": 10,      (New: Specific for CPB)
         "cpb.firstband": 2,   	   (New: Specific for CPB)
         "cpb.numberfractions": 3,  (New: Specific for CPB)
-        "array": 15
+        "array": {
+	    "size: 15,
+	  }
       },
       "1": {
         "name": "amplitude",
@@ -629,7 +633,9 @@ Example: 50 - 99 dB spectral statistics on a 1/3 octave CPB:
         "statistics.totalcounter": false,  (New: Specific for statistics. Indicates whether the total counter is there)
         "statistics.firstcounter": 50.0,  (New: Specific for statistics. Indicates the start of the first counter)
         "statistics.counterwidth": 1.0,   (New: Specific for statistics. Indicates the with of all the counters)
-        "array": 53
+        "array": {
+          "size: 15
+	  }
       },
     }
   }
@@ -677,46 +683,44 @@ One combined value consists of the following :
         "name": "fft amplitude 1",
         "valueType": "real32",
         "unit": "dB",
-        "array": < number of FFT points >
+        "array" {
+          "size": < number of FFT points >
+        }          
       },
       3: {
         "name": "fft phase 1",
         "valueType": "real32",
         "unit": "rad",
         "delta" : 1,
-        "array": < number of FFT points >
+        "array": {
+          "size": < number of FFT points >,
+          "start": 0
+        }
       },
       4: {
         "name": "fft amplitude 2",
         "valueType": "real32",
         "unit": "dB",
-        "array": < number of FFT points >
+        "array" {
+          "size": < number of FFT points >
+        }          
       },
       5: {
         "name": "fft phase 2",
         "valueType": "real32",
         "unit": "rad",
         "delta" : 1,
-        "array": < number of FFT points >
+        "array": {
+          "size": < number of FFT points >,
+          "start": 0
+        }
       },
     }
   }
 }
 ~~~~
 
-Instead of having a field of spectra we have to all dimensions flat.
+Instead of having a field of spectra we have all dimensions flat. 
+The components `fft phase 1` and `fft phase 2` are equidistant and have a start value
 
-~~~~ {.javascript}
-{
-  "method": "absoluteValues",
-  "params" : [
-    3: 0
-    5: 0
-  ]  
-}
-~~~~
-
-
-
-
-The time would be non-equidistant. Each value point has on is time stamped and carries the absolute value.
+The time is non-equidistant. Each harmonic analysis structure carries the absolute time stamp.
