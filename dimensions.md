@@ -467,7 +467,7 @@ The signal has 2 value dimensions. A spectrum consists of an array of value poin
         "name": "frequency",
         "valueType": "real32",
         "unit": "f",
-        "delta" : 10
+        "delta": 10
         "start": 100
       },
       "1": {
@@ -504,8 +504,7 @@ In this example the spectrum is 5 octaves with 3 fractions per octave, so 15 lin
   "params" : 
     {
       "endian": "little",
-      "arraySize: 15,
-	    }
+      "arraySize: 15
     }
   }
 }
@@ -550,12 +549,43 @@ Often there also is a lower than lowest and higher than highest counter, and for
 Example: 50 - 99 dB statistics:
 Number of counters: 53 (50 normal counters plus a lower, a higher and a total counter).
 
+The complete statistics is divided into four signals one carrying the 50 normal counters and additional signals carrying the lower than counter, higher than counter and total counter
 
 ~~~~ {.javascript}
 {
   "method": "signal",
   "params" : 
     {
+      "name": "statistics counters"
+      "endian": "little",
+      "arraySize": 50
+    }
+  }
+}
+~~~~
+
+~~~~ {.javascript}
+{
+  "method": "valueDimensions",
+  "params" : {
+      "0": {
+        "name": "amplitude",
+        "valueType": "u32",
+        "unit": "dB",
+        "delta" : 1
+        "start": 50
+      },
+    }
+  }
+}
+~~~~
+
+~~~~ {.javascript}
+{
+  "method": "signal",
+  "params" : 
+    {
+      "name": "statistics lower than count"
       "endian": "little",
     }
   }
@@ -570,23 +600,68 @@ Number of counters: 53 (50 normal counters plus a lower, a higher and a total co
         "name": "amplitude",
         "valueType": "u32",
         "unit": "dB",
-        "indexmapping": "Statistics",     (New: B&K calls this "indexmapping" (how does value map to index), could also be called axis type, or rule...)
-        "statistics.lowercounter": true,  (New: Specific for statistics. Indicates whether the lower counter is there)
-        "statistics.highercounter": true, (New: Specific for statistics. Indicates whether the higher counter is there)
-        "statistics.totalcounter": true,  (New: Specific for statistics. Indicates whether the total counter is there)
-        "statistics.firstcounter": 50.0,  (New: Specific for statistics. Indicates the start of the first counter)
-        "statistics.counterwidth": 1.0,   (New: Specific for statistics. Indicates the with of all the counters)
-        "array": {
-	      "size: 15,
-	  }
       },
     }
   }
 }
 ~~~~
 
+~~~~ {.javascript}
+{
+  "method": "signal",
+  "params" : 
+    {
+      "name": "statistics higher than count"
+      "endian": "little",
+    }
+  }
+}
+~~~~
 
-Data block will contain a absolute time stamp followed by 53 uint32.
+~~~~ {.javascript}
+{
+  "method": "valueDimensions",
+  "params" : {
+      "0": {
+        "name": "amplitude",
+        "valueType": "u32",
+        "unit": "dB",
+      },
+    }
+  }
+}
+~~~~
+
+~~~~ {.javascript}
+{
+  "method": "signal",
+  "params" : 
+    {
+      "name": "statistics total count"
+      "endian": "little",
+    }
+  }
+}
+~~~~
+
+~~~~ {.javascript}
+{
+  "method": "valueDimensions",
+  "params" : {
+      "0": {
+        "name": "amplitude",
+        "valueType": "u32",
+        "unit": "dB",
+      },
+    }
+  }
+}
+~~~~
+
+There will be 3 data blocks
+
+* 1 Data block will contain an absolute time stamp followed by 50 uint32 For the 50 counters
+* 3 Data blocks with an absolute timestamp and one u32 counter value
 
 
 
