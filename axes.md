@@ -70,11 +70,13 @@ In other cases an axis might consist of an array values with a fixed number of e
 ## Implicit Axes
 
 For implicit axes, the component of the value for this axes is described by specidic rules.
-We use equidistant representation to greatly reduce the amount of data to be transferred, stored and processed.
+We use implicit axes rules to greatly reduce the amount of data to be transferred, stored and processed.
 
-There are several kinds of rules.
+There are several kinds of rules. To calculate the absolute value on an implicit axis, the rule has to beapplied.
 
-Axes are described by a meta information
+All axes are described by a signal specific meta information.
+
+
 
 ### Linear Axes{#Linear_Axes}
 For equidistant axes we use linear axes.
@@ -92,18 +94,24 @@ A linear axis is described as follows:
 ~~~~ {.javascript}
 {
   "axis" : {
-    "type": "linear",
+    "axisType": "linear",
+    "linear": {
+      "start": <value>,
+      "delta": <value>,
+    },
     "unit": <unit object>,
-    "start": <value>,
-    "delta": <value>,
+    "name: <string>,
+    "valueType": <string>
     "count": <unsigned integer>
   }
 }
 ~~~~
 
-- `type`: Type of axis rule
+- `axisType`: Type of axis rule
 - `unit`: Unit of the axis (Out of scope of this document)
-- `value`: A value of the data type of the axis.
+- `name`: Name of the dimension (i.e. voltage, sound level, time)
+- `valueType`: Describes the data type of the dimension (i.e. a number format ("u8", "u32", "s32", "u64", "s64", "real32", "real64"), time (We talked about this in prior sessions), other known types)
+- `value`: A value of the `valueType` of the axis.
 - `start`: The absolute start value for the axis.
 - `delta`: The difference between two values
 - `count`: Optional: Number of values for arrays
@@ -114,15 +122,18 @@ A linear axis is described as follows:
 
 ~~~~ {.javascript}
 {
-  "axis" : {
-    "type" : "logarithmicAxis"
+    "axisType": "linear",
     "unit": <unit object>,
-  }
+    "name: <string>,
+    "valueType": <string>
+    ...
 }
 ~~~~
 
-- `type`: Type of axis rule
+- `axisType`: Type of axis rule
 - `unit`: Unit of the axis (Out of scope of this document)
+- `name`: Name of the dimension (i.e. voltage, sound level, time)
+- `valueType`: Describes the data type of the dimension (i.e. a number format ("u8", "u32", "s32", "u64", "s64", "real32", "real64"), time (We talked about this in prior sessions), other known types)
 
 
 \pagebreak
@@ -136,15 +147,17 @@ There is no rule how to calculate the absolute value on the axis.
 
 ~~~~ {.javascript}
 {
-  "axis" {
-    "type": "explicit",
+    "axisType": "explicit",
     "unit": <unit object>,
-  }
+    "name: <string>,
+    "valueType": <string>
 }
 ~~~~
 
-- `type`: Type of axis rule
+- `axisType`: Type of axis rule
 - `unit`: Unit of the axis (Out of scope of this document)
+- `name`: Name of the dimension (i.e. voltage, sound level, time)
+- `valueType`: Describes the data type of the dimension (i.e. a number format ("u8", "u32", "s32", "u64", "s64", "real32", "real64"), time (We talked about this in prior sessions), other known types)
 
 
 \pagebreak
@@ -153,7 +166,8 @@ There is no rule how to calculate the absolute value on the axis.
 ## Time 
 
 One special axis/dimension is the time which is mandatory. The time is 
-mandatory for each signal. It can be equidistant (linear implicit) or non-equidistant (explicit).
+mandatory for each signal. It is not part of the signal value.
+ It can be equidistant (linear implicit) or non-equidistant (explicit).
 
 
 ### Equidistant Time
@@ -174,26 +188,39 @@ Both can be delivered by a separate, signal specific, meta information.
 {
   "method": "time",
   "params": {
-    "axis" {
-      "type": "linear",
-      "unit": <unit object>,
-      "start": <time object>.
-      "delta": <time object>
-  }
+    "axisType": "linear",
+    "linear": {
+      "start": <value>,
+      "delta": <value>,
+    },
+    "unit": <unit object>,
+    "valueType": <string>,
 }
 ~~~~
 
 - `method`: Type of meta information
-- `type`: type of axis
+- `axisType`: type of axis
 - `unit`: Unit of the axis
 - `start`: The absolute timestamp for the next value point.
 - `delta`: The time difference between two value points
 
 ### Non Equidistant Time
-For a signal with values non-equidistant in time there is no meta information about time. 
-Time is delivered always as absolute time stamp in each value point.
+Time is delivered as absolute time stamp for each value.
 
-Signals with non-equidistant time deliver an absolute time with each value.
+~~~~ {.javascript}
+{
+  "method": "time",
+  "params": {
+    "axisType": "explicit",
+    "unit": <unit object>,
+    "valueType": "time"
+  }
+}
+~~~~
+
+- `method`: Type of meta information
+- `axisType`: type of axis
+- `unit`: Unit of the axis
 
 \pagebreak
 
@@ -211,14 +238,10 @@ There is a signal-related meta information that describes all value axes of the 
 
 ~~~~ {.javascript}
 {
-  "method": "valueDimensions",
+  "method": "axes",
   "params" : [
-      "<value dimension id>": {
-        "name": <string>,
-        "valueType": <string>,
-        "axis: { 
-          <an axis description>
-        }
+      "<axes id>": {
+        <an axis rule description>
       }
     ]
   }
@@ -228,57 +251,16 @@ There is a signal-related meta information that describes all value axes of the 
 
 - `params`: An array of objects each desribing a dimension.
 - `value dimension id`: There is a fixed id for each value dimension of a signal.
-- `name`: Name of the dimension (i.e. voltage, sound level, time)
-- `valueType`: Describes the data type of the dimension (i.e. a number format ("u8", "u32", "s32", "u64", "s64", "real32", "real64"), time (We talked about this in prior sessions), other known types)
-- `axis`: Optional. Axis rules, if this is an implicit axis
-
-
-### Dimension Specific Meta Information
-
-There might be meta information that refers to a specific value dimension of a signal.
-To do so the header of the meta information has to contain signal id (as in HBM Streaming Protocol) and dimension id.
-
-\pagebreak
-
-### Absolute Values
-
-To calculate the absolute coordinate of equidistant value dimensions. There needs to be an absolute start value.
-This can be delivered by a separate signal-related meta information. 
-
-- The device might deliver the absolute coordinate before delivering the first data point.
-- When using incremental encoders as signal source the absolute start value might be delivered when crossing the start position.
-- Absolute value for the time might be resend if the device resynchronized.
-- There might be no absolute corrdinate at all. As a result only a relative value can be acquired. In this case absolute start value is 0.
-
-~~~~ {.javascript}
-{
-  "method": "absoluteValues",
-  "params" : [
-    "<dimension id>": <value according to valueType>
-  ]  
-}
-~~~~
-
-### Binary Representation
-
-If we expect absolute values to be transferred often, it might be a good idea to transfer it in binary form to save bandwith.
-It might also reduce processing time on the client.
-
-HBM Streeaming Protocol does not specify meta information in binary form. This can easily added.
-
-
 
 ### How to Interprete Measured Data
 
 After the value dimension details were send, delivered measured data blocks are to be interpreted as follows:
 
-- Each data block contains complete points. 
-- A block may contain many points. They are arranged point by point.
-- Each point is a tuple with one value for every non-equidistant dimension
-- Theoretically a signal might contain equidistant dimensions only. There won't be measured data to be transferred. We would deliver just data blocks without any data payload.
-
-Coordinates of equidistant dimensions are calculated using the last absolute start values the delta and the number of points since then.
-When there was no absolute start value yet the absolute start value is 0.
+- Each data block contains complete values. 
+- A block may contain many values. They are arranged value by value.
+- Only component values of explicit axes are send.
+- Component value of implicit xaes are calculated following the axis rule.
+- Theoretically a signal might contain implicit axes only. There won't be any component value to be transferred. All component values are to calculated using the axes rules.
 
 \pagebreak
 
@@ -289,32 +271,22 @@ When there was no absolute start value yet the absolute start value is 0.
 
 ### A Voltage Sensor
 
-The signal has 1 value dimension. Synchronous output rate is 100 Hz
+The signal has 1 value axis. Synchronous output rate is 100 Hz
 
-- The voltage is non-equidistant
-- The device delivers scaled values in 32 bit float format
-- The time is equidistant.
+- The voltage is on an explicit axis
+- The device delivers scaled component value in 32 bit float format
+- The time is equidistant (implicit).
 
-The device sends the folloinwgsignal-specific meta information.
+The device sends the followin signal-specific meta information.
 
-~~~~ {.javascript}
-{
-  "method": "signal",
-  "params" : 
-    {
-      "endian": "little",
-    }
-  }
-}
-~~~~
 
 ~~~~ {.javascript}
 {
-  "method": "valueDimensions",
+  "method": "axes",
   "params" : [
       "0": {
-        "name": "voltage",
-        "valueType": "real32",
+        "axisType": "explicit",
+        "valueType": "float",
         "unit": "V",
       }
     ]
@@ -326,40 +298,34 @@ The device sends the folloinwgsignal-specific meta information.
 {
   "method": "time",
   "params" : [
-    "absolute": "high noon, 1st january 2019"
-    "delta": "10 ms"
+    "axisType": "linear",
+    "linear": {
+      "start": "high noon, 1st january 2019"
+      "delta": "10 ms"
+    },
+    "valueType": "time"
   ]  
 }
 ~~~~
 
-Following data block has at least one value of this signal as little endian encoded float. No time stamps.
+Following data block has at least one value of this signal encoded float. No time stamps.
 
 ### A CAN Decoder
 
 The signal has 1 value dimension. 
 
-- The value is non-equidistant.
-- The time is non-equidistant.
+- The value is explicit.
+- The time is explicit.
 
 The device sends the following signal-specific meta information:
 
 ~~~~ {.javascript}
 {
-  "method": "signal",
-  "params" : 
-    {
-      "endian": "little",
-    }
-  }
-}
-~~~~
-
-~~~~ {.javascript}
-{
-  "method": "valueDimensions",
+  "method": "axes",
   "params" : [
       "0": {
         "name": "decoded",
+        "axisType": "explicit",       
         "valueType": "u32",
         "unit": "decoder unit",
       }
@@ -368,113 +334,120 @@ The device sends the following signal-specific meta information:
 }
 ~~~~
 
-As you can see, there is no time meta information. This is because the time is not equidistant. 
-Each value pint has an absolute time stamp and one u32 value, both little endian.
+~~~~ {.javascript}
+{
+  "method": "time",
+  "params" : [
+    "axis": {
+      "axisType": "explicit",
+      "valueType": "time",
+    }
+  ]  
+}
+~~~~
+
+Each value pint has an absolute time stamp and one u32 value.
 
 ### A Simple Counter
 
 The signal has 1 value dimension
 
-- The count value is equidistant, it runs in one direction
+- The count value is equidistant with an increment of 2, it runs in one direction
 - The device sends an initial absolute value.
 - The time is non-equidistant.
 
 ~~~~ {.javascript}
 {
-  "method": "signal",
-  "params" : 
-    {
-      "endian": "little",
-    }
-  }
-}
-~~~~
-
-~~~~ {.javascript}
-{
-  "method": "valueDimensions",
+  "method": "axes",
   "params" : [
       0: {
         "name": "count",
         "valueType": "u32",
-        "delta": 2
+        "axisType" : "linear",
+        "linear": {
+          "delta": 2
+        },        
       }
     ]
   }
 }
 ~~~~
 
-Again, there is no time meta information because the time is not equidistant. There is one value dimension with the counter value. This one is equidistant with a step width of 2.
-We get a start value of the counter before the first values arrive:
-
 ~~~~ {.javascript}
 {
-  "method": "absoluteValues",
+  "method": "time",
   "params" : [
-    0: 0
+    "axisType": "explicit",
   ]  
 }
 ~~~~
 
-Data blocks will contain timestamps only. The counter changes by a known amount of 2 only the time of the steps is variable.
+
+There is one axis with the counter value. This one is equidistant with a step width of 2.
+We get no start value of the counter, hence we are starting with 0.
+
+Data blocks will contain timestamps only. The counter changes by a known amount of 2.
 
 
-
-### A Rotary Incremental Encoder with start Position
+### A incremental Rotary Incremental Encoder with start Position
 
 The signal has 1 value dimension
 
-- The angle is equidistant, it can go back and forth
+- The counter representing the angle is equidistant, it can go back and forth
 - Absolute start position when crossing a start position. 
 - No initial absolute value.
 - The time is non-equidistant.
 
-~~~~ {.javascript}
-{
-  "method": "signal",
-  "params" : 
-    {
-      "endian": "little",
-    }
-  }
-}
-~~~~
 
 ~~~~ {.javascript}
 {
-  "method": "valueDimensions",
+  "method": "axes",
   "params" : [
       0: {
+        "axisType": "linear",
+        "linear": {
+          "delta": 1,
+        },
         "name": "counter",
         "valueType": "i32",
-        "delta": 1
       }
     ]
   }
 }
 ~~~~
 
-
-This is similar to the simple counter. But the 
-Again, there is no time meta information because the time is not equidistant. There is one value dimension with the counter value. This one is equidistant with a step width of 2.
-Data blocks will contain timestamps only. The counter changes by a known amount of 2 only the time of the steps is variable.
-
-We get a start value of the counter every time when the zero idex is being crossed:
-
 ~~~~ {.javascript}
 {
-  "method": "absoluteValues",
+  "method": "time",
   "params" : [
-    0: 0
+    "axisType": "explicit",
   ]  
 }
 ~~~~
 
-If the rotation direction changes, we get a new delta. This happens through a partial meta information `valueDimension`:
+
+
+This is similar to the simple counter. Data blocks will contain timestamps only. 
+The counter changes by a known amount of 2 only the time of the steps is variable.
+
+We get a (partial) meta information with a start value of the counter every time when the zero index is being crossed:
 
 ~~~~ {.javascript}
 {
-  "method": "valueDimensions",
+  "method": "axes",
+  "params" : [
+    0: { 
+      "start" : 0
+    }
+  ]  
+}
+~~~~
+
+If the rotation direction changes, we get a (partial) meta information with a new delta.:
+
+~~~~ {.javascript}
+{
+  "method": "axes",
   "params" : [
       0: {
         "delta": -1
@@ -485,42 +458,69 @@ If the rotation direction changes, we get a new delta. This happens through a pa
 ~~~~
 
 
-### An Optical Spectrum
+### An Absolute Rotary Incremental Encoder
 
-The signal has 2 value dimensions. A spectrum consists of an array of value points
+The signal has 1 value dimension
 
-- The Frequency is equidistant, it has an absolute start value of 100.
-- The amplitude is non-equidistant, hence each Point carries the absolute amplitude only
-- Every dimension consists 1024 points to describe a complete spectrum
-- The time is non-equidistant. Each complete spectrum has one time stamp.
+- The angle is explicit, it can go back and forth
+- The time is non-equidistant.
 
 ~~~~ {.javascript}
 {
-  "method": "signal",
-  "params" : 
-    {
-      "endian": "little",
-      "array": 1024
-    }
+  "method": "axes",
+  "params" : [
+      0: {
+        "axisType": "explicit",
+        "name": "counter",
+        "valueType": "i32",
+      }
+    ]
   }
 }
 ~~~~
 
 ~~~~ {.javascript}
 {
+  "method": "time",
+  "params" : [
+    "axisType": "explicit",
+  ]  
+}
+~~~~
+
+Data block will contain a tuple of counter and time stamp. There will be no meta ionformation when direction changes.
+
+
+### An Optical Spectrum
+
+The signal has 2 axes. A spectrum consists of an array of value points
+
+- One axis carries the Frequency which equidistant (implicit linear), it has an absolute start value of 100.
+- The amplitude is non-equidistant (explicit)
+- Every axis consists 1024 values.
+- The time is non-equidistant. Each complete spectrum has one time stamp.
+
+~~~~ {.javascript}
+{
   "method": "valueDimensions",
   "params" : [
-      "0": {
+      "0": {      
         "name": "frequency",
         "valueType": "real32",
         "unit": "f",
-        "delta": 10
-        "start": 100
+        "axisType: "linear",
+        "linear" : {
+          "delta": 10,
+          "start": 100
+        }
+        "count": 1024,
       },
       "1": {
         "name": "amplitude",
         "valueType": "real32",
-        "unit": "db",        
+        "unit": "db",  
+        "axisType: "explicit",
+        "count": 1024,      
       }
     ]
   }
@@ -528,8 +528,7 @@ The signal has 2 value dimensions. A spectrum consists of an array of value poin
 ~~~~
 
 
-Data block will contain a absolute time stamp followed by 1024 points withe one value because the 1st dimension is equidistant.
-
+Data block will contain an absolute time stamp followed by 1024 frequency values. There will be no amplitude values because thy are implicit.
 
 
 ### CPB Spectrum
@@ -545,17 +544,6 @@ The spectrum is defined by the following values:
 The time is non-equidistant.
 In this example the spectrum is 5 octaves with 3 fractions per octave, so 15 lines in total.
 
-~~~~ {.javascript}
-{
-  "method": "signal",
-  "params" : 
-    {
-      "endian": "little",
-      "arraySize: 15
-    }
-  }
-}
-~~~~
 
 ~~~~ {.javascript}
 {
@@ -565,13 +553,16 @@ In this example the spectrum is 5 octaves with 3 fractions per octave, so 15 lin
         "name": "frequency",
         "valueType": "real32",
         "unit": "Hz",
-        "indexmapping": "CPB",     (New: B&K calls this "indexmapping" (how does value map to index), could also be called axis type, or rule...)
-        "cpb.basesystem": 10,      (New: Specific for CPB)
-        "cpb.firstband": 2,   	   (New: Specific for CPB)
-        "cpb.numberfractions": 3,  (New: Specific for CPB)
-	    
+        "axisType": "CPB"
+        "CPB" {
+          "basesystem": 10,
+          "firstband": 2,
+          "numberfractions": 3,
+        },
+        "count" : 15	    
       },
       "1": {
+        "axisType": "explicit"
         "name": "amplitude",
         "valueType": "real32",
         "unit": "db rel 20 uPa",
@@ -581,7 +572,7 @@ In this example the spectrum is 5 octaves with 3 fractions per octave, so 15 lin
 }
 ~~~~
 
-Data block will contain an absolute time stamp followed by 15 real32.
+Data block will contain an absolute time stamp followed by 15 real32 with the amplitude information.
 
 
 
@@ -598,53 +589,34 @@ Number of counters: 53 (50 normal counters plus a lower, a higher and a total co
 
 The complete statistics is divided into four signals one carrying the 50 normal counters and additional signals carrying the lower than counter, higher than counter and total counter
 
-~~~~ {.javascript}
-{
-  "method": "signal",
-  "params" : 
-    {
-      "name": "statistics counters"
-      "endian": "little",
-      "arraySize": 50
-    }
-  }
-}
-~~~~
 
 ~~~~ {.javascript}
 {
-  "method": "valueDimensions",
+  "method": "axes",
   "params" : {
       "0": {
-        "name": "amplitude",
+        "axisType" : "linear",
+          "delta" : 1,
+          "start": 50,
+        "linear" : {
+        },
+        "name": "statistics counters"
         "valueType": "u32",
         "unit": "dB",
-        "delta" : 1
-        "start": 50
+        "count": 50
       },
     }
   }
 }
 ~~~~
 
-~~~~ {.javascript}
-{
-  "method": "signal",
-  "params" : 
-    {
-      "name": "statistics lower than count"
-      "endian": "little",
-    }
-  }
-}
-~~~~
 
 ~~~~ {.javascript}
 {
-  "method": "valueDimensions",
+  "method": "axes",
   "params" : {
       "0": {
-        "name": "amplitude",
+        "name": "statistics higher than count",
         "valueType": "u32",
         "unit": "dB",
       },
@@ -655,22 +627,10 @@ The complete statistics is divided into four signals one carrying the 50 normal 
 
 ~~~~ {.javascript}
 {
-  "method": "signal",
-  "params" : 
-    {
-      "name": "statistics higher than count"
-      "endian": "little",
-    }
-  }
-}
-~~~~
-
-~~~~ {.javascript}
-{
-  "method": "valueDimensions",
+  "method": "axes",
   "params" : {
       "0": {
-        "name": "amplitude",
+        "name": "statistics lower than count",
         "valueType": "u32",
         "unit": "dB",
       },
@@ -681,22 +641,10 @@ The complete statistics is divided into four signals one carrying the 50 normal 
 
 ~~~~ {.javascript}
 {
-  "method": "signal",
-  "params" : 
-    {
-      "name": "statistics total count"
-      "endian": "little",
-    }
-  }
-}
-~~~~
-
-~~~~ {.javascript}
-{
-  "method": "valueDimensions",
+  "method": "axes",
   "params" : {
       "0": {
-        "name": "amplitude",
+        "name": "statistics total count",
         "valueType": "u32",
         "unit": "dB",
       },
@@ -705,10 +653,10 @@ The complete statistics is divided into four signals one carrying the 50 normal 
 }
 ~~~~
 
-There will be 3 data blocks
+There will be 4 data blocks
 
-* 1 Data block will contain an absolute time stamp followed by 50 uint32 For the 50 counters
-* 3 Data blocks with an absolute timestamp and one u32 counter value
+* 1 Data block will contain an absolute time stamp followed by 50 uint32 For the 50 counters.
+* 3 Data blocks with an absolute timestamp and one u32 counter value.
 
 
 
