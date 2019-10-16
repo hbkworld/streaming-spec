@@ -78,7 +78,7 @@ All axes are described by a signal specific meta information.
 
 
 
-### Linear Axes{#Linear_Axes}
+### Linear Axes {#Linear_Axes}
 For equidistant axes we use linear axes.
 
 Coordinates of linear axes are described by an absolute start value and
@@ -518,7 +518,7 @@ The signal has 1 value dimension
 Data block will contain a tuple of counter and time stamp. There will be no meta ionformation when direction changes.
 
 
-### An Optical Spectrum{#Spectrum}
+### An Optical Spectrum {#Spectrum}
 
 The signal has 2 axes. A spectrum consists of an array of value points
 
@@ -603,7 +603,7 @@ Data block will contain an absolute time stamp followed by 15 real32 with the am
 
 
 
-### Statistics{#Statistics}
+### Statistics {#Statistics}
 
 Statistics consists of N "counters" each covering a value interval. If the measured value is within a counter interval, then that counter is incremented.
 For instance the interval from 50 to 99 db might be covered by 50 counters. Each of these counters then would cover 1 dB.
