@@ -976,18 +976,18 @@ Example: 50 - 99 dB spectral statistics on a 1/3 octave CPB:
       
       "1": {
         "name": "counters",
-        "valueType": "histogram",
         "unit": "dB",
+        "valueType": "histogram",
         "histogram" : {
           "classes": {
             "delta": 1.0,
             "start": 50.0,
             "count": 50.0
           },
+          "haslowerCounter": true,
+          "hashigherCounter": true,
+          "hasTotalCounter": true
         },
-        "haslowerCounter": true,
-        "hashigherCounter": true,
-        "hasTotalCounter": true
       }
     }
   }
