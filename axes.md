@@ -239,11 +239,12 @@ There is a signal-related meta information that describes all value axes of the 
 ~~~~ {.javascript}
 {
   "method": "axes",
-  "params" : [
+  "name" : <string>,
+  "params" : {
       "<axes id>": {
         <an axis rule description>
       }
-    ]
+    }
   }
 }
 ~~~~
@@ -264,6 +265,32 @@ After the value dimension details were send, delivered measured data blocks are 
 
 \pagebreak
 
+
+## Groups of Signals
+
+There are cases were several signals are to be combined to a more complex group of signals (See [statistics example](#Statistics)).
+Those groups are just describing signals that belong together.
+
+To express the relation between the mentioned signals, the device will give a meta information about the grouping:
+
+~~~~ {.javascript}
+{
+  "method": "signalGroups" {
+    "params": {
+      <signal group id>: {
+        "name": "group_1"
+        "signals": [ 
+          < 1st signal id>,
+          < 2nd signal id>,
+          ...
+        ],
+      },
+    },
+  }
+~~~~
+
+- `<signal group id>`: A number with the groupt id, unique within the device
+- `signals`: An arrays with the unique signal ids of all signals that belong to the group.
 
 
 
@@ -576,7 +603,7 @@ Data block will contain an absolute time stamp followed by 15 real32 with the am
 
 
 
-### Statistics
+### Statistics{#Statistics}
 
 Statistics consists of N "counters" each covering a value interval. If the measured value is within a counter interval, then that counter is incremented.
 For instance the interval from 50 to 99 db might be covered by 50 counters. Each of these counters then would cover 1 dB.
@@ -587,13 +614,35 @@ Often there also is a lower than lowest and higher than highest counter, and for
 Example: 50 - 99 dB statistics:
 Number of counters: 53 (50 normal counters plus a lower, a higher and a total counter).
 
-The complete statistics is divided into four signals one carrying the 50 normal counters and additional signals carrying the lower than counter, higher than counter and total counter
+The complete statistics group contains four signals one carrying the 50 
+normal counters and additional signals carrying the lower than counter, higher than counter and total counter
 
+
+To express the relation between the mentioned signals, the device will give a meta information about the grouping:
+
+~~~~ {.javascript}
+{
+  "method": "signalGroups" {
+    "params": {
+      <signal group id>: {
+        "name": "statistic_1"
+        "signals": [ 
+          <signal id of statistic counter signal>,
+          <signal id of statistics higher than counter>,
+          <signal id of statistics lower than counter>,
+          <signal id of statistics total counter>          
+        ]
+      }
+    },
+  }
+~~~~
+
+meta information for statistic counter signal
 
 ~~~~ {.javascript}
 {
   "method": "axes",
-  "params" : {
+  "params": {
       "0": {
         "axisType" : "linear",
           "delta" : 1,
@@ -610,13 +659,14 @@ The complete statistics is divided into four signals one carrying the 50 normal 
 }
 ~~~~
 
+meta information for statistics higher than counter
 
 ~~~~ {.javascript}
 {
   "method": "axes",
   "params" : {
       "0": {
-        "name": "statistics higher than count",
+        "name": "statistics higher than counter",
         "valueType": "u32",
         "unit": "dB",
       },
@@ -625,12 +675,14 @@ The complete statistics is divided into four signals one carrying the 50 normal 
 }
 ~~~~
 
+meta information for statistics lower than counter
+
 ~~~~ {.javascript}
 {
   "method": "axes",
   "params" : {
       "0": {
-        "name": "statistics lower than count",
+        "name": "statistics lower than counter",
         "valueType": "u32",
         "unit": "dB",
       },
@@ -638,6 +690,8 @@ The complete statistics is divided into four signals one carrying the 50 normal 
   }
 }
 ~~~~
+
+meta information for statistics total count
 
 ~~~~ {.javascript}
 {
@@ -653,14 +707,67 @@ The complete statistics is divided into four signals one carrying the 50 normal 
 }
 ~~~~
 
-There will be 4 data blocks
+There will be 4 separate data blocks that need to be aligned.
 
 * 1 Data block will contain an absolute time stamp followed by 50 uint32 For the 50 counters.
 * 3 Data blocks with an absolute timestamp and one u32 counter value.
 
 
 
-### SpectralStatistics
+### Statistics Alternative
+
+This alternative describes the same as [statistics example](#Statistics) but puts everything into one signal with several axes. There is no signal group.
+
+
+
+~~~~ {.javascript}
+{
+  "method": "axes",
+  "params": {
+      "0": {
+        "axisType" : "linear",
+          "delta" : 1,
+          "start": 50,
+        "linear" : {
+        },
+        "name": "statistics counters"
+        "valueType": "u32",
+        "unit": "dB",
+        "count": 50
+      },
+      "1": {
+        "name": "statistics higher than counter",
+        "valueType": "u32",
+        "unit": "dB",
+      },
+      "2": {
+        "name": "statistics lower than counter",
+        "valueType": "u32",
+        "unit": "dB",
+      },
+      "3": {
+        "name": "statistics total count",
+        "valueType": "u32",
+        "unit": "dB",
+      },      
+    }
+  }
+}
+~~~~
+
+Everything will be in 1 data blocks:
+- 1 absolute time stamp.
+- 50 uint32 for the 50 counters, 
+- 1 uint32 for the higher than counter
+- 1 uint32 for the lower than counter
+- 1 uint32 for the total counter
+
+
+
+
+
+
+### Spectral Statistics
 
 Spectral statistics adds a dimension to the statistics example.
 The first axis could for instance be a CPB axis, for each CPB band there is a statistics (which is 2 dimensions).
