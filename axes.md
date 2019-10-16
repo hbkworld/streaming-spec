@@ -518,7 +518,7 @@ The signal has 1 value dimension
 Data block will contain a tuple of counter and time stamp. There will be no meta ionformation when direction changes.
 
 
-### An Optical Spectrum
+### An Optical Spectrum{#Spectrum}
 
 The signal has 2 axes. A spectrum consists of an array of value points
 
@@ -627,10 +627,10 @@ To express the relation between the mentioned signals, the device will give a me
       <signal group id>: {
         "name": "statistic_1"
         "signals": [ 
-          <signal id of statistic counter signal>,
-          <signal id of statistics higher than counter>,
-          <signal id of statistics lower than counter>,
-          <signal id of statistics total counter>          
+          <signal id of counters signal>,
+          <signal id of higher than counter>,
+          <signal id of lower than counter>,
+          <signal id of total counter>          
         ]
       }
     },
@@ -716,7 +716,7 @@ There will be 4 separate data blocks that need to be aligned.
 
 ### Statistics Alternative
 
-This alternative describes the same as [statistics example](#Statistics) but puts everything into one signal with several axes. There is no signal group.
+This alternative describes the same as the [statistics example](#Statistics) but puts everything into one signal with several axes. There is no signal group.
 
 
 
@@ -725,11 +725,6 @@ This alternative describes the same as [statistics example](#Statistics) but put
   "method": "axes",
   "params": {
       "0": {
-        "axisType" : "linear",
-          "delta" : 1,
-          "start": 50,
-        "linear" : {
-        },
         "name": "statistics counters"
         "valueType": "u32",
         "unit": "dB",
@@ -755,7 +750,8 @@ This alternative describes the same as [statistics example](#Statistics) but put
 }
 ~~~~
 
-Everything will be in 1 data blocks:
+Everything will be in 1 data block:
+
 - 1 absolute time stamp.
 - 50 uint32 for the 50 counters, 
 - 1 uint32 for the higher than counter
@@ -763,7 +759,180 @@ Everything will be in 1 data blocks:
 - 1 uint32 for the total counter
 
 
+### Statistics Alternative 2
 
+This alternative describes the same as the [statistics example](#Statistics) but puts everything into a known complex value type statistics. there is only one axis and no signal group.
+
+~~~~ {.javascript}
+{
+  "name": "counters",
+  "valueType": "histogram",
+  "unit": "dB",
+  "histogram" : {
+    "classes": {
+      "count": 50.0,
+      "delta": 1.0,
+      "start": 50.0,
+    },
+    "haslowerCounter": true,
+    "hashigherCounter": true,
+    "hasTotalCounter": true,
+  },
+}
+
+
+- `histogram`: An object describing the gistogram
+- `classes`: The distribution classes are desribed here. This equals very much the linear implicit axis rule!
+- `classes/count`: Number of distributaion classes
+- `classes/delta`: Width of each distribution class
+- `classes/start`: First distribution class starts here
+- `haslowerCounter`: Whether everything smaller then starts gets counted (Adds another uint64 to the data block)
+- `hashigherCounter`: Whether everything bigger then the upper bound of the last class gets counted (Adds another uint64 to the data block)
+- `hasTotalCounter`: Whether there is an overall counter (Adds another uint64 to the data block)
+
+
+~~~~
+
+
+Everything will be in 1 data block:
+
+- 1 absolute time stamp.
+- 50 uint32 for the 50 counters, 
+- 1 uint32 for the higher than counter
+- 1 uint32 for the lower than counter
+- 1 uint32 for the total counter
+
+
+### Position in 3 dimensional space Alternative
+
+This is to be expressed by 3 signals values with one explicit axis.
+
+To express the relation between the mentioned signals, the device will give a meta information about the grouping:
+
+~~~~ {.javascript}
+{
+  "method": "signalGroups" {
+    "params": {
+      <signal group id>: {
+        "name": "statistic_1"
+        "signals": [ 
+          <signal id of x signal>,
+          <signal id of y signal>,
+          <signal id of z signal>,
+        ]
+      }
+    },
+  }
+~~~~
+
+
+~~~~ {.javascript}
+{
+  "method": "axes",
+  "params" : [
+      "0": {
+        "name": "x",
+        "axisType": "explicit",       
+        "valueType": "double",
+        "unit": "m",
+      }
+    ]
+  }
+}
+~~~~
+
+~~~~ {.javascript}
+{
+  "method": "axes",
+  "params" : [
+      "0": {
+        "name": "y",
+        "axisType": "explicit",       
+        "valueType": "double",
+        "unit": "m",
+      }
+    ]
+  }
+}
+~~~~
+
+~~~~ {.javascript}
+{
+  "method": "axes",
+  "params" : [
+      "0": {
+        "name": "z",
+        "axisType": "explicit",       
+        "valueType": "double",
+        "unit": "m",
+      }
+    ]
+  }
+}
+~~~~
+
+~~~~ {.javascript}
+{
+  "method": "time",
+  "params" : [
+    "axis": {
+      "axisType": "explicit",
+      "valueType": "time",
+    }
+  ]  
+}
+~~~~
+
+We receive 3 data blocks with one abolute time stamp and one double value.
+
+
+
+### Position in 3 dimensional space Alternative
+
+Same as above but as one signal with 3 explicit axes:
+
+
+
+~~~~ {.javascript}
+{
+  "method": "axes",
+  "params" : [
+      "0": {
+        "name": "x",
+        "axisType": "explicit",       
+        "valueType": "double",
+        "unit": "m",
+      }
+      "1": {
+        "name": "y",
+        "axisType": "explicit",       
+        "valueType": "double",
+        "unit": "m",
+      }
+      "2": {
+        "name": "z",
+        "axisType": "explicit",       
+        "valueType": "double",
+        "unit": "m",
+      }
+    ]
+  }
+}
+~~~~
+
+~~~~ {.javascript}
+{
+  "method": "time",
+  "params" : [
+    "axis": {
+      "axisType": "explicit",
+      "valueType": "time",
+    }
+  ]  
+}
+~~~~
+
+We receive 1 data block with one abolute time stamp and three double values.
 
 
 
@@ -783,7 +952,7 @@ Example: 50 - 99 dB spectral statistics on a 1/3 octave CPB:
   "params" : 
     {
       "endian": "little",
-      "arraySize": 15
+      "count": 15
     }
   }
 }
@@ -791,35 +960,45 @@ Example: 50 - 99 dB spectral statistics on a 1/3 octave CPB:
 
 ~~~~ {.javascript}
 {
-  "method": "valueDimensions",
+  "method": "axes",
   "params" : {
       "0": {
         "name": "frequency",
         "valueType": "u32",
         "unit": "Hz",
-        "indexmapping": "CPB",     (New: B&K calls this "indexmapping" (how does value map to index), could also be called axis type, or rule...)
-        "cpb.basesystem": 10,      (New: Specific for CPB)
-        "cpb.firstband": 2,   	   (New: Specific for CPB)
-        "cpb.numberfractions": 3,  (New: Specific for CPB)
+        "axisType": "CPB",
+        "CPB": {
+          "basesystem": 10,
+          "firstband": 2,
+          "numberfractions": 3,
+        }
       },
+      
       "1": {
-        "name": "amplitude",
-        "valueType": "u32",
+        "name": "counters",
+        "valueType": "histogram",
         "unit": "dB",
-        "indexmapping": "Statistics",     (New: B&K calls this "indexmapping" (how does value map to index), could also be called axis type, or rule...)
-        "statistics.lowercounter": true,  (New: Specific for statistics. Indicates whether the lower counter is there)
-        "statistics.highercounter": true, (New: Specific for statistics. Indicates whether the higher counter is there)
-        "statistics.totalcounter": false,  (New: Specific for statistics. Indicates whether the total counter is there)
-        "statistics.firstcounter": 50.0,  (New: Specific for statistics. Indicates the start of the first counter)
-        "statistics.counterwidth": 1.0,   (New: Specific for statistics. Indicates the with of all the counters)
-      },
+        "histogram" : {
+          "classes": {
+            "delta": 1.0,
+            "start": 50.0,
+            "count": 50.0
+          },
+        },
+        "haslowerCounter": true,
+        "hashigherCounter": true,
+        "hasTotalCounter": true
+      }
     }
   }
 }
 ~~~~
 
 
-Data block will contain a absolute time stamp followed by 795 (15 * 53) uint32.
+
+
+
+Data block will contain a absolute time stamp followed by 795 (15 * 52) uint32.
 
 
 
