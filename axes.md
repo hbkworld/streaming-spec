@@ -565,7 +565,7 @@ The signal has 1 value dimension
 Data block will contain a tuple of counter and time stamp. There will be no meta ionformation when direction changes.
 
 
-### An Optical Spectrum (#Spectrum)
+### An Optical Spectrum (#Optical_Spectrum)
 
 The signal has 2 axes. A spectrum consists of an array of value points
 
@@ -640,6 +640,7 @@ In this example the spectrum is 5 octaves with 3 fractions per octave, so 15 lin
         "name": "amplitude",
         "valueType": "real32",
         "unit": "db rel 20 uPa",
+        "count" : 15	    
       }
     }
   }
@@ -839,6 +840,70 @@ Everything will be in 1 data block:
 - 1 uint32 for the total counter
 
 
+### Spectral Statistics
+
+Spectral statistics adds a dimension to the statistics example.
+The first axis could for instance be a CPB axis, for each CPB band there is a statistics (which is 2 dimensions).
+
+Example: 50 - 99 dB spectral statistics on a 1/3 octave CPB:
+
+Here we use the complex value type representing a histogram.
+
+~~~~ {.javascript}
+{
+  "method": "signal",
+  "params" : 
+    {
+      "endian": "little",
+      "count": 15
+    }
+  }
+}
+~~~~
+
+~~~~ {.javascript}
+{
+  "method": "axes",
+  "params" : {
+      "0": {
+        "name": "frequency",
+        "valueType": "u32",
+        "unit": "Hz",
+        "axisType": "CPB",
+        "CPB": {
+          "basesystem": 10,
+          "firstband": 2,
+          "numberfractions": 3,
+        }
+      },
+      
+      "1": {
+        "name": "counters",
+        "unit": "dB",
+        "valueType": "histogram",
+        "histogram" : {
+          "classes": {
+            "delta": 1.0,
+            "start": 50.0,
+            "count": 50.0
+          },
+          "haslowerCounter": true,
+          "hashigherCounter": true,
+          "hasTotalCounter": false
+        },
+      }
+    }
+  }
+}
+~~~~
+
+
+
+
+
+Data block will contain a absolute time stamp followed by 795 (15 * 52) uint32.
+
+
 ### Position in 3 dimensional space Alternative
 
 This is to be expressed by 3 signals values with one explicit axis.
@@ -923,7 +988,7 @@ We receive 3 data blocks with one abolute time stamp and one double value.
 
 
 
-### Position in 3 dimensional space Alternative
+### Position in 3 dimensional Space Alternative
 
 Same as above but as one signal with 3 explicit axes:
 
@@ -972,69 +1037,6 @@ We receive 1 data block with one abolute time stamp and three double values.
 
 
 
-### Spectral Statistics
-
-Spectral statistics adds a dimension to the statistics example.
-The first axis could for instance be a CPB axis, for each CPB band there is a statistics (which is 2 dimensions).
-
-
-
-Example: 50 - 99 dB spectral statistics on a 1/3 octave CPB:
-
-
-~~~~ {.javascript}
-{
-  "method": "signal",
-  "params" : 
-    {
-      "endian": "little",
-      "count": 15
-    }
-  }
-}
-~~~~
-
-~~~~ {.javascript}
-{
-  "method": "axes",
-  "params" : {
-      "0": {
-        "name": "frequency",
-        "valueType": "u32",
-        "unit": "Hz",
-        "axisType": "CPB",
-        "CPB": {
-          "basesystem": 10,
-          "firstband": 2,
-          "numberfractions": 3,
-        }
-      },
-      
-      "1": {
-        "name": "counters",
-        "unit": "dB",
-        "valueType": "histogram",
-        "histogram" : {
-          "classes": {
-            "delta": 1.0,
-            "start": 50.0,
-            "count": 50.0
-          },
-          "haslowerCounter": true,
-          "hashigherCounter": true,
-          "hasTotalCounter": true
-        },
-      }
-    }
-  }
-}
-~~~~
-
-
-
-
-
-Data block will contain a absolute time stamp followed by 795 (15 * 52) uint32.
 
 
 
