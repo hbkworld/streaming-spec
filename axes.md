@@ -44,6 +44,53 @@ There are several patterns for representing the different kinds of signals.
 
 \pagebreak
 
+## Value Types
+
+We use well known base value types like float, double, int32, uint32. In addition we might additional known value types that are combinations of those base value types.
+There might be implicit knowledge about how to handle those known complex value types.
+
+### Histogram (#Histogram)
+
+This is an example of such a complex value type. It is used for statistics. It combines several base value types and includes knowledge about there meaning.
+
+~~~~ {.javascript}
+{
+  "name": "counters",
+  "valueType": "histogram",
+  "unit": "dB",
+  "histogram" : {
+    "classes": {
+      "count": 50.0,
+      "delta": 1.0,
+      "start": 50.0,
+    },
+    "haslowerCounter": true,
+    "hashigherCounter": true,
+    "hasTotalCounter": true,
+  },
+}
+~~~~
+
+#### Structure
+
+- `histogram`: An object describing the gistogram
+- `classes`: The distribution classes are desribed here. This equals very much the linear implicit axis rule!
+- `classes/count`: Number of distributaion classes
+- `classes/delta`: Width of each distribution class
+- `classes/start`: First distribution class starts here
+- `haslowerCounter`: Whether everything smaller then starts gets counted (Adds another uint64 to the data block)
+- `hashigherCounter`: Whether everything bigger then the upper bound of the last class gets counted (Adds another uint64 to the data block)
+- `hasTotalCounter`: Whether there is an overall counter (Adds another uint64 to the data block)
+
+#### Implicit Knowledge
+
+- `haslowerCounter`: Existence of this tells, that there is an additional uint64 counting value
+- `hashigherCounter`: Existence of this tells, that there is an additional uint64 counting value
+- `hasTotalCounter`: Existence of this tells, that there is an additional uint64 counting value
+
+
+
+
 
 ## Dimensions and Axes
 
@@ -78,7 +125,7 @@ All axes are described by a signal specific meta information.
 
 
 
-### Linear Axes {#Linear_Axes}
+### Linear Axes (#Linear_Axes)
 For equidistant axes we use linear axes.
 
 Coordinates of linear axes are described by an absolute start value and
@@ -518,7 +565,7 @@ The signal has 1 value dimension
 Data block will contain a tuple of counter and time stamp. There will be no meta ionformation when direction changes.
 
 
-### An Optical Spectrum {#Spectrum}
+### An Optical Spectrum (#Spectrum)
 
 The signal has 2 axes. A spectrum consists of an array of value points
 
@@ -603,7 +650,7 @@ Data block will contain an absolute time stamp followed by 15 real32 with the am
 
 
 
-### Statistics {#Statistics}
+### Statistics (#Statistics)
 
 Statistics consists of N "counters" each covering a value interval. If the measured value is within a counter interval, then that counter is incremented.
 For instance the interval from 50 to 99 db might be covered by 50 counters. Each of these counters then would cover 1 dB.
@@ -761,7 +808,7 @@ Everything will be in 1 data block:
 
 ### Statistics Alternative 2
 
-This alternative describes the same as the [statistics example](#Statistics) but puts everything into a known complex value type statistics. there is only one axis and no signal group.
+This alternative describes the same as the [statistics example](#Statistics) but puts everything into a known [complex value type  histogram](#Histogram). there is only one axis and no signal group.
 
 ~~~~ {.javascript}
 {
@@ -779,19 +826,8 @@ This alternative describes the same as the [statistics example](#Statistics) but
     "hasTotalCounter": true,
   },
 }
-
-
-- `histogram`: An object describing the gistogram
-- `classes`: The distribution classes are desribed here. This equals very much the linear implicit axis rule!
-- `classes/count`: Number of distributaion classes
-- `classes/delta`: Width of each distribution class
-- `classes/start`: First distribution class starts here
-- `haslowerCounter`: Whether everything smaller then starts gets counted (Adds another uint64 to the data block)
-- `hashigherCounter`: Whether everything bigger then the upper bound of the last class gets counted (Adds another uint64 to the data block)
-- `hasTotalCounter`: Whether there is an overall counter (Adds another uint64 to the data block)
-
-
 ~~~~
+
 
 
 Everything will be in 1 data block:
