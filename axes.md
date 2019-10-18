@@ -573,8 +573,8 @@ The signal has 2 axes. A spectrum consists of an array of value points
       "unit" : "f",
       "implicitRule" : "linear",
       "linear" : {
-		"delta": 10.0,
-		"start" : 100.0
+	"delta": 10.0,
+	"start" : 100.0
       }
     },
     "count" : 1024
@@ -639,159 +639,14 @@ Often there also is a lower than lowest and higher than highest counter, and for
 Example: 50 - 99 dB statistics:
 Number of counters: 53 (50 normal counters plus a lower, a higher and a total counter).
 
-The complete statistics group contains four signals one carrying the 50 
-normal counters and additional signals carrying the lower than counter, higher than counter and total counter
 
-
-To express the relation between the mentioned signals, the device will give a meta information about the grouping:
-
-~~~~ {.javascript}
-{
-  "method": "signalGroups" {
-    "params": {
-      <signal group id>: {
-        "name": "statistic_1"
-        "signals": [ 
-          <signal id of counters signal>,
-          <signal id of higher than counter>,
-          <signal id of lower than counter>,
-          <signal id of total counter>          
-        ]
-      }
-    },
-  }
-~~~~
-
-meta information for statistic counter signal
-
-~~~~ {.javascript}
-{
-  "method": "axes",
-  "params": {
-      "0": {
-        "ruleType" : "linear",
-          "delta" : 1,
-          "start": 50,
-        "linear" : {
-        },
-        "name": "statistics counters"
-        "valueType": "u32",
-        "unit": "dB",
-        "count": 50
-      },
-    }
-  }
-}
-~~~~
-
-meta information for statistics higher than counter
-
-~~~~ {.javascript}
-{
-  "method": "axes",
-  "params" : {
-      "0": {
-        "name": "statistics higher than counter",
-        "valueType": "u32",
-        "unit": "dB",
-      },
-    }
-  }
-}
-~~~~
-
-meta information for statistics lower than counter
-
-~~~~ {.javascript}
-{
-  "method": "axes",
-  "params" : {
-      "0": {
-        "name": "statistics lower than counter",
-        "valueType": "u32",
-        "unit": "dB",
-      },
-    }
-  }
-}
-~~~~
-
-meta information for statistics total count
-
-~~~~ {.javascript}
-{
-  "method": "axes",
-  "params" : {
-      "0": {
-        "name": "statistics total count",
-        "valueType": "u32",
-        "unit": "dB",
-      },
-    }
-  }
-}
-~~~~
-
-There will be 4 separate data blocks that need to be aligned.
-
-* 1 Data block will contain an absolute time stamp followed by 50 uint32 For the 50 counters.
-* 3 Data blocks with an absolute timestamp and one u32 counter value.
-
-
-
-### Statistics Alternative
-
-This alternative describes the same as the [statistics example](#Statistics) but puts everything into one signal with several axes. There is no signal group.
-
-
-~~~~ {.javascript}
-{
-  "method": "axes",
-  "params": {
-      "0": {
-        "name": "statistics counters"
-        "valueType": "u32",
-        "unit": "dB",
-        "count": 50
-      },
-      "1": {
-        "name": "statistics higher than counter",
-        "valueType": "u32",
-        "unit": "dB",
-      },
-      "2": {
-        "name": "statistics lower than counter",
-        "valueType": "u32",
-        "unit": "dB",
-      },
-      "3": {
-        "name": "statistics total count",
-        "valueType": "u32",
-        "unit": "dB",
-      },      
-    }
-  }
-}
-~~~~
-
-Everything will be in 1 data block:
-
-- 1 absolute time stamp.
-- 50 uint32 for the 50 counters, 
-- 1 uint32 for the higher than counter
-- 1 uint32 for the lower than counter
-- 1 uint32 for the total counter
-
-
-### Statistics Alternative 2
-
-This alternative describes the same as the [statistics example](#Statistics) but puts everything into a known [complex value type  histogram](#Histogram). there is only one axis and no signal group.
+Everything is within a known [complex value type histogram](#Histogram).
 
 ~~~~ {.javascript}
 {
   "name": "counters",
-  "valueType": "histogram",
   "unit": "dB",
+  "valueType": "histogram",
   "histogram" : {
     "classes": {
       "count": 50.0,
@@ -801,7 +656,7 @@ This alternative describes the same as the [statistics example](#Statistics) but
     "haslowerCounter": true,
     "hashigherCounter": true,
     "hasTotalCounter": true,
-  },
+  }
 }
 ~~~~
 
@@ -884,7 +739,7 @@ This is an array of structs containing a spectra and a frequency
         "linear" : {
           "delta": 10.0,
           "start" : 1000.0
-		},
+        },
       },
       "spectrum": {
         "valueTpe": "spectrum",
@@ -894,140 +749,59 @@ This is an array of structs containing a spectra and a frequency
             "valueType" : "double",
             "unit" : <unit object>
           },
-          "range" : {
-            "valueType" : "double",
-            "unit" : <unit object>,
-            "implicitRule" : "linear",
-            "linear" : {
-	          "delta": 10.0,
-		      "start" : 1000.0
-            }
+        "range" : {
+          "valueType" : "double",
+          "unit" : <unit object>,
+          "implicitRule" : "linear",
+          "linear" : {
+	        "delta": 10.0,
+	        "start" : 1000.0
           }
         }
-      }      
-    }
+      }
+    }      
   }
 }
 ~~~~
 
 - `array/count`: Number of spectra
 
-### Position in 3 dimensional space Alternative
 
-This is to be expressed by 3 signals values with one explicit axis.
+### Position in 3 dimensional Space
 
-To express the relation between the mentioned signals, the device will give a meta information about the grouping:
-
-~~~~ {.javascript}
-{
-  "method": "signalGroups" {
-    "params": {
-      <signal group id>: {
-        "name": "statistic_1"
-        "signals": [ 
-          <signal id of x signal>,
-          <signal id of y signal>,
-          <signal id of z signal>,
-        ]
-      }
-    },
-  }
-~~~~
-
+The value is a struct of three double values x, y, and z
 
 ~~~~ {.javascript}
 {
-  "method": "axes",
-  "params" : [
-      "0": {
-        "name": "x",
-        "ruleType": "explicit",       
-        "valueType": "double",
-        "unit": "m",
-      }
-    ]
-  }
-}
-~~~~
-
-~~~~ {.javascript}
-{
-  "method": "axes",
-  "params" : [
-      "0": {
-        "name": "y",
-        "ruleType": "explicit",       
-        "valueType": "double",
-        "unit": "m",
-      }
-    ]
-  }
-}
-~~~~
-
-~~~~ {.javascript}
-{
-  "method": "axes",
-  "params" : [
-      "0": {
-        "name": "z",
-        "ruleType": "explicit",       
-        "valueType": "double",
-        "unit": "m",
-      }
-    ]
-  }
-}
-~~~~
-
-~~~~ {.javascript}
-{
-  "method": "time",
-  "params" : [
-    "ruleType": "explicit",
-    "valueType": "time",
-  ]  
-}
-~~~~
-
-We receive 3 data blocks with one abolute time stamp and one double value.
-
-
-
-### Position in 3 dimensional Space Alternative
-
-Same as above but as struct
-
-~~~~ {.javascript}
-{
+  "name": "position",
   "valueTpe": "struct",
   "struct" : {
-    { 
-      "x" :  {
-        "valueType" : < value type >,
-        "unit" : < unit object >
-      },
-      "y" :  {
-        "valueType" : < value type >,
-        "unit" : < unit object >
-      },
-      "z" :  {
-        "valueType" : < value type >,
-        "unit" : < unit object >
-      }
+    "x" : {
+      "valueType" : < value type >,
+      "ruleType": "explicit",
+      "unit" : < unit object >
+    },
+    "y" : {
+      "valueType" : < value type >,
+      "ruleType": "explicit",
+      "unit" : < unit object >
+    },
+    "z" : {
+      "valueType" : < value type >,
+      "ruleType": "explicit",
+      "unit" : < unit object >
     }
   }
 }
 ~~~~
 
-
 ~~~~ {.javascript}
 {
   "method": "time",
-  "params" : [
+  "params" : {
     "ruleType": "explicit",
     "valueType": "time",
-  ]  
+  }
 }
 ~~~~
 
@@ -1060,14 +834,14 @@ Here we define a complex type that is made up by several other complext types an
       "ffts" : {      
         "valueTpe": "spectrum",
         "spectrum" : {
-          "count" : 100
+          "count" : 100,
           "value" : {
             "valueType" : "double",
             "unit" : <unit object>
           },
           "range" : {
             "valueType" : "double",
-            "unit" : <unit object>
+            "unit" : <unit object>,
             "implicitRule" : "linear",
             "linear" : {
 		      "delta": < double >,
