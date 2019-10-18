@@ -49,20 +49,72 @@ There are several patterns for representing the different kinds of signals.
 We use well known base value types like float, double, int32, uint32. In addition we might additional known value types that are combinations of those base value types.
 There might be implicit knowledge about how to handle those known complex value types.
 
+
+### Array
+
+An array of values of any type.
+
+~~~~ {.javascript}
+{
+  "valueTpe": "array",
+  "tuple" : {
+    "valueType" : <string>
+    "unit" : <unit object>
+    "count" : <unsigned int>
+  }
+}
+~~~~
+
+
+### Spectrum
+
+Spectral values over a spectral range.
+
+~~~~ {.javascript}
+{
+  "valueTpe": "spectrum",
+  "spectrum" : {
+    "value" : {
+      "valueType" : "double",
+      "unit" : <unit object>
+    },
+    "range" : {
+      "valueType" : "double",
+      "unit" : <unit object>
+      "implicitRule" : "linear",
+      "linear" : {
+		"delta": 10.0,
+		"start" : 1000.0
+      }
+    },
+    "count" : 100
+  }  
+}
+~~~~
+
+- `spectrum`: An object describing a spectrum
+- `value`: Describing the spectral values
+- `range`: Describing the spectral range
+
+
+
 ### Histogram (#Histogram)
 
 This is an example of such a complex value type. It is used for statistics. It combines several base value types and includes knowledge about there meaning.
 
 ~~~~ {.javascript}
 {
-  "name": "counters",
   "valueType": "histogram",
   "unit": "dB",
   "histogram" : {
     "classes": {
-      "count": 50.0,
-      "delta": 1.0,
-      "start": 50.0,
+      "valueType" : "double"
+      "implicitRule" : "linear",
+      "linear" : {
+		"delta": 1.0,
+		"start" : 50.0
+	  }
+      "count": 50,
     },
     "haslowerCounter": true,
     "hashigherCounter": true,
@@ -73,7 +125,7 @@ This is an example of such a complex value type. It is used for statistics. It c
 
 #### Structure
 
-- `histogram`: An object describing the gistogram
+- `histogram`: An object describing the histogram
 - `classes`: The distribution classes are desribed here. This equals very much the linear implicit axis rule!
 - `classes/count`: Number of distributaion classes
 - `classes/delta`: Width of each distribution class
@@ -92,31 +144,12 @@ This is an example of such a complex value type. It is used for statistics. It c
 
 
 
-## Dimensions and Axes
-
-We want to describe not only simple scalar values but more complex ones that are made up from several scalar values.
-
-- Points in a 2 dimensional space are described by 2 scalar values. 
-- A spectrum is made up of a number of points. They are an array of points.
-- Statistics are contain a number of values that represent counters
-- A family (swarm) of spectra is made up of an array of spectra.
-
-In the first case, the components of each value are the dimensions in space.
-In the latter cases, the components are not dimensions but have a specific meaning.
-
-
-### Scalar value or Array of values
-
-An axis of a measured value might hold a single scalar value (i.e. the measured strain at a point in time).
-In other cases an axis might consist of an array values with a fixed number of elements (i.e. a spectum that contains several points over a frequency with an amplitude).
-
-
 \pagebreak
 
 
-## Implicit Axes
+## Implicit Rules
 
-For implicit axes, the component of the value for this axes is described by specidic rules.
+For implicit axes, the component of the value for this axes is described by specific rules.
 We use implicit axes rules to greatly reduce the amount of data to be transferred, stored and processed.
 
 There are several kinds of rules. To calculate the absolute value on an implicit axis, the rule has to beapplied.
@@ -124,8 +157,7 @@ There are several kinds of rules. To calculate the absolute value on an implicit
 All axes are described by a signal specific meta information.
 
 
-
-### Linear Axes (#Linear_Axes)
+### Linear Rule (#Linear_Rule)
 For equidistant axes we use linear axes.
 
 Coordinates of linear axes are described by an absolute start value and
@@ -186,7 +218,7 @@ A linear axis is described as follows:
 \pagebreak
 
 
-## Explicit Axes
+## Explicit Rule
 ![Non equidistant 2 dimensional points](images/non_equidistant_points.png)
 
 For explicit axes, each point has an absolute coordinate for this axis.
@@ -194,14 +226,14 @@ There is no rule how to calculate the absolute value on the axis.
 
 ~~~~ {.javascript}
 {
-    "axisType": "explicit",
+    "ruleType": "explicit",
     "unit": <unit object>,
     "name: <string>,
     "valueType": <string>
 }
 ~~~~
 
-- `axisType`: Type of axis rule
+- `ruleType`: Type of axis rule
 - `unit`: Unit of the axis (Out of scope of this document)
 - `name`: Name of the dimension (i.e. voltage, sound level, time)
 - `valueType`: Describes the data type of the dimension (i.e. a number format ("u8", "u32", "s32", "u64", "s64", "real32", "real64"), time (We talked about this in prior sessions), other known types)
@@ -218,7 +250,7 @@ mandatory for each signal. It is not part of the signal value.
 
 
 ### Equidistant Time
-Equidistant time axes are described as a [linear implicit axis](#CLinear_Axes).
+Equidistant time axes are described as a [linear implicit axis](#Linear_Rule).
 To calculate the absolute time for an equidistant time, There needs to 
 be an absolute start time and a delta time. 
 Both can be delivered by a separate, signal specific, meta information. 
@@ -235,7 +267,7 @@ Both can be delivered by a separate, signal specific, meta information.
 {
   "method": "time",
   "params": {
-    "axisType": "linear",
+    "ruleType": "linear",
     "linear": {
       "start": <value>,
       "delta": <value>,
@@ -246,7 +278,7 @@ Both can be delivered by a separate, signal specific, meta information.
 ~~~~
 
 - `method`: Type of meta information
-- `axisType`: type of axis
+- `ruleType`: type of axis
 - `unit`: Unit of the axis
 - `start`: The absolute timestamp for the next value point.
 - `delta`: The time difference between two value points
@@ -258,7 +290,7 @@ Time is delivered as absolute time stamp for each value.
 {
   "method": "time",
   "params": {
-    "axisType": "explicit",
+    "ruleType": "explicit",
     "unit": <unit object>,
     "valueType": "time"
   }
@@ -266,7 +298,7 @@ Time is delivered as absolute time stamp for each value.
 ~~~~
 
 - `method`: Type of meta information
-- `axisType`: type of axis
+- `ruleType`: type of axis
 - `unit`: Unit of the axis
 
 \pagebreak
@@ -359,7 +391,7 @@ The device sends the followin signal-specific meta information.
   "method": "axes",
   "params" : [
       "0": {
-        "axisType": "explicit",
+        "ruleType": "explicit",
         "valueType": "float",
         "unit": "V",
       }
@@ -372,7 +404,7 @@ The device sends the followin signal-specific meta information.
 {
   "method": "time",
   "params" : [
-    "axisType": "linear",
+    "ruleType": "linear",
     "linear": {
       "start": "high noon, 1st january 2019"
       "delta": "10 ms"
@@ -399,7 +431,7 @@ The device sends the following signal-specific meta information:
   "params" : [
       "0": {
         "name": "decoded",
-        "axisType": "explicit",       
+        "ruleType": "explicit",       
         "valueType": "u32",
         "unit": "decoder unit",
       }
@@ -413,7 +445,7 @@ The device sends the following signal-specific meta information:
   "method": "time",
   "params" : [
     "axis": {
-      "axisType": "explicit",
+      "ruleType": "explicit",
       "valueType": "time",
     }
   ]  
@@ -437,7 +469,7 @@ The signal has 1 value dimension
       0: {
         "name": "count",
         "valueType": "u32",
-        "axisType" : "linear",
+        "ruleType" : "linear",
         "linear": {
           "delta": 2
         },        
@@ -451,7 +483,7 @@ The signal has 1 value dimension
 {
   "method": "time",
   "params" : [
-    "axisType": "explicit",
+    "ruleType": "explicit",
   ]  
 }
 ~~~~
@@ -478,7 +510,7 @@ The signal has 1 value dimension
   "method": "axes",
   "params" : [
       0: {
-        "axisType": "linear",
+        "ruleType": "linear",
         "linear": {
           "delta": 1,
         },
@@ -494,7 +526,7 @@ The signal has 1 value dimension
 {
   "method": "time",
   "params" : [
-    "axisType": "explicit",
+    "ruleType": "explicit",
   ]  
 }
 ~~~~
@@ -544,7 +576,7 @@ The signal has 1 value dimension
   "method": "axes",
   "params" : [
       0: {
-        "axisType": "explicit",
+        "ruleType": "explicit",
         "name": "counter",
         "valueType": "i32",
       }
@@ -557,7 +589,7 @@ The signal has 1 value dimension
 {
   "method": "time",
   "params" : [
-    "axisType": "explicit",
+    "ruleType": "explicit",
   ]  
 }
 ~~~~
@@ -582,7 +614,7 @@ The signal has 2 axes. A spectrum consists of an array of value points
         "name": "frequency",
         "valueType": "real32",
         "unit": "f",
-        "axisType: "linear",
+        "ruleType: "linear",
         "linear" : {
           "delta": 10,
           "start": 100
@@ -593,7 +625,7 @@ The signal has 2 axes. A spectrum consists of an array of value points
         "name": "amplitude",
         "valueType": "real32",
         "unit": "db",  
-        "axisType: "explicit",
+        "ruleType: "explicit",
         "count": 1024,      
       }
     ]
@@ -627,7 +659,7 @@ In this example the spectrum is 5 octaves with 3 fractions per octave, so 15 lin
         "name": "frequency",
         "valueType": "real32",
         "unit": "Hz",
-        "axisType": "CPB"
+        "ruleType": "CPB"
         "CPB" {
           "basesystem": 10,
           "firstband": 2,
@@ -636,7 +668,7 @@ In this example the spectrum is 5 octaves with 3 fractions per octave, so 15 lin
         "count" : 15	    
       },
       "1": {
-        "axisType": "explicit"
+        "ruleType": "explicit"
         "name": "amplitude",
         "valueType": "real32",
         "unit": "db rel 20 uPa",
@@ -692,7 +724,7 @@ meta information for statistic counter signal
   "method": "axes",
   "params": {
       "0": {
-        "axisType" : "linear",
+        "ruleType" : "linear",
           "delta" : 1,
           "start": 50,
         "linear" : {
@@ -869,7 +901,7 @@ Here we use the complex value type representing a histogram.
         "name": "frequency",
         "valueType": "u32",
         "unit": "Hz",
-        "axisType": "CPB",
+        "ruleType": "CPB",
         "CPB": {
           "basesystem": 10,
           "firstband": 2,
@@ -900,9 +932,63 @@ Here we use the complex value type representing a histogram.
 
 
 
-
 Data block will contain a absolute time stamp followed by 795 (15 * 52) uint32.
 
+### Spectral Statistics Alternative
+
+This is made up from an array of histograms
+
+~~~~ {.javascript}
+{
+  "name": "spectral statistics",
+  "valueTpe": "array",
+  "array" : {
+    "count" : 15
+    "valueType": "histogram",
+    "histogram" : {
+      "classes": {
+        "delta": 1.0,
+        "start": 50.0,
+        "count": 50.0
+      },
+      "haslowerCounter": true,
+      "hashigherCounter": true,
+      "hasTotalCounter": false
+    },  
+  }
+}
+~~~~
+
+### Run up
+
+This is an array of spectra
+
+~~~~ {.javascript}
+{
+  "name": "spectral statistics",
+  "valueTpe": "array",
+  "array" : {
+    "count" : 10
+    "valueTpe": "spectrum",
+    "spectrum" : {
+      "count" : 100
+      "value" : {
+        "valueType" : "double",
+        "unit" : <unit object>
+      },
+      "range" : {
+        "valueType" : "double",
+        "unit" : <unit object>
+        "implicitRule" : "linear",
+        "linear" : {
+		  "delta": 10.0,
+		  "start" : 1000.0
+        }
+      }
+    }  
+  }
+}
+~~~~
 
 ### Position in 3 dimensional space Alternative
 
@@ -933,7 +1019,7 @@ To express the relation between the mentioned signals, the device will give a me
   "params" : [
       "0": {
         "name": "x",
-        "axisType": "explicit",       
+        "ruleType": "explicit",       
         "valueType": "double",
         "unit": "m",
       }
@@ -948,7 +1034,7 @@ To express the relation between the mentioned signals, the device will give a me
   "params" : [
       "0": {
         "name": "y",
-        "axisType": "explicit",       
+        "ruleType": "explicit",       
         "valueType": "double",
         "unit": "m",
       }
@@ -963,7 +1049,7 @@ To express the relation between the mentioned signals, the device will give a me
   "params" : [
       "0": {
         "name": "z",
-        "axisType": "explicit",       
+        "ruleType": "explicit",       
         "valueType": "double",
         "unit": "m",
       }
@@ -977,7 +1063,7 @@ To express the relation between the mentioned signals, the device will give a me
   "method": "time",
   "params" : [
     "axis": {
-      "axisType": "explicit",
+      "ruleType": "explicit",
       "valueType": "time",
     }
   ]  
@@ -1000,19 +1086,19 @@ Same as above but as one signal with 3 explicit axes:
   "params" : [
       "0": {
         "name": "x",
-        "axisType": "explicit",       
+        "ruleType": "explicit",       
         "valueType": "double",
         "unit": "m",
       }
       "1": {
         "name": "y",
-        "axisType": "explicit",       
+        "ruleType": "explicit",       
         "valueType": "double",
         "unit": "m",
       }
       "2": {
         "name": "z",
-        "axisType": "explicit",       
+        "ruleType": "explicit",       
         "valueType": "double",
         "unit": "m",
       }
@@ -1026,7 +1112,7 @@ Same as above but as one signal with 3 explicit axes:
   "method": "time",
   "params" : [
     "axis": {
-      "axisType": "explicit",
+      "ruleType": "explicit",
       "valueType": "time",
     }
   ]  
