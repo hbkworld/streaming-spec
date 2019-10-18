@@ -553,7 +553,7 @@ Data block will contain a tuple of counter and time stamp. There will be no meta
 
 ### An Optical Spectrum (#Optical_Spectrum)
 
-The signal has 2 axes. A spectrum consists of an array of value points
+The signal consists of a spectum
 
 - The value is complex value type of type spectrum. This carries:
 	* Frequency which equidistant (implicit linear), it has an absolute start value of 100.
@@ -585,6 +585,54 @@ The signal has 2 axes. A spectrum consists of an array of value points
 
 
 Data block will contain an absolute time stamp followed by 1024 amplitude values. There will be no frequency values because they are implicit.
+
+
+### An Optical Spectrum with Peak Values
+
+The signal consists of a spectum and the peak values. Number of peaks is fixed!
+
+~~~~ {.javascript}
+{
+  "valueType" : "struct",
+  "struct" : {
+    "the spectrum" : {
+      "valueType": "spectrum",
+      "spectrum" : {
+        "value" : {
+          "valueType" : "double",
+          "unit" : "db"
+        },
+        "range" : {
+          "valueType" : "double",
+          "unit" : "f",
+          "implicitRule" : "linear",
+          "linear" : {
+	        "delta": 10.0,
+	        "start" : 100.0
+          }
+        },
+        "count" : 1024
+      }  
+    },
+    "the peak values" : {
+      "valueType" : "array",
+      "array" : {
+        "count" : < peak count>,
+        "valueType" : "struct",
+        "struct" {
+          "x" : {          
+            "valueType" : "double"
+          },
+          "y" : {          
+            "valueType" : "double"
+          }
+        }
+      }      
+    }
+  }  
+}
+~~~~
+
 
 
 ### CPB Spectrum
