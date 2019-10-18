@@ -52,15 +52,32 @@ There might be implicit knowledge about how to handle those known complex value 
 
 ### Array
 
-An array of values of any type.
+An array of values of the same type.
 
 ~~~~ {.javascript}
 {
   "valueTpe": "array",
-  "tuple" : {
-    "valueType" : <string>
-    "unit" : <unit object>
+  "array" : {
+    "valueType" : <string>,
+    "unit" : <unit object>,
     "count" : <unsigned int>
+  }
+}
+~~~~
+
+### Struct
+
+A combination of named members which bay be of different Types.
+
+~~~~ {.javascript}
+{
+  "valueTpe": "struct",
+  "struct" : {
+    { 
+      <member name 1> : { < value description 1> },
+      ...
+      <member name n> : { < value description n> }
+    }
   }
 }
 ~~~~
@@ -68,7 +85,7 @@ An array of values of any type.
 
 ### Spectrum
 
-Spectral values over a spectral range.
+Spectral values over a spectral range. The axis with the spectral range follows an implicit rule
 
 ~~~~ {.javascript}
 {
@@ -80,7 +97,7 @@ Spectral values over a spectral range.
     },
     "range" : {
       "valueType" : "double",
-      "unit" : <unit object>
+      "unit" : <unit object>,
       "implicitRule" : "linear",
       "linear" : {
 		"delta": 10.0,
@@ -95,7 +112,7 @@ Spectral values over a spectral range.
 - `spectrum`: An object describing a spectrum
 - `value`: Describing the spectral values
 - `range`: Describing the spectral range
-
+- `count`: Number of points in the spectrum
 
 
 ### Histogram (#Histogram)
@@ -172,47 +189,37 @@ A linear axis is described as follows:
 
 ~~~~ {.javascript}
 {
-  "axis" : {
-    "axisType": "linear",
-    "linear": {
-      "start": <value>,
-      "delta": <value>,
-    },
-    "unit": <unit object>,
-    "name: <string>,
-    "valueType": <string>
-    "count": <unsigned integer>
+  "implicitRule": "linear",
+  "linear": {
+    "start": <value>,
+    "delta": <value>,
+  },
+}
+~~~~
+
+- `implicitRule`: Type of implicit rule
+- `linear`: Properties of the implicit linear rule
+- `linear/start`: the first value
+- `linear/delta`: The difference between two values
+
+\pagebreak
+
+### cpb Rule
+
+
+
+~~~~ {.javascript}
+{
+  "ruleType": "cpb"
+  "cpb" {
+    "basesystem": 10,
+    "firstband": 2,
+    "numberfractions": 3
   }
 }
 ~~~~
 
-- `axisType`: Type of axis rule
-- `unit`: Unit of the axis (Out of scope of this document)
-- `name`: Name of the dimension (i.e. voltage, sound level, time)
-- `valueType`: Describes the data type of the dimension (i.e. a number format ("u8", "u32", "s32", "u64", "s64", "real32", "real64"), time (We talked about this in prior sessions), other known types)
-- `value`: A value of the `valueType` of the axis.
-- `start`: The absolute start value for the axis.
-- `delta`: The difference between two values
-- `count`: Optional: Number of values for arrays
-
-\pagebreak
-
-### Logarithmic Axes
-
-~~~~ {.javascript}
-{
-    "axisType": "linear",
-    "unit": <unit object>,
-    "name: <string>,
-    "valueType": <string>
-    ...
-}
-~~~~
-
-- `axisType`: Type of axis rule
-- `unit`: Unit of the axis (Out of scope of this document)
-- `name`: Name of the dimension (i.e. voltage, sound level, time)
-- `valueType`: Describes the data type of the dimension (i.e. a number format ("u8", "u32", "s32", "u64", "s64", "real32", "real64"), time (We talked about this in prior sessions), other known types)
+- `implicitRule`: Type of implicit rule
 
 
 \pagebreak
@@ -221,36 +228,20 @@ A linear axis is described as follows:
 ## Explicit Rule
 ![Non equidistant 2 dimensional points](images/non_equidistant_points.png)
 
-For explicit axes, each point has an absolute coordinate for this axis.
-There is no rule how to calculate the absolute value on the axis.
-
-~~~~ {.javascript}
-{
-    "ruleType": "explicit",
-    "unit": <unit object>,
-    "name: <string>,
-    "valueType": <string>
-}
-~~~~
-
-- `ruleType`: Type of axis rule
-- `unit`: Unit of the axis (Out of scope of this document)
-- `name`: Name of the dimension (i.e. voltage, sound level, time)
-- `valueType`: Describes the data type of the dimension (i.e. a number format ("u8", "u32", "s32", "u64", "s64", "real32", "real64"), time (We talked about this in prior sessions), other known types)
-
+When there is no implicit rule defined, each value has an absolute coordinate for this axis.
+There is no rule how to calculate the absolute value.
 
 \pagebreak
 
 
 ## Time 
 
-One special axis/dimension is the time which is mandatory. The time is 
-mandatory for each signal. It is not part of the signal value.
- It can be equidistant (linear implicit) or non-equidistant (explicit).
+The time is mandatory for each signal. It is not part of the signal value.
+It can be equidistant (linear implicit) or non-equidistant (explicit).
 
 
 ### Equidistant Time
-Equidistant time axes are described as a [linear implicit axis](#Linear_Rule).
+Equidistant time is described as a [linear implicit rule](#Linear_Rule).
 To calculate the absolute time for an equidistant time, There needs to 
 be an absolute start time and a delta time. 
 Both can be delivered by a separate, signal specific, meta information. 
@@ -298,8 +289,6 @@ Time is delivered as absolute time stamp for each value.
 ~~~~
 
 - `method`: Type of meta information
-- `ruleType`: type of axis
-- `unit`: Unit of the axis
 
 \pagebreak
 
@@ -308,39 +297,16 @@ Time is delivered as absolute time stamp for each value.
 
 \pagebreak
 
-## Describing Multiple Axes
-
-This is an idea how to describe any value of the mentioned signals in one generic way.
-As mentioned before everything has a time. In addition there is at least one value axis.
-
-There is a signal-related meta information that describes all value axes of the signal:
-
-~~~~ {.javascript}
-{
-  "method": "axes",
-  "name" : <string>,
-  "params" : {
-      "<axes id>": {
-        <an axis rule description>
-      }
-    }
-  }
-}
-~~~~
-
-
-- `params`: An array of objects each desribing a dimension.
-- `value dimension id`: There is a fixed id for each value dimension of a signal.
 
 ### How to Interprete Measured Data
 
 After the value dimension details were send, delivered measured data blocks are to be interpreted as follows:
 
-- Each data block contains complete values. 
+- Each data block contains complete values of a signal. 
 - A block may contain many values. They are arranged value by value.
-- Only component values of explicit axes are send.
-- Component value of implicit xaes are calculated following the axis rule.
-- Theoretically a signal might contain implicit axes only. There won't be any component value to be transferred. All component values are to calculated using the axes rules.
+- Only explicit values are send.
+- Values following an implicit rule are calculated according the rule.
+- Theoretically a signal might contain no explicit avlue ast all. There won't be any component value to be transferred. All component values are to calculated using the implicit rules.
 
 \pagebreak
 
@@ -379,22 +345,20 @@ To express the relation between the mentioned signals, the device will give a me
 
 The signal has 1 value axis. Synchronous output rate is 100 Hz
 
-- The voltage is on an explicit axis
+- The voltage is expressed as a base value type
 - The device delivers scaled component value in 32 bit float format
 - The time is equidistant (implicit).
 
-The device sends the followin signal-specific meta information.
+The device sends the following signal-specific meta information.
 
 
 ~~~~ {.javascript}
 {
-  "method": "axes",
+  "method": "signal",
   "params" : [
-      "0": {
-        "ruleType": "explicit",
-        "valueType": "float",
-        "unit": "V",
-      }
+      "ruleType": "explicit",
+      "valueType": "float",
+      "unit": "V",
     ]
   }
 }
@@ -414,12 +378,13 @@ The device sends the followin signal-specific meta information.
 }
 ~~~~
 
-Following data block has at least one value of this signal encoded float. No time stamps.
+Data block has the value of this signal encoded float. No time stamps.
 
 ### A CAN Decoder
 
 The signal has 1 value dimension. 
 
+- The value is expressed as a base value type
 - The value is explicit.
 - The time is explicit.
 
@@ -427,14 +392,12 @@ The device sends the following signal-specific meta information:
 
 ~~~~ {.javascript}
 {
-  "method": "axes",
+  "method": "signal",
   "params" : [
-      "0": {
-        "name": "decoded",
-        "ruleType": "explicit",       
-        "valueType": "u32",
-        "unit": "decoder unit",
-      }
+      "name": "decoded",
+      "ruleType": "explicit",       
+      "valueType": "u32",
+      "unit": "decoder unit"
     ]
   }
 }
@@ -444,36 +407,31 @@ The device sends the following signal-specific meta information:
 {
   "method": "time",
   "params" : [
-    "axis": {
-      "ruleType": "explicit",
-      "valueType": "time",
-    }
+    "ruleType": "explicit",
+    "valueType": "time"
   ]  
 }
 ~~~~
 
-Each value pint has an absolute time stamp and one u32 value.
+Each value point has an absolute time stamp and one u32 value.
 
 ### A Simple Counter
 
-The signal has 1 value dimension
-
+- The value is expressed as a base value type
 - The count value is equidistant with an increment of 2, it runs in one direction
 - The device sends an initial absolute value.
 - The time is non-equidistant.
 
 ~~~~ {.javascript}
 {
-  "method": "axes",
+  "method": "signal",
   "params" : [
-      0: {
-        "name": "count",
-        "valueType": "u32",
-        "ruleType" : "linear",
-        "linear": {
-          "delta": 2
-        },        
-      }
+      "name": "count",
+      "valueType": "u32",
+      "ruleType" : "linear",
+      "linear": {
+        "delta": 2
+      }     
     ]
   }
 }
@@ -489,16 +447,15 @@ The signal has 1 value dimension
 ~~~~
 
 
-There is one axis with the counter value. This one is equidistant with a step width of 2.
-We get no start value of the counter, hence we are starting with 0.
+Value is equidistant with a step width of 2.
+We get no start value of the value, hence we are starting with 0.
 
 Data blocks will contain timestamps only. The counter changes by a known amount of 2.
 
 
 ### A incremental Rotary Incremental Encoder with start Position
 
-The signal has 1 value dimension
-
+- The value is expressed as a base value type
 - The counter representing the angle is equidistant, it can go back and forth
 - Absolute start position when crossing a start position. 
 - No initial absolute value.
@@ -507,16 +464,14 @@ The signal has 1 value dimension
 
 ~~~~ {.javascript}
 {
-  "method": "axes",
+  "method": "signal",
   "params" : [
-      0: {
-        "ruleType": "linear",
-        "linear": {
-          "delta": 1,
-        },
-        "name": "counter",
-        "valueType": "i32",
-      }
+      "ruleType": "linear",
+      "linear": {
+        "delta": 1,
+      },
+      "name": "counter",
+      "valueType": "i32",
     ]
   }
 }
@@ -540,9 +495,9 @@ We get a (partial) meta information with a start value of the counter every time
 
 ~~~~ {.javascript}
 {
-  "method": "axes",
+  "method": "signal",
   "params" : [
-    0: { 
+    "linear" : {
       "start" : 0
     }
   ]  
@@ -553,10 +508,12 @@ If the rotation direction changes, we get a (partial) meta information with a ne
 
 ~~~~ {.javascript}
 {
-  "method": "axes",
+  "method": "signal",
   "params" : [
       0: {
-        "delta": -1
+        "linear" : {
+          "delta": -1
+        }      
       }
     ]
   }
@@ -566,20 +523,17 @@ If the rotation direction changes, we get a (partial) meta information with a ne
 
 ### An Absolute Rotary Incremental Encoder
 
-The signal has 1 value dimension
-
+- The value is expressed as a base value type
 - The angle is explicit, it can go back and forth
 - The time is non-equidistant.
 
 ~~~~ {.javascript}
 {
-  "method": "axes",
+  "method": "signal",
   "params" : [
-      0: {
-        "ruleType": "explicit",
-        "name": "counter",
-        "valueType": "i32",
-      }
+      "ruleType": "explicit",
+      "name": "counter",
+      "valueType": "i32",
     ]
   }
 }
@@ -601,40 +555,36 @@ Data block will contain a tuple of counter and time stamp. There will be no meta
 
 The signal has 2 axes. A spectrum consists of an array of value points
 
-- One axis carries the Frequency which equidistant (implicit linear), it has an absolute start value of 100.
-- The amplitude is non-equidistant (explicit)
-- Every axis consists 1024 values.
+- The value is complex value type of type spectrum. This carries:
+	* Frequency which equidistant (implicit linear), it has an absolute start value of 100.
+	* Amplitude which is non-equidistant (explicit)
 - The time is non-equidistant. Each complete spectrum has one time stamp.
 
 ~~~~ {.javascript}
 {
-  "method": "valueDimensions",
-  "params" : [
-      "0": {      
-        "name": "frequency",
-        "valueType": "real32",
-        "unit": "f",
-        "ruleType: "linear",
-        "linear" : {
-          "delta": 10,
-          "start": 100
-        }
-        "count": 1024,
-      },
-      "1": {
-        "name": "amplitude",
-        "valueType": "real32",
-        "unit": "db",  
-        "ruleType: "explicit",
-        "count": 1024,      
+  "valueTpe": "spectrum",
+  "spectrum" : {
+    "value" : {
+      "valueType" : "double",
+      "unit" : "db"
+    },
+    "range" : {
+      "valueType" : "double",
+      "unit" : "f",
+      "implicitRule" : "linear",
+      "linear" : {
+		"delta": 10.0,
+		"start" : 100.0
       }
-    ]
-  }
+    },
+    "count" : 1024
+  }  
 }
 ~~~~
 
 
-Data block will contain an absolute time stamp followed by 1024 frequency values. There will be no amplitude values because thy are implicit.
+
+Data block will contain an absolute time stamp followed by 1024 amplitude values. There will be no frequency values because they are implicit.
 
 
 ### CPB Spectrum
@@ -653,29 +603,24 @@ In this example the spectrum is 5 octaves with 3 fractions per octave, so 15 lin
 
 ~~~~ {.javascript}
 {
-  "method": "valueDimensions",
-  "params" : {
-      "0": {
-        "name": "frequency",
-        "valueType": "real32",
-        "unit": "Hz",
-        "ruleType": "CPB"
-        "CPB" {
+  "valueTpe": "cpb spectrum",
+  "spectrum" : {
+    "value" : {
+      "valueType" : "float",
+      "unit" : "db rel 20 uPa"
+    },
+    "range" : {
+      "valueType" : "float",
+      "unit" : "f",
+        "ruleType": "cpb"
+        "cpb" {
           "basesystem": 10,
           "firstband": 2,
           "numberfractions": 3,
         },
-        "count" : 15	    
-      },
-      "1": {
-        "ruleType": "explicit"
-        "name": "amplitude",
-        "valueType": "real32",
-        "unit": "db rel 20 uPa",
-        "count" : 15	    
-      }
-    }
-  }
+    },
+    "count" : 15
+  }  
 }
 ~~~~
 
@@ -799,7 +744,6 @@ There will be 4 separate data blocks that need to be aligned.
 This alternative describes the same as the [statistics example](#Statistics) but puts everything into one signal with several axes. There is no signal group.
 
 
-
 ~~~~ {.javascript}
 {
   "method": "axes",
@@ -879,39 +823,29 @@ The first axis could for instance be a CPB axis, for each CPB band there is a st
 
 Example: 50 - 99 dB spectral statistics on a 1/3 octave CPB:
 
-Here we use the complex value type representing a histogram.
+
+
+
+This is made up from an array of structs containing a histogram and a frequency
 
 ~~~~ {.javascript}
 {
-  "method": "signal",
-  "params" : 
-    {
-      "endian": "little",
-      "count": 15
-    }
-  }
-}
-~~~~
-
-~~~~ {.javascript}
-{
-  "method": "axes",
-  "params" : {
-      "0": {
-        "name": "frequency",
-        "valueType": "u32",
-        "unit": "Hz",
-        "ruleType": "CPB",
-        "CPB": {
+  "name": "spectral statistics",
+  "valueTpe": "array",
+  "array" : {
+    "count" : 15,
+    "valueType": "struct",
+    "struct" : {
+      "frequency": {
+        "valueType": "double",
+        "implicitRule": "CPB"
+        "CPB" {
           "basesystem": 10,
           "firstband": 2,
           "numberfractions": 3,
-        }
+        },
       },
-      
-      "1": {
-        "name": "counters",
-        "unit": "dB",
+      "histogram": {
         "valueType": "histogram",
         "histogram" : {
           "classes": {
@@ -922,46 +856,19 @@ Here we use the complex value type representing a histogram.
           "haslowerCounter": true,
           "hashigherCounter": true,
           "hasTotalCounter": false
-        },
-      }
+        },  
+      }      
     }
   }
 }
 ~~~~
 
-
-
-
 Data block will contain a absolute time stamp followed by 795 (15 * 52) uint32.
 
-### Spectral Statistics Alternative
-
-This is made up from an array of histograms
-
-~~~~ {.javascript}
-{
-  "name": "spectral statistics",
-  "valueTpe": "array",
-  "array" : {
-    "count" : 15
-    "valueType": "histogram",
-    "histogram" : {
-      "classes": {
-        "delta": 1.0,
-        "start": 50.0,
-        "count": 50.0
-      },
-      "haslowerCounter": true,
-      "hashigherCounter": true,
-      "hasTotalCounter": false
-    },  
-  }
-}
-~~~~
 
 ### Run up
 
-This is an array of spectra
+This is an array of structs containing a spectra and a frequency
 
 ~~~~ {.javascript}
 {
@@ -969,26 +876,41 @@ This is an array of spectra
   "valueTpe": "array",
   "array" : {
     "count" : 10
-    "valueTpe": "spectrum",
-    "spectrum" : {
-      "count" : 100
-      "value" : {
-        "valueType" : "double",
-        "unit" : <unit object>
-      },
-      "range" : {
-        "valueType" : "double",
-        "unit" : <unit object>
+    "valueType": "struct",
+    "struct" : {
+      "frequency": {
+        "valueType": "double",
         "implicitRule" : "linear",
         "linear" : {
-		  "delta": 10.0,
-		  "start" : 1000.0
+          "delta": 10.0,
+          "start" : 1000.0
+		},
+      },
+      "spectrum": {
+        "valueTpe": "spectrum",
+        "spectrum" : {
+          "count" : 100,
+          "value" : {
+            "valueType" : "double",
+            "unit" : <unit object>
+          },
+          "range" : {
+            "valueType" : "double",
+            "unit" : <unit object>,
+            "implicitRule" : "linear",
+            "linear" : {
+	          "delta": 10.0,
+		      "start" : 1000.0
+            }
+          }
         }
-      }
-    }  
+      }      
+    }
   }
 }
 ~~~~
+
+- `array/count`: Number of spectra
 
 ### Position in 3 dimensional space Alternative
 
@@ -1062,10 +984,8 @@ To express the relation between the mentioned signals, the device will give a me
 {
   "method": "time",
   "params" : [
-    "axis": {
-      "ruleType": "explicit",
-      "valueType": "time",
-    }
+    "ruleType": "explicit",
+    "valueType": "time",
   ]  
 }
 ~~~~
@@ -1076,51 +996,42 @@ We receive 3 data blocks with one abolute time stamp and one double value.
 
 ### Position in 3 dimensional Space Alternative
 
-Same as above but as one signal with 3 explicit axes:
-
-
+Same as above but as struct
 
 ~~~~ {.javascript}
 {
-  "method": "axes",
-  "params" : [
-      "0": {
-        "name": "x",
-        "ruleType": "explicit",       
-        "valueType": "double",
-        "unit": "m",
+  "valueTpe": "struct",
+  "struct" : {
+    { 
+      "x" :  {
+        "valueType" : < value type >,
+        "unit" : < unit object >
+      },
+      "y" :  {
+        "valueType" : < value type >,
+        "unit" : < unit object >
+      },
+      "z" :  {
+        "valueType" : < value type >,
+        "unit" : < unit object >
       }
-      "1": {
-        "name": "y",
-        "ruleType": "explicit",       
-        "valueType": "double",
-        "unit": "m",
-      }
-      "2": {
-        "name": "z",
-        "ruleType": "explicit",       
-        "valueType": "double",
-        "unit": "m",
-      }
-    ]
+    }
   }
 }
 ~~~~
+
 
 ~~~~ {.javascript}
 {
   "method": "time",
   "params" : [
-    "axis": {
-      "ruleType": "explicit",
-      "valueType": "time",
-    }
+    "ruleType": "explicit",
+    "valueType": "time",
   ]  
 }
 ~~~~
 
 We receive 1 data block with one abolute time stamp and three double values.
-
 
 
 
@@ -1135,14 +1046,44 @@ One combined value consists of the following :
 - a scalar value fundamental frequency
 - a two dimensional array with n arrays of points with frequency, FFT amplitude, FFT phase, where n is the number of dimensions
 
-The approach to describe multiple dimensions described here does not work for this structure because:
-- It expects that all dimensions have the same number of values (scalars and arrays, or more general arrays with different number of elements can not be used together).
-- There are no sub dimensions (two dimensional array have dimensions within each dimension).
-
-It would be possible to define a special `known type` that describes exatly this format (In this case n has to be constant). 
-In this case it would be a signal with one dimension of this type. Streaming client has to have inmplcit kmowledge about the `known type`and how to handle it. 
-
-The time would be non-equidistant. Each value point has on is time stamped and carries the absolute value.
+Here we define a complex type that is made up by several other complext types and some base types.
 
 
+~~~~ {.javascript}
+{
+  "name": "spectral statistics",
+  "valueTpe": "struct",
+  "struct" : {
+    { 
+      "distortion" : < double >,
+      "fundamental frquency" : < double >
+      "ffts" : {      
+        "valueTpe": "spectrum",
+        "spectrum" : {
+          "count" : 100
+          "value" : {
+            "valueType" : "double",
+            "unit" : <unit object>
+          },
+          "range" : {
+            "valueType" : "double",
+            "unit" : <unit object>
+            "implicitRule" : "linear",
+            "linear" : {
+		      "delta": < double >,
+		      "start" : < double >
+            }
+          }
+        }      
+      }
+    }
+  }
+}
+~~~~
 
+
+Here we get the following values in 1 data block:
+
+- distortion
+- fundemantal frequency
+- n array of spectral values for n ffts.
