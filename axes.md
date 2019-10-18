@@ -828,36 +828,46 @@ Here we define a complex type that is made up by several other complext types an
   "name": "spectral statistics",
   "valueTpe": "struct",
   "struct" : {
-    { 
-      "distortion" : < double >,
-      "fundamental frquency" : < double >
-      "ffts" : {      
-        "valueTpe": "spectrum",
-        "spectrum" : {
-          "count" : 100,
-          "value" : {
-            "valueType" : "double",
-            "unit" : <unit object>
-          },
-          "range" : {
-            "valueType" : "double",
-            "unit" : <unit object>,
-            "implicitRule" : "linear",
-            "linear" : {
-		      "delta": < double >,
-		      "start" : < double >
-            }
+    "distortion" : < double >,
+    "fundamental frquency" : < double >
+    "ffts" : {      
+      "valueTpe": "spectrum",
+      "spectrum" : {
+        "count" : 100,
+        "value" : {
+          "valueType" : "double",
+          "unit" : <unit object>
+        },
+        "range" : {
+          "valueType" : "double",
+          "unit" : <unit object>,
+          "implicitRule" : "linear",
+          "linear" : {
+            "delta": < double >,
+		    "start" : < double >
           }
-        }      
+        }
       }
     }
   }
 }
 ~~~~
 
+~~~~ {.javascript}
+{
+  "method": "time",
+  "params" : {
+    "ruleType": "explicit",
+    "valueType": "time",
+  }
+}
+~~~~
+
+
 
 Here we get the following values in 1 data block:
 
+- 1 time stamp
 - distortion
 - fundemantal frequency
 - n array of spectral values for n ffts.
