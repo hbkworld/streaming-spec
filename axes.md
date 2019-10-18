@@ -52,16 +52,16 @@ There might be implicit knowledge about how to handle those known complex value 
 
 ### Array
 
-An array of values of the same type.
+An array of values of the same type. The number of elements is fixed.
 
 ~~~~ {.javascript}
 {
   "valueTpe": "array",
   "array" : {
-    "valueType" : <string>,
-    "unit" : <unit object>,
     "count" : <unsigned int>
+    "valueType" : <string>,
   }
+  "name": "array name"
 }
 ~~~~
 
@@ -89,6 +89,7 @@ Spectral values over a spectral range. The axis with the spectral range follows 
 
 ~~~~ {.javascript}
 {
+  "name": "spectrum name"
   "valueTpe": "spectrum",
   "spectrum" : {
     "value" : {
@@ -121,6 +122,7 @@ This is an example of such a complex value type. It is used for statistics. It c
 
 ~~~~ {.javascript}
 {
+  "name": "histogram name"
   "valueType": "histogram",
   "unit": "dB",
   "histogram" : {
