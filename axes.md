@@ -177,10 +177,9 @@ All implicit rules are described by a signal specific meta information.
 
 
 ### Linear Rule (#Linear_Rule)
-For equidistant axes we use linear axes.
+For equidistant value we use the linear rule.
 
-Coordinates of linear axes are described by an absolute start value and
-a relative delta between two values. 
+It is described by an absolute start value and a relative delta between two neighboring values. 
 
 ![Equidistant 2 dimensional points](images/equidistant_points.png)
 
@@ -203,6 +202,19 @@ A linear axis is described as follows:
 - `linear`: Properties of the implicit linear rule
 - `linear/start`: the first value
 - `linear/delta`: The difference between two values
+
+
+### constant Rule
+The rule is simple: There is a start value. The value equals the start value until a new start value is posted.
+
+~~~~ {.javascript}
+{
+  "implicitRule": "constant",
+  "constant": {
+    "start": <value>,
+  },
+}
+~~~~
 
 \pagebreak
 
@@ -563,6 +575,8 @@ The signal consists of a spectum
 	* Amplitude which is non-equidistant (explicit)
 - The time is non-equidistant. Each complete spectrum has one time stamp.
 
+Meta information describing the signal:
+
 ~~~~ {.javascript}
 {
   "valueTpe": "spectrum",
@@ -587,12 +601,46 @@ The signal consists of a spectum
 
 
 
-Data block will contain an absolute time stamp followed by 1024 amplitude values. There will be no frequency values because they are implicit.
+Data block will contain an absolute time stamp followed by 1024 amplitude double values. There will be no frequency values because they are implicit.
 
+### An Optical Spectrum Alternative
+
+Same as above but spectrum is expressed as an array of structs.
+
+Meta information describing the signal:
+
+~~~~ {.javascript}
+{
+  "valueType" : "struct",
+  "name" : "the spectrum",
+  "struct" : {
+    "valueType" : "array",
+    "array" : {
+      "count" : 1024,
+      "valueType" : "struct",
+      "struct" {
+        "amplitude" : {          
+          "valueType" : "double"
+          "unit" : "db"
+        },
+        "frequency" : {          
+          "valueType" : "double"
+          "unit" : "f",
+        }
+      }
+    }      
+  }  
+}
+~~~~
+
+Data block will contain an absolute time stamp followed by 1024 amplitude double values. There will be no frequency values because they are implicit.
 
 ### An Optical Spectrum with Peak Values
 
-The signal consists of a spectum and the peak values. Number of peaks is fixed!
+The signal consists of a spectum and the peak values. Number of peaks is fixed 16. 
+If the number of peaks does change, there will be a meta information telling about the new amount of peaks!
+
+Meta information describing the signal:
 
 ~~~~ {.javascript}
 {
@@ -620,14 +668,16 @@ The signal consists of a spectum and the peak values. Number of peaks is fixed!
     "the peak values" : {
       "valueType" : "array",
       "array" : {
-        "count" : < peak count>,
+        "count" : 16,
         "valueType" : "struct",
         "struct" {
-          "x" : {          
+          "frequency" : {          
             "valueType" : "double"
+            "unit" : "f",
           },
-          "y" : {          
+          "amplitude" : {          
             "valueType" : "double"
+            "unit" : "db"
           }
         }
       }      
@@ -636,6 +686,11 @@ The signal consists of a spectum and the peak values. Number of peaks is fixed!
 }
 ~~~~
 
+Data block will contain:
+
+- 1 absolute time stamp 
+- 1024 spectrum amplitude double values. No spectrum frequncy values because those are implicit.
+- 16 amplitude, frequency pairs.
 
 
 ### CPB Spectrum
@@ -769,12 +824,17 @@ This is made up from an array of structs containing a histogram and a frequency
 }
 ~~~~
 
-Data block will contain a absolute time stamp followed by 795 (15 * 52) uint32.
+Data block will contain a absolute time stamp followed by 15 histrograms
+
+- 50 uint32 for the 50 counters, 
+- 1 uint32 for the higher than counter
+- 1 uint32 for the lower than counter
+- no total counter
 
 
 ### Run up
 
-This is an array of structs containing a spectra and a frequency
+This is an array of 15 structs containing a spectra and a frequency
 
 ~~~~ {.javascript}
 {
@@ -815,7 +875,7 @@ This is an array of structs containing a spectra and a frequency
 }
 ~~~~
 
-- `array/count`: Number of spectra
+Data block will contain a absolute time stamp followed by 15 frequency spectrum pairs.
 
 
 ### Position in 3 dimensional Space
@@ -856,7 +916,7 @@ The value is a struct of three double values x, y, and z
 }
 ~~~~
 
-We receive 1 data block with one abolute time stamp and three double values.
+We receive 1 data block with one abolute time stamp and a struct with three double values.
 
 
 
@@ -869,9 +929,9 @@ The result delivered from harmonic analysis done by HBM Genesis/Perception is fa
 One combined value consists of the following :
 - a scalar value distortion
 - a scalar value fundamental frequency
-- a two dimensional array with n arrays of points with frequency, FFT amplitude, FFT phase, where n is the number of dimensions
+- a two dimensional array spectra of amplitude over phase
 
-Here we define a complex type that is made up by several other complext types and some base types.
+Here we define a complex type that is made up struct with some base types and an array of 10 spectras
 
 
 ~~~~ {.javascript}
@@ -881,24 +941,28 @@ Here we define a complex type that is made up by several other complext types an
   "struct" : {
     "distortion" : < double >,
     "fundamental frquency" : < double >
-    "ffts" : {      
-      "valueTpe": "spectrum",
-      "spectrum" : {
-        "count" : 100,
-        "value" : {
-          "valueType" : "double",
-          "unit" : <unit object>
-        },
-        "range" : {
-          "valueType" : "double",
-          "unit" : <unit object>,
-          "implicitRule" : "linear",
-          "linear" : {
-            "delta": < double >,
-		    "start" : < double >
+    "ffts" : {
+      "valueType: "array",
+      "array" : {
+        "count": 10,
+        "valueTpe": "spectrum",
+        "spectrum" : {
+          "count" : 100,
+          "value" : {
+            "valueType" : "double",
+            "unit" : <unit object>
+          },
+          "range" : {
+            "valueType" : "double",
+            "unit" : <unit object>,
+            "implicitRule" : "linear",
+            "linear" : {
+              "delta": 10,
+  		      "start" : 400.0
+            }
           }
         }
-      }
+      }      
     }
   }
 }
@@ -921,4 +985,4 @@ Here we get the following values in 1 data block:
 - 1 time stamp
 - distortion
 - fundemantal frequency
-- n array of spectral values for n ffts.
+- 10 spectra array of spectral values for n ffts.
