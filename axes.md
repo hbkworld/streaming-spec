@@ -10,6 +10,8 @@ HBM Streaming Protocol differentiates between meta information, and measured dat
 The meta information describes a stream or signal and tells how to interprete the measured data of a signal.
 
 For both, there is a header telling the signal id, the data belongs to. If the data is related to the stream or device, the signal id is 0.
+In addition, this header contains length information. If the content is not understood, 
+the parser can step to the next header and proceed with processing. This is usefull if the stream contains stuff, the client is not aware of.
 
 #### Stream Specific Meta Information
 
@@ -125,13 +127,13 @@ This is an example of such a complex value type. It is used for statistics. It c
   "name": "histogram name"
   "valueType": "histogram",
   "unit": "dB",
-  "histogram" : {
+  "histogram": {
     "classes": {
       "valueType" : "double"
       "implicitRule" : "linear",
       "linear" : {
 		"delta": 1.0,
-		"start" : 50.0
+		"start": 50.0
 	  }
       "count": 50,
     },
@@ -161,19 +163,17 @@ This is an example of such a complex value type. It is used for statistics. It c
 
 
 
-
-
 \pagebreak
 
 
 ## Implicit Rules
 
-For implicit axes, the component of the value for this axes is described by specific rules.
-We use implicit axes rules to greatly reduce the amount of data to be transferred, stored and processed.
+A value might follow a specific rule. We do not need to transfer each value, just some start information and the rule to calculate any other value that follows.
+We use implicit rules to greatly reduce the amount of data to be transferred, stored and processed.
 
-There are several kinds of rules. To calculate the absolute value on an implicit axis, the rule has to beapplied.
+There are several kinds of rules. To calculate the absolute value , the rule has to be applied.
 
-All axes are described by a signal specific meta information.
+All implicit rules are described by a signal specific meta information.
 
 
 ### Linear Rule (#Linear_Rule)
@@ -302,12 +302,13 @@ Time is delivered as absolute time stamp for each value.
 
 ### How to Interprete Measured Data
 
-After the value dimension details were send, delivered measured data blocks are to be interpreted as follows:
+After the meta information describing the signal is, delivered measured data blocks are to be interpreted as follows:
 
+- See whether this is more meta information or measured data from a signal.
 - Each data block contains complete values of a signal. 
-- A block may contain many values. They are arranged value by value.
+- A block may contain many values of this signal. They are arranged value by value.
 - Only explicit values are send.
-- Values following an implicit rule are calculated according the rule.
+- Values following an implicit rule are calculated according the implicit rule.
 - Theoretically a signal might contain no explicit avlue ast all. There won't be any component value to be transferred. All component values are to calculated using the implicit rules.
 
 \pagebreak
