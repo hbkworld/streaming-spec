@@ -891,11 +891,13 @@ We receive 1 data block with one abolute time stamp and a struct with three doub
 
 ### Harmonic Analysis
 
+Matthias: I'm not sure whether I understood the structure correctly. This needs to be clarified.
+
 The result delivered from harmonic analysis done by HBM Genesis/Perception is fairly complex.
-One combined value consists of the following :
+One combined value consists of the following:
 - a scalar value distortion
 - a scalar value fundamental frequency
-- a two dimensional array spectra of amplitude over phase
+- an array of ffts each one belonging to the harmonixc frequencies.
 
 Here we define a complex type that is made up struct with some base types and an array of 10 spectras
 
@@ -907,27 +909,35 @@ Here we define a complex type that is made up struct with some base types and an
   "struct" : {
     "distortion" : < double >,
     "fundamental frquency" : < double >
-    "ffts" : {
+    "harmonics" : {
       "valueType: "array",
       "array" : {
         "count": 10,
-        "valueTpe": "spectrum",
-        "spectrum" : {
-          "count" : 100,
-          "value" : {
-            "valueType" : "double",
-            "unit" : <unit object>
+        "valueType": "struct",
+        "struct" : {
+          "frequency" : {
+            "valueType": "double"
           },
-          "range" : {
-            "valueType" : "double",
-            "unit" : <unit object>,
-            "implicitRule" : "linear",
-            "linear" : {
-              "delta": 10,
-  		      "start" : 400.0
-            }
-          }
-        }
+          "fft" : {          
+            "valueType": "spectrum",
+            "spectrum" : {
+              "count" : 360,
+              "value" : {
+                "valueType" : "double",
+                "unit" : <unit object>
+              },
+              "range" : {
+                "valueType" : "double",
+                "unit" : <unit object>,
+                "implicitRule" : "linear",
+                "linear" : {
+                  "delta": 1,
+  		          "start" : 0
+                }
+              }
+            }          
+          }          
+        }        
       }      
     }
   }
@@ -949,6 +959,8 @@ Here we define a complex type that is made up struct with some base types and an
 Here we get the following values in 1 data block:
 
 - 1 time stamp
-- distortion
-- fundemantal frequency
-- 10 spectra array of spectral values for n ffts.
+- a double value distortion
+- a double value fundemantal frequency
+- 10 array with:
+  * a double value freuqency 
+  * 360 double values for the amplitude over phase
