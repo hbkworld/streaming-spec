@@ -49,7 +49,7 @@ There are several patterns for representing the different kinds of signals.
 ## Value Types
 
 We use well known base value types like float, double, int32, uint32. In addition we might additional known value types that are combinations of those base value types.
-There might be implicit knowledge about how to handle those known complex value types.
+There might be implicit knowledge about how to handle those known complex value types. If one is not able to handle a type, the underlying length information can be used to skip the package.
 
 
 ### Array
@@ -120,16 +120,15 @@ Spectral values over a spectral range. The axis with the spectral range follows 
 
 ### Histogram (#Histogram)
 
-This is an example of such a complex value type. It is used for statistics. It combines several base value types and includes knowledge about there meaning.
+This is an example of such a complex value type. It is used for statistics.
 
 ~~~~ {.javascript}
 {
   "name": "histogram name"
   "valueType": "histogram",
-  "unit": "dB",
   "histogram": {
     "classes": {
-      "valueType" : "double"
+      "valueType": "uint64",
       "implicitRule" : "linear",
       "linear" : {
 		"delta": 1.0,
@@ -137,29 +136,16 @@ This is an example of such a complex value type. It is used for statistics. It c
 	  }
       "count": 50,
     },
-    "haslowerCounter": true,
-    "hashigherCounter": true,
-    "hasTotalCounter": true,
   },
 }
 ~~~~
 
-#### Structure
-
 - `histogram`: An object describing the histogram
 - `classes`: The distribution classes are desribed here. This equals very much the linear implicit axis rule!
+- `classes/valueType`: Type of counter
 - `classes/count`: Number of distributaion classes
 - `classes/delta`: Width of each distribution class
 - `classes/start`: First distribution class starts here
-- `haslowerCounter`: Whether everything smaller then starts gets counted (Adds another uint64 to the data block)
-- `hashigherCounter`: Whether everything bigger then the upper bound of the last class gets counted (Adds another uint64 to the data block)
-- `hasTotalCounter`: Whether there is an overall counter (Adds another uint64 to the data block)
-
-#### Implicit Knowledge
-
-- `haslowerCounter`: Existence of this tells, that there is an additional uint64 counting value
-- `hashigherCounter`: Existence of this tells, that there is an additional uint64 counting value
-- `hasTotalCounter`: Existence of this tells, that there is an additional uint64 counting value
 
 
 
@@ -603,38 +589,6 @@ Meta information describing the signal:
 
 Data block will contain an absolute time stamp followed by 1024 amplitude double values. There will be no frequency values because they are implicit.
 
-### An Optical Spectrum Alternative
-
-Same as above but spectrum is expressed as an array of structs.
-
-Meta information describing the signal:
-
-~~~~ {.javascript}
-{
-  "valueType" : "struct",
-  "name" : "the spectrum",
-  "struct" : {
-    "valueType" : "array",
-    "array" : {
-      "count" : 1024,
-      "valueType" : "struct",
-      "struct" {
-        "amplitude" : {          
-          "valueType" : "double"
-          "unit" : "db"
-        },
-        "frequency" : {          
-          "valueType" : "double"
-          "unit" : "f",
-        }
-      }
-    }      
-  }  
-}
-~~~~
-
-Data block will contain an absolute time stamp followed by 1024 amplitude double values. There will be no frequency values because they are implicit.
-
 ### An Optical Spectrum with Peak Values
 
 The signal consists of a spectum and the peak values. Number of peaks is fixed 16. 
@@ -743,25 +697,33 @@ Often there also is a lower than lowest and higher than highest counter, and for
 
 
 Example: 50 - 99 dB statistics:
-Number of counters: 53 (50 normal counters plus a lower, a higher and a total counter).
-
-
-Everything is within a known [complex value type histogram](#Histogram).
+It is made up of a struct containing an [complex value type histogram](#Histogram) with 50 classes (bins) and three additional counters for the lower than, higher than and total count.
 
 ~~~~ {.javascript}
 {
-  "name": "counters",
-  "unit": "dB",
-  "valueType": "histogram",
-  "histogram" : {
-    "classes": {
-      "count": 50.0,
-      "delta": 1.0,
-      "start": 50.0,
+  "name": "statistic",
+  "valueType": "struct",
+  "struct" : {
+    "histogram": {
+      "valueType": "histogram",
+      "histogram" : {
+        "classes": {
+          "valueType": "uint64",
+          "count": 50.0,
+          "delta": 1.0,
+          "start": 50.0,
+        }
+      }
     },
-    "haslowerCounter": true,
-    "hashigherCounter": true,
-    "hasTotalCounter": true,
+    "lowerThanCounter" {
+      "valueType": uint64,
+    },
+    "higherThanCounter" {
+      "valueType": uint64,
+    },
+    "totalCounter" {
+      "valueType": uint64,
+    },
   }
 }
 ~~~~
@@ -771,10 +733,10 @@ Everything is within a known [complex value type histogram](#Histogram).
 Everything will be in 1 data block:
 
 - 1 absolute time stamp.
-- 50 uint32 for the 50 counters, 
-- 1 uint32 for the higher than counter
-- 1 uint32 for the lower than counter
-- 1 uint32 for the total counter
+- 50 uint64 for the 50 counters, 
+- 1 uint64 for the higher than counter
+- 1 uint64 for the lower than counter
+- 1 uint64 for the total counter
 
 
 ### Spectral Statistics
@@ -787,7 +749,7 @@ Example: 50 - 99 dB spectral statistics on a 1/3 octave CPB:
 
 
 
-This is made up from an array of structs containing a histogram and a frequency
+This is made up from an array of structs containing a histogram, lower than counter, higher than counter and a frequency
 
 ~~~~ {.javascript}
 {
@@ -810,38 +772,42 @@ This is made up from an array of structs containing a histogram and a frequency
         "valueType": "histogram",
         "histogram" : {
           "classes": {
+            "valueType": "uint64",
+            "count": 50.0,
             "delta": 1.0,
             "start": 50.0,
-            "count": 50.0
-          },
-          "haslowerCounter": true,
-          "hashigherCounter": true,
-          "hasTotalCounter": false
-        },  
-      }      
+          }
+        }
+      },
+      "lowerThanCounter" {
+        "valueType": uint64
+      },
+      "higherThanCounter" {
+        "valueType": uint64
+      },
     }
   }
 }
 ~~~~
 
-Data block will contain a absolute time stamp followed by 15 histrograms
-
-- 50 uint32 for the 50 counters, 
-- 1 uint32 for the higher than counter
-- 1 uint32 for the lower than counter
-- no total counter
+Data block will contain a absolute time stamp followed by:
+- 15 statistics, each containing:
+  * 50 uint64 for the 50 histogram classes, 
+  * 1 uint64 for the higher than counter
+  * 1 uint64 for the lower than counter
 
 
 ### Run up
 
-This is an array of 15 structs containing a spectra and a frequency
+This is an array of 15 structs containing a fft and a frequency.
+The frequcny follows a linear rule.
 
 ~~~~ {.javascript}
 {
   "name": "spectral statistics",
   "valueTpe": "array",
   "array" : {
-    "count" : 10
+    "count" : 15
     "valueType": "struct",
     "struct" : {
       "frequency": {
@@ -852,7 +818,7 @@ This is an array of 15 structs containing a spectra and a frequency
           "start" : 1000.0
         },
       },
-      "spectrum": {
+      "fft": {
         "valueTpe": "spectrum",
         "spectrum" : {
           "count" : 100,
@@ -875,7 +841,7 @@ This is an array of 15 structs containing a spectra and a frequency
 }
 ~~~~
 
-Data block will contain a absolute time stamp followed by 15 frequency spectrum pairs.
+Data block will contain an absolute time stamp followed by 15 spectras with 100 calues each.
 
 
 ### Position in 3 dimensional Space
