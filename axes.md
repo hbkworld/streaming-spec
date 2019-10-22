@@ -28,6 +28,69 @@ Everything describing the signal. Examples:
 * Signal name
 * Signal unit information
 
+### Examples
+#### A Voltage Sensor
+
+Synchronous output rate is 100 Hz. Signal is scaled on the device and is delivered as float.
+
+The following signal related meta information will be send before delivering any measured data:
+
+
+~~~~ {.javascript}
+{
+  "method": "data",
+  "params" : {
+    "pattern": "V",
+    "endian": "little",
+    "valueType": "real32",
+  }
+}
+~~~~ {.javascript}
+
+- `pattern`="V": No timestamps, values only. This pattern is used only for synchronous values.
+
+Signal related, after subscribing a synchronous signal there will be an absolute time for the first measured value we deliver for this signal.
+~~~~ {.javascript}
+{
+  "method": "time",
+  "params": {
+    "stamp": <absolute ntp time stamp of first value>
+  }
+}
+~~~~ {.javascript}
+
+The following signal related meta information tells the time difference between two values.
+~~~~ {.javascript}
+{
+  "method": "signalRate",
+  "params": {
+    "delta": <10ms expressed as ntp time>
+  }
+}
+~~~~ {.javascript}
+
+
+Data block has the measured value of this signal as 4 byte float. No time stamps.
+
+#### A CAN Decoder
+
+This is a signal that is asynchronous in time. There will be no time and signal rate meta information.
+
+~~~~ {.javascript}
+{
+  "method": "data",
+  "params" : {
+    "pattern": "TV",
+    "endian": "little",
+    "valueType": "u32",
+  }
+}
+~~~~ {.javascript}
+
+- `pattern`="TV": One timestamp per value, first comes the timestamp, then the value. This pattern is used for asynrchonous values.
+
+
+Each value point has an absolute ntp time stamp and one u32 value.
 
 ### Shortcomings of HBM Streaming Protocol
 
@@ -344,7 +407,7 @@ To express the relation between the mentioned signals, the device will give a me
 
 ### A Voltage Sensor
 
-The signal has 1 value axis. Synchronous output rate is 100 Hz
+The signal has 1 scalar value. Synchronous output rate is 100 Hz
 
 - The voltage is expressed as a base value type
 - The device delivers scaled component value in 32 bit float format
