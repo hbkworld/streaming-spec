@@ -1027,6 +1027,6 @@ Here we get the following values in 1 data block:
 - 1 time stamp
 - a double value distortion
 - a double value fundemantal frequency
-- 10 array with:
+- array with 10 structs containing:
   * a double value freuqency 
-  * 360 double values for the amplitude over phase
+  * 360 double spectrum values for the amplitude over phase
