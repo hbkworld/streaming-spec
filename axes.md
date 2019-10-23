@@ -45,7 +45,7 @@ The following signal related meta information will be send before delivering any
     "valueType": "real32",
   }
 }
-~~~~ {.javascript}
+~~~~
 
 - `pattern`="V": No timestamps, values only. This pattern is used only for synchronous values.
 
@@ -57,7 +57,7 @@ Signal related, after subscribing a synchronous signal there will be an absolute
     "stamp": <absolute ntp time stamp of first value>
   }
 }
-~~~~ {.javascript}
+~~~~
 
 The following signal related meta information tells the time difference between two values.
 ~~~~ {.javascript}
