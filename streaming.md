@@ -489,9 +489,9 @@ All dimensions have the same `valueType` as described in the `data` meta inforat
   "params" : {
     "dimensions": [
       {
-      "unit": <string>,
-      "min" : <number>,
-      "max" : <number>
+        "unit": <string>,
+        "min" : <number>,
+        "max" : <number>
       }
       ]
   }
