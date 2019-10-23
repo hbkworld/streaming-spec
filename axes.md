@@ -1,6 +1,6 @@
-# How to model multidimensional signals
+# How to Model Complex Signals
 
-This is a proposal how we might describe multiple axes within a new HBK streaming protocol.
+This is a proposal how we might describe signals of any complexity.
 
 ## Where HBM comes from
 
@@ -12,6 +12,8 @@ The meta information describes a stream or signal and tells how to interprete th
 For both, there is a header telling the signal id, the data belongs to. If the data is related to the stream or device, the signal id is 0.
 In addition, this header contains length information. If the content is not understood, 
 the parser can step to the next header and proceed with processing. This is usefull if the stream contains stuff, the client is not aware of.
+
+For more details please see the HBM Streaming Protocol specifictaion.
 
 #### Stream Specific Meta Information
 
