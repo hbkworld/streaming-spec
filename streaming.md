@@ -493,7 +493,7 @@ All dimensions have the same `valueType` as described in the `data` meta inforat
         "min" : <number>,
         "max" : <number>
       }
-      ]
+    ]
   }
 }
 ~~~~
