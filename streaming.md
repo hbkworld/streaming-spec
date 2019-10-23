@@ -385,6 +385,7 @@ the [Transport Layer](#transport-layer) must be interpreted.
 {
   "method": "data",
   "params" : {
+    "pattern": <string>,
     "endian": <string>,
     "valueType": <string>,
     "timeStamp": { // only emitted for patterns with time stamp
@@ -398,6 +399,17 @@ the [Transport Layer](#transport-layer) must be interpreted.
 ~~~~
 
 
+-`"pattern"`: Describes the data pattern of [Signal Data](#signal-data), either
+
+  - "V"; No timestamps, values only. This pattern is used only for synchronous values.
+  - "TV"; One timestamp per value, first comes the timestamp, then the value. This pattern is used for asynrchonous values.
+  - "TB"; One timestamp per signal block. The timestamp corresponds to the first sample in the signal block.
+  - "TXAV"; Timestamp, First absolute $x$ coordinate $x_0$ followed by 
+  an array of values $y_0, y_1.. y_n$ equidistant in dimension $x$.   
+  Before sending any data the `patternDetails` meta information has to be send once. 
+  - "TAP"; Timestamp, array of points.
+  Before sending any data the `patternDetails` meta information has to be send once.
+  
 -`"endian"`: Describes the byte endianess of the [Signal Data](#signal-data) and timestamps, either
 
   - "big"; Big endian byte order (network byte order).
@@ -436,68 +448,79 @@ the [Transport Layer](#transport-layer) must be interpreted.
 	
 #### Pattern Details
 
-##### Array of Points
+##### Equidistant two dimensional Array
 
-Points have at least 2 dimensions. The coordinates of each dimension might be equidistant are not.
-
-![Non equidistant 2 dimensional points](images/non_equidistant_points.png)
-
-For non equidistant dimensions, each point has a absolute coordinate for this dimension
+Equidistant two dimensional arrays carry several values in another dimension (domain) $x$ but time, like frequency. 
 
 ![Equidistant 2 dimensional points](images/equidistant_points.png)
 
-For equidistant dimensions, points are described by an absolute start 
-value for the dimension of the first point and a relative delta in this 
-dimension between the following points.
+Points are described by an absolute start value $x_0$ for the $x$ coordinate of the first point and a relative $delta$ for the $x$ coordinate between two points.
+Both dimensions have the same `valueType` as described in the `data` meta inforation.
 
+~~~~ {.javascript}
+{
+  "method": "patternDetails",
+  "params" : {
+    "xDelta": <number>,
+    "xMin" : <number>,
+    "xMax" : <number>,
+    "xUnit": <string>,
+    "yUnit": <string>
+  }
+}
+~~~~
 
+- xDelta: Increment of $x$ coordinate between each array value
+- xMin: Minimum of value range of $x$ coordinate (Optional parameter)
+- xMax: Maxmum of value range of $x$ coordinate (Optional parameter)
+- xUnit: Unit of the $x$ coordinate
+- yUnit: Unit of the $y$ coordinate
 
+##### Array of Points
+
+![Non equidistant 2 dimensional points](images/non_equidistant_points.png)
+
+Each point has an absolute coordinate for each dimension
+All dimensions have the same `valueType` as described in the `data` meta inforation.
 
 ~~~~ {.javascript}
 {
   "method": "patternDetails",
   "params" : {
     "dimensions": [
-      "unit": <string>,
-      "delta": <number>,
-      "min" : <number>,
-      "max" : <number>
-      ]
+      {
+        "unit": <string>,
+        "min" : <number>,
+        "max" : <number>        
+      }
+    ]
   }
 }
 ~~~~
-- dimensions: An array of objects each desribing a dimension
+
+- dimensions: Array containing objects, describing each dimension. The 
+  number of elements in the array equals the number of dimensions of each point.
 - unit: Unit of the dimension
-- delta: If this parameter does exist, the coordinates of this dimension 
-  are equidistant. In this case, each value block will have a start 
-  coordinate for this dimension of the first data point for this dimension
-  and there will be no values for this coordinate.
-  If this parameter is missing for a dimension, value blocks won't have
-  a start value for this dimension but a value for each point.
-- minRange: Optional parameter
-- maxRange: Optional parameter
-
-After the pattern details were send, data block are to be interpreted as follows:
-
-- Each data block begins with a time stamp
-- The number of points in this block
-- Next comes an absolute start value for each dimension with equidistant values.
-- Finally tuples with coordinates of all non-equidistant dimensions.
+- min: Minimum of value range of the dimension (Optional parameter)
+- max: Maxmum of value range of the dimension (Optional parameter)
 
 
-#### Units
 
+#### Unit
+
+This meta information is available for the patterns  `V`, `TV`, `TB`.
 
 ~~~~ {.javascript}
 {
   "method": "unit",
   "params": {
-    "units": [ <string>, <string>, .. ]
+    "unit": <string>
   }
 }
 ~~~~
 
-`"units"`: Array of UTF-8 encoded strings containing the units. One elemen per dimension of the signal.
+`"unit"`: A UTF-8 encoded string containing the unit describing the signal.
+
 
 
 #### Time Objects
