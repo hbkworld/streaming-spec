@@ -947,7 +947,7 @@ The following signal related meta information tells the time difference between 
     "delta": <10ms expressed as ntp time>
   }
 }
-~~~~ {.javascript}
+~~~~
 
 
 Within data blocks the measured value of this signal is just a 4 byte float. No time stamps.
@@ -965,7 +965,7 @@ This is a signal that is asynchronous in time. There will be no time and signal 
     "valueType": "u32",
   }
 }
-~~~~ {.javascript}
+~~~~
 
 - `pattern`="TV": One timestamp per value, first comes the timestamp, then the value. This pattern is used for asynrchonous values.
 
