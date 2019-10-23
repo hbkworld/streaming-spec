@@ -35,7 +35,6 @@ Synchronous output rate is 100 Hz. Signal is scaled on the device and is deliver
 
 The following signal related meta information will be send before delivering any measured data:
 
-
 ~~~~ {.javascript}
 {
   "method": "data",
@@ -50,6 +49,7 @@ The following signal related meta information will be send before delivering any
 - `pattern`="V": No timestamps, values only. This pattern is used only for synchronous values.
 
 Signal related, after subscribing a synchronous signal there will be an absolute time for the first measured value we deliver for this signal.
+
 ~~~~ {.javascript}
 {
   "method": "time",
@@ -60,6 +60,7 @@ Signal related, after subscribing a synchronous signal there will be an absolute
 ~~~~
 
 The following signal related meta information tells the time difference between two values.
+
 ~~~~ {.javascript}
 {
   "method": "signalRate",
@@ -67,7 +68,7 @@ The following signal related meta information tells the time difference between 
     "delta": <10ms expressed as ntp time>
   }
 }
-~~~~ {.javascript}
+~~~~
 
 
 Data block has the measured value of this signal as 4 byte float. No time stamps.
@@ -85,7 +86,7 @@ This is a signal that is asynchronous in time. There will be no time and signal 
     "valueType": "u32",
   }
 }
-~~~~ {.javascript}
+~~~~
 
 - `pattern`="TV": One timestamp per value, first comes the timestamp, then the value. This pattern is used for asynrchonous values.
 
@@ -181,7 +182,7 @@ Spectral values over a spectral range. The axis with the spectral range follows 
 - `count`: Number of points in the spectrum
 
 
-### Histogram (#Histogram)
+### Histogram {#Histogram}
 
 This is an example of such a complex value type. It is used for statistics.
 
@@ -225,7 +226,7 @@ There are several kinds of rules. To calculate the absolute value , the rule has
 All implicit rules are described by a signal specific meta information.
 
 
-### Linear Rule (#Linear_Rule)
+### Linear Rule {#Linear_Rule}
 For equidistant value we use the linear rule.
 
 It is described by an absolute start value and a relative delta between two neighboring values. 
@@ -615,7 +616,7 @@ If the rotation direction changes, we get a (partial) meta information with a ne
 Data block will contain a tuple of counter and time stamp. There will be no meta ionformation when direction changes.
 
 
-### An Optical Spectrum (#Optical_Spectrum)
+### An Optical Spectrum {#Optical_Spectrum}
 
 The signal consists of a spectum
 
@@ -751,7 +752,7 @@ Data block will contain an absolute time stamp followed by 15 real32 with the am
 
 
 
-### Statistics (#Statistics)
+### Statistics {#Statistics}
 
 Statistics consists of N "counters" each covering a value interval. If the measured value is within a counter interval, then that counter is incremented.
 For instance the interval from 50 to 99 db might be covered by 50 counters. Each of these counters then would cover 1 dB.
