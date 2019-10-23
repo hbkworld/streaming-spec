@@ -513,7 +513,7 @@ This meta information is available for the patterns  `V`, `TV`, `TB`.
 ~~~~ {.javascript}
 {
   "method": "unit",
-  "params" : {
+  "params": {
     "unit": <string>
   }
 }
