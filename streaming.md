@@ -491,7 +491,7 @@ All dimensions have the same `valueType` as described in the `data` meta inforat
       {
         "unit": <string>,
         "min" : <number>,
-        "max" : <number>        
+        "max" : <number>
       }
     ]
   }
@@ -906,6 +906,73 @@ If this feature is supported, the [Init Meta information`s](#init-meta)
 true
 ~~~~
 
+
+
+## Examples
+### A Voltage Sensor
+
+Synchronous output rate is 100 Hz. Signal is scaled on the device and is delivered as float.
+
+The following signal related meta information will be send before delivering any measured data:
+
+
+~~~~ {.javascript}
+{
+  "method": "data",
+  "params" : {
+    "pattern": "V",
+    "endian": "little",
+    "valueType": "real32",
+  }
+}
+~~~~
+
+- `pattern`="V": No timestamps, values only. This pattern is used only for synchronous values.
+
+Signal related, after subscribing a synchronous signal there will be an absolute time for the first measured value we deliver for this signal.
+
+~~~~ {.javascript}
+{
+  "method": "time",
+  "params": {
+    "stamp": <absolute ntp time stamp of first value>
+  }
+}
+~~~~
+
+The following signal related meta information tells the time difference between two values.
+
+~~~~ {.javascript}
+{
+  "method": "signalRate",
+  "params": {
+    "delta": <10ms expressed as ntp time>
+  }
+}
+~~~~
+
+
+Within data blocks the measured value of this signal is just a 4 byte float. No time stamps.
+
+### A CAN Decoder
+
+This is a signal that is asynchronous in time. There will be no time and signal rate meta information.
+
+~~~~ {.javascript}
+{
+  "method": "data",
+  "params" : {
+    "pattern": "TV",
+    "endian": "little",
+    "valueType": "u32",
+  }
+}
+~~~~
+
+- `pattern`="TV": One timestamp per value, first comes the timestamp, then the value. This pattern is used for asynrchonous values.
+
+Within data blocks each value point has an absolute ntp time stamp (64 bit) and one u32 value.
+
 ## Changes
 
 ### Version 1.1
@@ -916,8 +983,9 @@ added support for value type CAN raw
 
 Added patterns "TXAV" and "TAP"
 
+### Version 1.3
 
-
+Some examples
 
 ## Glossary
 
