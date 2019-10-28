@@ -133,9 +133,11 @@ An array of values of the same type. The number of elements is fixed.
 }
 ~~~~
 
+- `count`: Number of elements in the array
+
 ### Struct
 
-A combination of named members which bay be of different Types.
+A combination of named members which may be of different Types.
 
 ~~~~ {.javascript}
 {
@@ -484,6 +486,8 @@ Each value point has an absolute time stamp and one u32 value.
 
 ### A Simple Counter
 
+This is for counting events that are not equidistant in time.
+
 - The value is expressed as a base value type
 - The count value is equidistant with an increment of 2, it runs in one direction
 - The device sends an initial absolute value.
@@ -813,9 +817,9 @@ The first axis could for instance be a CPB axis, for each CPB band there is a st
 Example: 50 - 99 dB spectral statistics on a 1/3 octave CPB:
 
 
-
-
 This is made up from an array of structs containing a histogram, lower than counter, higher than counter and a frequency
+
+We'll get the following signal specific meta information:
 
 ~~~~ {.javascript}
 {
@@ -866,7 +870,9 @@ Data block will contain a absolute time stamp followed by:
 ### Run up
 
 This is an array of 15 structs containing a fft and a frequency.
-The frequcny follows a linear rule.
+The frequency follows a linear rule.
+
+We'll get the following signal specific meta information:
 
 ~~~~ {.javascript}
 {
@@ -912,7 +918,9 @@ Data block will contain an absolute time stamp followed by 15 spectras with 100 
 
 ### Position in 3 dimensional Space
 
-The value is a struct of three double values x, y, and z
+The value is a struct of three double values x, y, and z.
+
+We'll get the following signal specific meta information:
 
 ~~~~ {.javascript}
 {
@@ -965,8 +973,9 @@ One combined value consists of the following:
 - a scalar value fundamental frequency
 - an array of ffts each one belonging to the harmonixc frequencies.
 
-Here we define a complex type that is made up struct with some base types and an array of 10 spectras
+Here we define a complex type that is made up struct with some base types and an array of 10 spectras.
 
+We'll get the following signal specific meta information:
 
 ~~~~ {.javascript}
 {
