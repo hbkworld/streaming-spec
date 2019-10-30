@@ -124,7 +124,6 @@ An array of values of the same type. The number of elements is fixed.
 
 ~~~~ {.javascript}
 {
-  "name": "array name",
   "valueTpe": "array",
   "array" : {
     "count" : <unsigned int>
@@ -134,7 +133,6 @@ An array of values of the same type. The number of elements is fixed.
 ~~~~
 
 - `array/count`: Number of elements in the array
-- `name`: The array has a name to allow it to be addressed as in programming languages (`memberName[<desired index]`).
 
 
 ### Struct
@@ -278,7 +276,6 @@ The rule is simple: There is a start value. The value equals the start value unt
 ### cpb Rule
 
 
-
 ~~~~ {.javascript}
 {
   "ruleType": "cpb"
@@ -290,7 +287,12 @@ The rule is simple: There is a start value. The value equals the start value unt
 }
 ~~~~
 
-- `implicitRule`: Type of implicit rule
+- `ruleType`: Type of implicit rule
+- `cpb`: Details for the rule of type cpb
+- `cpb/basesystem` : logarithm base
+- `cpb/firstband` : first band of the spectrum
+- `cpb/numberfractions` : Number of fractions per octave
+
 
 
 \pagebreak
@@ -731,12 +733,11 @@ The spectrum is defined by the following values:
 - Number of bands
 
 The time is non-equidistant.
-In this example the spectrum is 5 octaves with 3 fractions per octave, so 15 lines in total.
 
 
 ~~~~ {.javascript}
 {
-  "valueTpe": "cpb spectrum",
+  "valueTpe": "spectrum",
   "spectrum" : {
     "value" : {
       "valueType" : "float",
