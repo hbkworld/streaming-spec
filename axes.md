@@ -6,14 +6,14 @@ This is a proposal how we might describe signals of any complexity.
 
 ### Measured Data and Meta Information
 
-HBM Streaming Protocol differentiates between meta information, and measured data.
+HBM Streaming Protocol differentiates between meta information and measured data.
 The meta information describes a stream or signal and tells how to interprete the measured data of a signal.
 
-For both, there is a header telling the signal id, the data belongs to. If the data is related to the stream or device, the signal id is 0.
+For both there is a header telling the signal id the data belongs to. If the data is related to the stream or device the signal id is 0.
 In addition, this header contains length information. If the content is not understood, 
-the parser can step to the next header and proceed with processing. This is usefull if the stream contains stuff, the client is not aware of.
+the parser can step to the next header and proceed with processing. This is usefull if the stream contains information, the client is not aware of.
 
-For more details please see the HBM Streaming Protocol specifictaion.
+For more details please see the HBM Streaming Protocol specification.
 
 #### Stream Specific Meta Information
 
@@ -56,7 +56,7 @@ Signal related, after subscribing a synchronous signal there will be an absolute
 {
   "method": "time",
   "params": {
-    "stamp": <absolute ntp time stamp of first value>
+    "stamp": <absolute time stamp of first value>
   }
 }
 ~~~~
@@ -67,7 +67,7 @@ The following signal related meta information tells the time difference between 
 {
   "method": "signalRate",
   "params": {
-    "delta": <10ms expressed as ntp time>
+    "delta": <10ms time difference>
   }
 }
 ~~~~
@@ -93,7 +93,7 @@ This is a signal that is asynchronous in time. There will be no time and signal 
 - `pattern`="TV": One timestamp per value, first comes the timestamp, then the value. This pattern is used for asynrchonous values.
 
 
-Each value point has an absolute ntp time stamp and one u32 value.
+Each value point has an absolute time stamp and one u32 value.
 
 ### Shortcomings of HBM Streaming Protocol
 
@@ -114,7 +114,7 @@ There are several patterns for representing the different kinds of signals.
 
 ## Value Types
 
-We use well known base value types like float, double, int32, uint32. In addition we might additional known value types that are combinations of those base value types.
+We use well known base value types like float, double, int32, uint32. In addition we might have known value types that are combinations of those base value types.
 There might be implicit knowledge about how to handle those known complex value types. If one is not able to handle a type, the underlying length information can be used to skip the package.
 
 
@@ -124,16 +124,18 @@ An array of values of the same type. The number of elements is fixed.
 
 ~~~~ {.javascript}
 {
+  "name": "array name",
   "valueTpe": "array",
   "array" : {
     "count" : <unsigned int>
     "valueType" : <string>,
   }
-  "name": "array name"
 }
 ~~~~
 
-- `count`: Number of elements in the array
+- `array/count`: Number of elements in the array
+- `name`: The array has a name to allow it to be addressed as in programming languages (`memberName[<desired index]`).
+
 
 ### Struct
 
@@ -142,7 +144,7 @@ A combination of named members which may be of different Types.
 ~~~~ {.javascript}
 {
   "valueTpe": "struct",
-  "struct" : {
+  "struct": {
     { 
       <member name 1> : { < value description 1> },
       ...
@@ -152,6 +154,7 @@ A combination of named members which may be of different Types.
 }
 ~~~~
 
+- `<member name 1>...<member name n>`: Each struct member has a name. 
 
 ### Spectrum
 
