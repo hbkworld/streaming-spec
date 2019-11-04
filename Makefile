@@ -1,4 +1,4 @@
-all: streaming.pdf streaming.html axes.pdf axes.html
+all: streaming.pdf streaming.html complex_types.pdf complex_types.html
 
 #%.pdf: %.org
 #	pandoc -s -S --normalize --toc -N \
