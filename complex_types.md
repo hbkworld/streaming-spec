@@ -298,10 +298,10 @@ The rule is simple: There is a start value. The value equals the start value unt
 
 
 ## Explicit Rule
-![Non equidistant 2 dimensional points](images/non_equidistant_points.png)
+![2 dimensional points](images/non_equidistant_points.png)
 
 When there is no implicit rule defined, each value has an absolute coordinate for this axis.
-There is no rule how to calculate the absolute value.
+There is no rule how to calculate the absolute value. We call it an explicit rule.
 
 \pagebreak
 
@@ -309,12 +309,12 @@ There is no rule how to calculate the absolute value.
 ## Time 
 
 The time is mandatory for each signal. It is not part of the signal value.
-It can be equidistant (linear implicit) or non-equidistant (explicit).
+It can follow an implicit rule (most likely equidistant or linear) or may be explicit.
 
 
-### Equidistant Time
+### Linear Time
 Equidistant time is described as a [linear implicit rule](#Linear_Rule).
-To calculate the absolute time for an equidistant time, There needs to 
+To calculate the absolute time for linear time, There needs to 
 be an absolute start time and a delta time. 
 Both can be delivered by a separate, signal specific, meta information. 
 
@@ -346,7 +346,7 @@ Both can be delivered by a separate, signal specific, meta information.
 - `start`: The absolute timestamp for the next value point.
 - `delta`: The time difference between two value points
 
-### Non Equidistant Time
+### Explicit Time
 Time is delivered as absolute time stamp for each value.
 
 ~~~~ {.javascript}
@@ -420,7 +420,7 @@ The signal has 1 scalar value. Synchronous output rate is 100 Hz
 
 - The voltage is expressed as a base value type
 - The device delivers scaled component value in 32 bit float format
-- The time is equidistant (implicit).
+- The time is linear.
 
 The device sends the following signal-specific meta information.
 
@@ -490,12 +490,12 @@ Each value point has an absolute time stamp and one u32 value.
 
 ### A Simple Counter
 
-This is for counting events that are not equidistant in time.
+This is for counting events that happens at any time (explicit rule).
 
 - The value is expressed as a base value type
-- The count value is equidistant with an increment of 2, it runs in one direction
+- The count value is linear with an increment of 2, it runs in one direction
 - The device sends an initial absolute value.
-- The time is non-equidistant.
+- The time is explicit.
 
 ~~~~ {.javascript}
 {
@@ -522,7 +522,7 @@ This is for counting events that are not equidistant in time.
 ~~~~
 
 
-Value is equidistant with a step width of 2.
+Value is linear with a step width of 2.
 We get no start value of the value, hence we are starting with 0.
 
 Data blocks will contain timestamps only. The counter changes by a known amount of 2.
@@ -531,10 +531,10 @@ Data blocks will contain timestamps only. The counter changes by a known amount 
 ### A incremental Rotary Incremental Encoder with start Position
 
 - The value is expressed as a base value type
-- The counter representing the angle is equidistant, it can go back and forth
+- The counter representing the angle follows a linear rule, it can go back and forth
 - Absolute start position when crossing a start position. 
 - No initial absolute value.
-- The time is non-equidistant.
+- The time is explicit.
 
 
 ~~~~ {.javascript}
@@ -600,7 +600,7 @@ If the rotation direction changes, we get a (partial) meta information with a ne
 
 - The value is expressed as a base value type
 - The angle is explicit, it can go back and forth
-- The time is non-equidistant.
+- The time is explicit.
 
 ~~~~ {.javascript}
 {
@@ -631,9 +631,9 @@ Data block will contain a tuple of counter and time stamp. There will be no meta
 The signal consists of a spectum
 
 - The value is complex value type of type spectrum. This carries:
-	* Frequency which equidistant (implicit linear), it has an absolute start value of 100.
-	* Amplitude which is non-equidistant (explicit)
-- The time is non-equidistant. Each complete spectrum has one time stamp.
+	* Frequency which is implicit linear, it has an absolute start value of 100.
+	* Amplitude which is explicit
+- The time is explicit. Each complete spectrum has one time stamp.
 
 Meta information describing the signal:
 
@@ -731,7 +731,7 @@ The spectrum is defined by the following values:
 - The logarithmic base of the spectrum (2 or 10)
 - Number of bands
 
-The time is non-equidistant.
+The time is explicit.
 
 
 ~~~~ {.javascript}
