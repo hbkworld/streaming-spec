@@ -366,11 +366,6 @@ Time is delivered as absolute time stamp for each value.
 \pagebreak
 
 
-
-
-\pagebreak
-
-
 ### How to Interprete Measured Data
 
 After the meta information describing the signal is, delivered measured data blocks are to be interpreted as follows:
@@ -715,6 +710,16 @@ Meta information describing the signal:
 }
 ~~~~
 
+~~~~ {.javascript}
+{
+  "method": "time",
+  "params" : [
+    "ruleType": "explicit",
+    "valueType": "time"
+  ]  
+}
+~~~~
+
 Data block will contain:
 
 - 1 absolute time stamp 
@@ -757,6 +762,17 @@ The time is explicit.
   }  
 }
 ~~~~
+
+~~~~ {.javascript}
+{
+  "method": "time",
+  "params" : [
+    "ruleType": "explicit",
+    "valueType": "time"
+  ]  
+}
+~~~~
+
 
 Data block will contain an absolute time stamp followed by 15 real32 with the amplitude information.
 
@@ -802,6 +818,16 @@ It is made up of a struct containing an [complex value type histogram](#Histogra
       "valueType": uint64,
     },
   }
+}
+~~~~
+
+~~~~ {.javascript}
+{
+  "method": "time",
+  "params" : [
+    "ruleType": "explicit",
+    "valueType": "time"
+  ]  
 }
 ~~~~
 
@@ -870,6 +896,17 @@ We'll get the following signal specific meta information:
 }
 ~~~~
 
+~~~~ {.javascript}
+{
+  "method": "time",
+  "params" : [
+    "ruleType": "explicit",
+    "valueType": "time"
+  ]  
+}
+~~~~
+
+
 Data block will contain a absolute time stamp followed by:
 - 15 statistics, each containing:
   * 50 uint64 for the 50 histogram classes, 
@@ -922,6 +959,18 @@ We'll get the following signal specific meta information:
   }
 }
 ~~~~
+
+~~~~ {.javascript}
+{
+  "method": "time",
+  "params" : [
+    "ruleType": "explicit",
+    "valueType": "time"
+  ]  
+}
+~~~~
+
+
 
 Data block will contain an absolute time stamp followed by 15 spectras with 100 calues each.
 
