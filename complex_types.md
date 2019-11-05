@@ -131,7 +131,7 @@ An array of values of the same type. The number of elements is fixed.
 }
 ~~~~
 
-- `array/count`: Number of elements in the array
+- `array/count`: Number of elements in the array. It does neither tell about the size of data nor the number of values within each element.
 
 
 ### Struct
