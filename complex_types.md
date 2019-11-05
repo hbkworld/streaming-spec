@@ -212,8 +212,9 @@ This is an example of such a complex value type. It is used for statistics.
 - `classes`: The distribution classes are desribed here. This equals very much the linear implicit axis rule!
 - `classes/valueType`: Type of counter
 - `classes/count`: Number of distributaion classes
-- `classes/delta`: Width of each distribution class
-- `classes/start`: First distribution class starts here
+- `classes/implicitRule`: This histogram follows an implicit linear rule. Other rules are also possible.
+- `classes/linear/delta`: Width of each distribution class
+- `classes/linear/start`: First distribution class starts here
 
 
 
@@ -343,8 +344,8 @@ Both can be delivered by a separate, signal specific, meta information.
 - `method`: Type of meta information
 - `ruleType`: type of axis
 - `unit`: Unit of the axis
-- `start`: The absolute timestamp for the next value point.
-- `delta`: The time difference between two value points
+- `linear/start`: The absolute timestamp for the next value point.
+- `linear/delta`: The time difference between two value points
 
 ### Explicit Time
 Time is delivered as absolute time stamp for each value.
@@ -579,7 +580,7 @@ We get a (partial) meta information with a start value of the counter every time
 }
 ~~~~
 
-If the rotation direction changes, we get a (partial) meta information with a new delta.:
+If the rotation direction changes, we get a (partial) meta information with a new delta for the linear rule:
 
 ~~~~ {.javascript}
 {
@@ -650,8 +651,8 @@ Meta information describing the signal:
       "unit" : "f",
       "implicitRule" : "linear",
       "linear" : {
-	"delta": 10.0,
-	"start" : 100.0
+        "delta": 10.0,
+        "start" : 100.0
       }
     },
     "count" : 1024
@@ -782,9 +783,12 @@ It is made up of a struct containing an [complex value type histogram](#Histogra
       "histogram" : {
         "classes": {
           "valueType": "uint64",
+          "implicitRule" : "linear",
+          "linear" : {
+	    "delta": 1.0,
+	    "start": 50.0
+	  }
           "count": 50.0,
-          "delta": 1.0,
-          "start": 50.0,
         }
       }
     },
@@ -846,9 +850,12 @@ We'll get the following signal specific meta information:
         "histogram" : {
           "classes": {
             "valueType": "uint64",
+            "implicitRule" : "linear",
+            "linear" : {
+              "delta": 1.0,
+              "start": 50.0
+            },
             "count": 50.0,
-            "delta": 1.0,
-            "start": 50.0,
           }
         }
       },
