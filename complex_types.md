@@ -455,7 +455,7 @@ Data block has the value of this signal encoded float. No time stamps.
 
 ### A CAN Decoder
 
-The signal has 1 value dimension. 
+The signal has a simple scalar value.
 
 - The value is expressed as a base value type
 - The value is explicit.
@@ -814,8 +814,8 @@ Everything will be in 1 data block:
 
 ### Spectral Statistics
 
-Spectral statistics adds a dimension to the statistics example.
-The first axis could for instance be a CPB axis, for each CPB band there is a statistics (which is 2 dimensions).
+Spectral statistics is a swarm of statistics over an additional axis.
+This axis could for instance be a CPB axis, for each CPB band there is a statistic.
 
 Example: 50 - 99 dB spectral statistics on a 1/3 octave CPB:
 
