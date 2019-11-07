@@ -917,7 +917,7 @@ Data block will contain a absolute time stamp followed by:
 ### Run up
 
 This is an array of 15 structs containing a fft and a frequency.
-The frequency follows a linear rule.
+Fft amplitudes and frenqeuncy are explicit.
 
 We'll get the following signal specific meta information:
 
@@ -931,11 +931,7 @@ We'll get the following signal specific meta information:
     "struct" : {
       "frequency": {
         "valueType": "double",
-        "implicitRule" : "linear",
-        "linear" : {
-          "delta": 10.0,
-          "start" : 1000.0
-        },
+        "ruleType": "explicit"
       },
       "fft": {
         "valueTpe": "spectrum",
@@ -972,7 +968,8 @@ We'll get the following signal specific meta information:
 
 
 
-Data block will contain an absolute time stamp followed by 15 spectras with 100 calues each.
+Data block will contain an absolute time stamp followed by 15 
+frequencies with the corresponding spectra containing 100 amplitude values each.
 
 
 ### Position in 3 dimensional Space
