@@ -35,7 +35,7 @@ Everything describing the signal. Examples:
 
 Synchronous output rate is 100 Hz. Signal is scaled on the device and is delivered as float.
 
-The following signal related meta information will be send before delivering any measured data:
+The following signal related meta information will be sent before delivering any measured data:
 
 ~~~~ {.javascript}
 {
@@ -123,7 +123,7 @@ An array of values of the same type. The number of elements is fixed.
 
 ~~~~ {.javascript}
 {
-  "valueTpe": "array",
+  "valueType": "array",
   "array" : {
     "count" : <unsigned int>
     "valueType" : <string>,
@@ -136,22 +136,24 @@ An array of values of the same type. The number of elements is fixed.
 
 ### Struct
 
-A combination of named members which may be of different Types.
+A combination of named members which may be of different types.
 
 ~~~~ {.javascript}
 {
-  "valueTpe": "struct",
+  "valueType": "struct",
   "struct": {
     { 
-      <member name 1> : { < value description 1> },
+      <member name 1> : { < value type 1> },
       ...
-      <member name n> : { < value description n> }
+      <member name n> : { < value type n> }
     }
   }
 }
 ~~~~
 
-- `<member name 1>...<member name n>`: Each struct member has a name. 
+- `<member name n>`: Each struct member has a name. 
+- `<value type n>`: The type of each struct member. The type can be a base type (e.g. uint32), or one f the compound types (e.g. array, struct, spectrum...)
+- 
 
 ### Spectrum
 
@@ -160,7 +162,7 @@ Spectral values over a spectral range. The axis with the spectral range follows 
 ~~~~ {.javascript}
 {
   "name": "spectrum name"
-  "valueTpe": "spectrum",
+  "valueType": "spectrum",
   "spectrum" : {
     "value" : {
       "valueType" : "double",
@@ -169,7 +171,7 @@ Spectral values over a spectral range. The axis with the spectral range follows 
     "range" : {
       "valueType" : "double",
       "unit" : <unit object>,
-      "implicitRule" : "linear",
+      "rule" : "linear",
       "linear" : {
 		"delta": 10.0,
 		"start" : 1000.0
@@ -197,7 +199,7 @@ This is an example of such a complex value type. It is used for statistics.
   "histogram": {
     "classes": {
       "valueType": "uint64",
-      "implicitRule" : "linear",
+      "rule" : "linear",
       "linear" : {
 		"delta": 1.0,
 		"start": 50.0
@@ -212,7 +214,7 @@ This is an example of such a complex value type. It is used for statistics.
 - `classes`: The distribution classes are desribed here. This equals very much the linear implicit axis rule!
 - `classes/valueType`: Type of counter
 - `classes/count`: Number of distributaion classes
-- `classes/implicitRule`: This histogram follows an implicit linear rule. Other rules are also possible.
+- `classes/rule`: This histogram follows an implicit linear rule. Other rules are also possible.
 - `classes/linear/delta`: Width of each distribution class
 - `classes/linear/start`: First distribution class starts here
 
@@ -245,7 +247,7 @@ A linear axis is described as follows:
 
 ~~~~ {.javascript}
 {
-  "implicitRule": "linear",
+  "rule": "linear",
   "linear": {
     "start": <value>,
     "delta": <value>,
@@ -253,7 +255,7 @@ A linear axis is described as follows:
 }
 ~~~~
 
-- `implicitRule`: Type of implicit rule
+- `rule`: Type of implicit rule
 - `linear`: Properties of the implicit linear rule
 - `linear/start`: the first value
 - `linear/delta`: The difference between two values
@@ -264,7 +266,7 @@ The rule is simple: There is a start value. The value equals the start value unt
 
 ~~~~ {.javascript}
 {
-  "implicitRule": "constant",
+  "rule": "constant",
   "constant": {
     "start": <value>,
   },
@@ -278,7 +280,7 @@ The rule is simple: There is a start value. The value equals the start value unt
 
 ~~~~ {.javascript}
 {
-  "ruleType": "cpb"
+  "rule": "cpb"
   "cpb" {
     "basesystem": 10,
     "firstband": 2,
@@ -287,7 +289,7 @@ The rule is simple: There is a start value. The value equals the start value unt
 }
 ~~~~
 
-- `ruleType`: Type of implicit rule
+- `rule`: Type of implicit rule
 - `cpb`: Details for the rule of type cpb
 - `cpb/basesystem` : logarithm base
 - `cpb/firstband` : first band of the spectrum
@@ -324,14 +326,14 @@ Both can be delivered by a separate, signal specific, meta information.
 - The device might deliver the absolute time before delivering the first value point.
 - If the device does not possess a clock, there might be no absolute time at all.
 - The device might deliver the absolute time whenever its clock is being set (resynchronization).
-
+- It might deliver a new absolute time after a pause or any other abberation in the equidistant time
 
 
 ~~~~ {.javascript}
 {
   "method": "time",
   "params": {
-    "ruleType": "linear",
+    "rule": "linear",
     "linear": {
       "start": <value>,
       "delta": <value>,
@@ -342,7 +344,7 @@ Both can be delivered by a separate, signal specific, meta information.
 ~~~~
 
 - `method`: Type of meta information
-- `ruleType`: type of axis
+- `rule`: type of axis
 - `unit`: Unit of the axis
 - `linear/start`: The absolute timestamp for the next value point.
 - `linear/delta`: The time difference between two value points
@@ -354,7 +356,7 @@ Time is delivered as absolute time stamp for each value.
 {
   "method": "time",
   "params": {
-    "ruleType": "explicit",
+    "rule": "explicit",
     "unit": <unit object>,
     "valueType": "time"
   }
@@ -368,14 +370,14 @@ Time is delivered as absolute time stamp for each value.
 
 ### How to Interprete Measured Data
 
-After the meta information describing the signal is, delivered measured data blocks are to be interpreted as follows:
+After the meta information describing the signal has been received, delivered measured data blocks are to be interpreted as follows:
 
 - See whether this is more meta information or measured data from a signal.
 - Each data block contains complete values of a signal. 
 - A block may contain many values of this signal. They are arranged value by value.
-- Only explicit values are send.
+- Only explicit values are sent.
 - Values following an implicit rule are calculated according the implicit rule.
-- Theoretically a signal might contain no explicit avlue ast all. There won't be any component value to be transferred. All component values are to calculated using the implicit rules.
+- Theoretically a signal might contain no explicit value at all. There won't be any component value to be transferred. All component values are to calculated using the implicit rules.
 
 \pagebreak
 
@@ -424,8 +426,8 @@ The device sends the following signal-specific meta information.
 ~~~~ {.javascript}
 {
   "method": "signal",
-  "params" : [
-      "ruleType": "explicit",
+  "params" : {
+      "rule": "explicit",
       "valueType": "float",
       "unit": "V",
     ]
@@ -436,8 +438,8 @@ The device sends the following signal-specific meta information.
 ~~~~ {.javascript}
 {
   "method": "time",
-  "params" : [
-    "ruleType": "linear",
+  "params" : {
+    "rule": "linear",
     "linear": {
       "start": "high noon, 1st january 2019"
       "delta": "10 ms"
@@ -462,12 +464,11 @@ The device sends the following signal-specific meta information:
 ~~~~ {.javascript}
 {
   "method": "signal",
-  "params" : [
-      "name": "decoded",
-      "ruleType": "explicit",       
-      "valueType": "u32",
-      "unit": "decoder unit"
-    ]
+  "params" : {
+    "name": "decoded",
+    "rule": "explicit",       
+    "valueType": "u32",
+    "unit": "decoder unit"
   }
 }
 ~~~~
@@ -475,10 +476,10 @@ The device sends the following signal-specific meta information:
 ~~~~ {.javascript}
 {
   "method": "time",
-  "params" : [
-    "ruleType": "explicit",
+  "params" : {
+    "rule": "explicit",
     "valueType": "time"
-  ]  
+  }
 }
 ~~~~
 
@@ -496,14 +497,13 @@ This is for counting events that happens at any time (explicit rule).
 ~~~~ {.javascript}
 {
   "method": "signal",
-  "params" : [
-      "name": "count",
-      "valueType": "u32",
-      "ruleType" : "linear",
-      "linear": {
-        "delta": 2
-      }     
-    ]
+  "params" : {
+    "name": "count",
+    "valueType": "u32",
+    "rule" : "linear",
+    "linear": {
+      "delta": 2
+    }     
   }
 }
 ~~~~
@@ -511,9 +511,9 @@ This is for counting events that happens at any time (explicit rule).
 ~~~~ {.javascript}
 {
   "method": "time",
-  "params" : [
-    "ruleType": "explicit",
-  ]  
+  "params" : {
+    "rule": "explicit",
+  }  
 }
 ~~~~
 
@@ -536,14 +536,13 @@ Data blocks will contain timestamps only. The counter changes by a known amount 
 ~~~~ {.javascript}
 {
   "method": "signal",
-  "params" : [
-      "ruleType": "linear",
-      "linear": {
-        "delta": 1,
-      },
-      "name": "counter",
-      "valueType": "i32",
-    ]
+  "params" : {
+    "rule": "linear",
+    "linear": {
+      "delta": 1,
+    },
+    "name": "counter",
+    "valueType": "i32",
   }
 }
 ~~~~
@@ -551,27 +550,27 @@ Data blocks will contain timestamps only. The counter changes by a known amount 
 ~~~~ {.javascript}
 {
   "method": "time",
-  "params" : [
-    "ruleType": "explicit",
-  ]  
+  "params" : {
+    "rule": "explicit",
+  }
 }
 ~~~~
 
 
 
 This is similar to the simple counter. Data blocks will contain timestamps only. 
-The counter changes by a known amount of 2 only the time of the steps is variable.
+The counter changes by a known amount of 1 only the time of the steps is variable.
 
 We get a (partial) meta information with a start value of the counter every time when the zero index is being crossed:
 
 ~~~~ {.javascript}
 {
   "method": "signal",
-  "params" : [
+  "params" : {
     "linear" : {
       "start" : 0
     }
-  ]  
+  }
 }
 ~~~~
 
@@ -580,13 +579,10 @@ If the rotation direction changes, we get a (partial) meta information with a ne
 ~~~~ {.javascript}
 {
   "method": "signal",
-  "params" : [
-      0: {
-        "linear" : {
-          "delta": -1
-        }      
-      }
-    ]
+  "params" : {
+    "linear" : {
+      "delta": -1
+    }      
   }
 }
 ~~~~
@@ -601,11 +597,10 @@ If the rotation direction changes, we get a (partial) meta information with a ne
 ~~~~ {.javascript}
 {
   "method": "signal",
-  "params" : [
-      "ruleType": "explicit",
-      "name": "counter",
-      "valueType": "i32",
-    ]
+  "params" : {
+    "rule": "explicit",
+    "name": "counter",
+    "valueType": "i32",
   }
 }
 ~~~~
@@ -613,9 +608,9 @@ If the rotation direction changes, we get a (partial) meta information with a ne
 ~~~~ {.javascript}
 {
   "method": "time",
-  "params" : [
-    "ruleType": "explicit",
-  ]  
+  "params" : {
+    "rule": "explicit",
+  }
 }
 ~~~~
 
@@ -635,16 +630,16 @@ Meta information describing the signal:
 
 ~~~~ {.javascript}
 {
-  "valueTpe": "spectrum",
+  "valueType": "spectrum",
   "spectrum" : {
     "value" : {
       "valueType" : "double",
-      "unit" : "db"
+      "unit" : "dB"
     },
     "range" : {
       "valueType" : "double",
-      "unit" : "f",
-      "implicitRule" : "linear",
+      "unit" : "Hz",
+      "rule" : "linear",
       "linear" : {
         "delta": 10.0,
         "start" : 100.0
@@ -675,12 +670,12 @@ Meta information describing the signal:
       "spectrum" : {
         "value" : {
           "valueType" : "double",
-          "unit" : "db"
+          "unit" : "dB"
         },
         "range" : {
           "valueType" : "double",
-          "unit" : "f",
-          "implicitRule" : "linear",
+          "unit" : "Hz",
+          "rule" : "linear",
           "linear" : {
 	        "delta": 10.0,
 	        "start" : 100.0
@@ -697,11 +692,11 @@ Meta information describing the signal:
         "struct" {
           "frequency" : {          
             "valueType" : "double"
-            "unit" : "f",
+            "unit" : "Hz",
           },
           "amplitude" : {          
             "valueType" : "double"
-            "unit" : "db"
+            "unit" : "dB"
           }
         }
       }      
@@ -713,10 +708,10 @@ Meta information describing the signal:
 ~~~~ {.javascript}
 {
   "method": "time",
-  "params" : [
-    "ruleType": "explicit",
+  "params" : {
+    "rule": "explicit",
     "valueType": "time"
-  ]  
+  }
 }
 ~~~~
 
@@ -742,16 +737,16 @@ The time is explicit.
 
 ~~~~ {.javascript}
 {
-  "valueTpe": "spectrum",
+  "valueType": "spectrum",
   "spectrum" : {
     "value" : {
       "valueType" : "float",
-      "unit" : "db rel 20 uPa"
+      "unit" : "dB rel 20 uPa"
     },
     "range" : {
       "valueType" : "float",
-      "unit" : "f",
-        "ruleType": "cpb"
+      "unit" : "Hz",
+        "rule": "cpb"
         "cpb" {
           "basesystem": 10,
           "firstband": 2,
@@ -766,10 +761,10 @@ The time is explicit.
 ~~~~ {.javascript}
 {
   "method": "time",
-  "params" : [
-    "ruleType": "explicit",
+  "params" : {
+    "rule": "explicit",
     "valueType": "time"
-  ]  
+  }
 }
 ~~~~
 
@@ -781,7 +776,7 @@ Data block will contain an absolute time stamp followed by 15 real32 with the am
 ### Statistics {#Statistics}
 
 Statistics consists of N "counters" each covering a value interval. If the measured value is within a counter interval, then that counter is incremented.
-For instance the interval from 50 to 99 db might be covered by 50 counters. Each of these counters then would cover 1 dB.
+For instance the interval from 50 to 99 dB might be covered by 50 counters. Each of these counters then would cover 1 dB.
 
 Often there also is a lower than lowest and higher than highest counter, and for performance reasons, there might be a total counter.
 
@@ -799,7 +794,7 @@ It is made up of a struct containing an [complex value type histogram](#Histogra
       "histogram" : {
         "classes": {
           "valueType": "uint64",
-          "implicitRule" : "linear",
+          "rule" : "linear",
           "linear" : {
 	    "delta": 1.0,
 	    "start": 50.0
@@ -824,8 +819,8 @@ It is made up of a struct containing an [complex value type histogram](#Histogra
 ~~~~ {.javascript}
 {
   "method": "time",
-  "params" : [
-    "ruleType": "explicit",
+  "params" : {
+    "rule": "explicit",
     "valueType": "time"
   ]  
 }
@@ -857,14 +852,14 @@ We'll get the following signal specific meta information:
 ~~~~ {.javascript}
 {
   "name": "spectral statistics",
-  "valueTpe": "array",
+  "valueType": "array",
   "array" : {
     "count" : 15,
     "valueType": "struct",
     "struct" : {
       "frequency": {
         "valueType": "double",
-        "implicitRule": "CPB"
+        "rule": "CPB"
         "CPB" {
           "basesystem": 10,
           "firstband": 2,
@@ -876,7 +871,7 @@ We'll get the following signal specific meta information:
         "histogram" : {
           "classes": {
             "valueType": "uint64",
-            "implicitRule" : "linear",
+            "rule" : "linear",
             "linear" : {
               "delta": 1.0,
               "start": 50.0
@@ -899,10 +894,10 @@ We'll get the following signal specific meta information:
 ~~~~ {.javascript}
 {
   "method": "time",
-  "params" : [
-    "ruleType": "explicit",
+  "params" : }
+    "rule": "explicit",
     "valueType": "time"
-  ]  
+  }
 }
 ~~~~
 
@@ -924,17 +919,17 @@ We'll get the following signal specific meta information:
 ~~~~ {.javascript}
 {
   "name": "spectral statistics",
-  "valueTpe": "array",
+  "valueType": "array",
   "array" : {
     "count" : 15
     "valueType": "struct",
     "struct" : {
       "frequency": {
         "valueType": "double",
-        "ruleType": "explicit"
+        "rule": "explicit"
       },
       "fft": {
-        "valueTpe": "spectrum",
+        "valueType": "spectrum",
         "spectrum" : {
           "count" : 100,
           "value" : {
@@ -944,7 +939,7 @@ We'll get the following signal specific meta information:
         "range" : {
           "valueType" : "double",
           "unit" : <unit object>,
-          "implicitRule" : "linear",
+          "rule" : "linear",
           "linear" : {
 	        "delta": 10.0,
 	        "start" : 1000.0
@@ -959,10 +954,10 @@ We'll get the following signal specific meta information:
 ~~~~ {.javascript}
 {
   "method": "time",
-  "params" : [
-    "ruleType": "explicit",
+  "params" : {
+    "rule": "explicit",
     "valueType": "time"
-  ]  
+  }
 }
 ~~~~
 
@@ -981,21 +976,21 @@ We'll get the following signal specific meta information:
 ~~~~ {.javascript}
 {
   "name": "position",
-  "valueTpe": "struct",
+  "valueType": "struct",
   "struct" : {
     "x" : {
       "valueType" : < value type >,
-      "ruleType": "explicit",
+      "rule": "explicit",
       "unit" : < unit object >
     },
     "y" : {
       "valueType" : < value type >,
-      "ruleType": "explicit",
+      "rule": "explicit",
       "unit" : < unit object >
     },
     "z" : {
       "valueType" : < value type >,
-      "ruleType": "explicit",
+      "rule": "explicit",
       "unit" : < unit object >
     }
   }
@@ -1006,7 +1001,7 @@ We'll get the following signal specific meta information:
 {
   "method": "time",
   "params" : {
-    "ruleType": "explicit",
+    "rule": "explicit",
     "valueType": "time",
   }
 }
@@ -1036,7 +1031,7 @@ We'll get the following signal specific meta information:
 ~~~~ {.javascript}
 {
   "name": "spectral statistics",
-  "valueTpe": "struct",
+  "valueType": "struct",
   "struct" : {
     "distortion" : < double >,
     "fundamental frquency" : < double >
@@ -1060,7 +1055,7 @@ We'll get the following signal specific meta information:
               "range" : {
                 "valueType" : "double",
                 "unit" : <unit object>,
-                "implicitRule" : "linear",
+                "rule" : "linear",
                 "linear" : {
                   "delta": 1,
   		          "start" : 0
@@ -1079,7 +1074,7 @@ We'll get the following signal specific meta information:
 {
   "method": "time",
   "params" : {
-    "ruleType": "explicit",
+    "rule": "explicit",
     "valueType": "time",
   }
 }
