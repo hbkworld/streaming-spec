@@ -114,10 +114,30 @@ There are several patterns for representing the different kinds of signals.
 
 ## Value Types
 
-We use well known base value types like float, double, int32, uint32. In addition we might have known value types that are combinations of those base value types.
+We support the following base value types:
+* float
+* double
+* int8
+* uint8
+* int16
+* uint16
+* int32 
+* uint32
+* complex32 ???,
+* complex64 ???,
+* time (a 64 bit quantity that contains an absolute time given a specific time family)
+* int64
+* uint64
+* string (Bytecount followed by that number of bytes utf8 characters)???
+
+In addition we might have known value types that are combinations of those base value types.
 There might be implicit knowledge about how to handle those known complex value types. If one is not able to handle a type, the underlying length information can be used to skip the package.
+Currently there are no such value types.
+
+The following section describe some compound data types, that be can made by combining base data types.
 
 ### Array
+
 
 An array of values of the same type. The number of elements is fixed.
 
@@ -408,6 +428,7 @@ To express the relation between the mentioned signals, the device will give a me
 - `<signal group id>`: A number with the groupt id, unique within the device
 - `signals`: An arrays with the unique signal ids of all signals that belong to the group.
 
+All signals in a group are in step, that is, they all have values for the same times.
 
 
 ## Examples
