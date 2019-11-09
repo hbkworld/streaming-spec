@@ -123,12 +123,9 @@ We support the following base value types:
 * uint16
 * int32 
 * uint32
-* complex32 ???,
-* complex64 ???,
 * time (a 64 bit quantity that contains an absolute time given a specific time family)
 * int64
 * uint64
-* string (Bytecount followed by that number of bytes utf8 characters)???
 
 In addition we might have known value types that are combinations of those base value types.
 There might be implicit knowledge about how to handle those known complex value types. If one is not able to handle a type, the underlying length information can be used to skip the package.
@@ -326,6 +323,14 @@ The rule is simple: There is a start value. The value equals the start value unt
 When there is no implicit rule defined, each value has an absolute coordinate for this axis.
 There is no rule how to calculate the absolute value. We call it an explicit rule.
 
+~~~~ {.javascript}
+{
+  "rule": "explicit"
+}
+~~~~
+
+Explicit rule does not have any further parameters.
+
 \pagebreak
 
 
@@ -393,11 +398,10 @@ Time is delivered as absolute time stamp for each value.
 After the meta information describing the signal has been received, delivered measured data blocks are to be interpreted as follows:
 
 - See whether this is more meta information or measured data from a signal.
-- Each data block contains complete values of a signal. 
+- Each data block contains all explicit values of a signal. 
+- Non explicit Values are calculated according their rule (i.e. constant, linear).
+- Theoretically a signal might contain no explicit value at all. There won't be any component value to be transferred. All component values are to calculated using their rules.
 - A block may contain many values of this signal. They are arranged value by value.
-- Only explicit values are sent.
-- Values following an implicit rule are calculated according the implicit rule.
-- Theoretically a signal might contain no explicit value at all. There won't be any component value to be transferred. All component values are to calculated using the implicit rules.
 
 \pagebreak
 
