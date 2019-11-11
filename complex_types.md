@@ -200,10 +200,49 @@ Spectral values over a spectral range. The axis with the spectral range follows 
 ~~~~
 
 - `spectrum`: An object describing a spectrum
-- `value`: Describing the spectral values
-- `range`: Describing the spectral range
+- `value`: Describing the spectral values (i.e. amplitude, attenuation)
+- `range`: Describing the spectral range (i.e. frequency)
 - `count`: Number of points in the spectrum
 
+#### Generic Alternative
+
+Here we combine array, struct and base types. There are no complex value types, only a combination of the mentioned types!
+
+In addition we introduce the functiontype which helps the client to inteprete the data.
+
+~~~~ {.javascript}
+{
+  "name": "spectrum name"
+  "functionType": "spectrum",
+  "valueType": "array",
+  "array" : {
+    "count" : 100,
+    "valueType": "struct",
+    "struct" {
+      "value" : {
+        "valueType" : "double",
+        "unit" : <unit object>
+      },
+      "range" : {
+        "valueType" : "double",
+        "unit" : <unit object>,
+        "rule" : "linear",
+        "linear" : {
+	      "delta": 10.0,
+	      "start" : 1000.0
+	    }
+      }
+    }
+  }  
+}
+~~~~
+
+- `functionType`: Depending on the type, the client expects a specified structure.
+- `array/count`: The number of points in each spectrum
+- `value`: Describes the measured values (i.e. amplitude, attenuation).
+- `range`: Describes the range of the spectrum (i.e. frequency)
+
+Only `values` are explicit, hence this is the data to be transferred.
 
 ### Histogram {#Histogram}
 
