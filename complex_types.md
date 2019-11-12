@@ -222,6 +222,7 @@ In addition we introduce the functiontype which helps the client to inteprete th
       "value" : {
         "valueType" : "double",
         "unit" : <unit object>
+        "rule" : "explicit"
       },
       "range" : {
         "valueType" : "double",
@@ -273,6 +274,47 @@ This is an example of such a complex value type. It is used for statistics.
 - `classes/rule`: This histogram follows an implicit linear rule. Other rules are also possible.
 - `classes/linear/delta`: Width of each distribution class
 - `classes/linear/start`: First distribution class starts here
+
+
+
+#### Generic Alternative
+
+Here we combine array, struct and base types. There are no complex value types, only a combination of the mentioned types!
+
+In addition there is a functiontype which helps the client to inteprete the data.
+
+~~~~ {.javascript}
+{
+  "name": "a name"
+  "functionType": "histogram",
+  "valueType": "array",
+  "array" : {
+    "count" : 50,
+    "valueType": "struct",
+    "struct" {
+      "count" : {
+        "valueType" : "uint64",
+        "rule" : "explicit"
+      },
+      "class" : {
+        "valueType" : "uint32",
+        "rule" : "linear",
+        "linear" : {
+	      "delta": 1.0,
+	      "start" : 50.0
+	    }
+      }
+    }
+  }  
+}
+~~~~
+
+- `functionType`: Depending on the type, the client expects a specified structure.
+- `array/count`: The number of classes in each histogram
+- `count`: Values of the counters
+- `range`: The classes for counting
+
+Only `count` is explicit, hence this is the data to be transferred.
 
 
 
