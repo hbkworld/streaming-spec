@@ -43,7 +43,7 @@ The following signal related meta information will be sent before delivering any
   "params" : {
     "pattern": "V",
     "endian": "little",
-    "valueType": "real32",
+    "dataType": "real32",
   }
 }
 ~~~~
@@ -85,7 +85,7 @@ This is a signal that is asynchronous in time. There will be no time and signal 
   "params" : {
     "pattern": "TV",
     "endian": "little",
-    "valueType": "u32",
+    "dataType": "u32",
   }
 }
 ~~~~
@@ -140,10 +140,10 @@ An array of values of the same type. The number of elements is fixed.
 
 ~~~~ {.javascript}
 {
-  "valueType": "array",
+  "dataType": "array",
   "array" : {
     "count" : <unsigned int>
-    "valueType" : <string>,
+    "dataType" : <string>,
   }
 }
 ~~~~
@@ -157,7 +157,7 @@ A combination of named members which may be of different types.
 
 ~~~~ {.javascript}
 {
-  "valueType": "struct",
+  "dataType": "struct",
   "struct": {
     { 
       <member name 1> : { < value type 1> },
@@ -179,14 +179,14 @@ Spectral values over a spectral range. The axis with the spectral range follows 
 ~~~~ {.javascript}
 {
   "name": "spectrum name"
-  "valueType": "spectrum",
+  "dataType": "spectrum",
   "spectrum" : {
     "value" : {
-      "valueType" : "double",
+      "dataType" : "double",
       "unit" : <unit object>
     },
     "range" : {
-      "valueType" : "double",
+      "dataType" : "double",
       "unit" : <unit object>,
       "rule" : "linear",
       "linear" : {
@@ -214,18 +214,18 @@ In addition we introduce the functiontype which helps the client to inteprete th
 {
   "name": "spectrum name"
   "functionType": "spectrum",
-  "valueType": "array",
+  "dataType": "array",
   "array" : {
     "count" : 100,
-    "valueType": "struct",
+    "dataType": "struct",
     "struct" {
       "value" : {
-        "valueType" : "double",
+        "dataType" : "double",
         "unit" : <unit object>
         "rule" : "explicit"
       },
       "range" : {
-        "valueType" : "double",
+        "dataType" : "double",
         "unit" : <unit object>,
         "rule" : "linear",
         "linear" : {
@@ -252,10 +252,10 @@ This is an example of such a complex value type. It is used for statistics.
 ~~~~ {.javascript}
 {
   "name": "histogram name"
-  "valueType": "histogram",
+  "dataType": "histogram",
   "histogram": {
     "classes": {
-      "valueType": "uint64",
+      "dataType": "uint64",
       "rule" : "linear",
       "linear" : {
 		"delta": 1.0,
@@ -269,7 +269,7 @@ This is an example of such a complex value type. It is used for statistics.
 
 - `histogram`: An object describing the histogram
 - `classes`: The distribution classes are desribed here. This equals very much the linear implicit axis rule!
-- `classes/valueType`: Type of counter
+- `classes/dataType`: Type of counter
 - `classes/count`: Number of distributaion classes
 - `classes/rule`: This histogram follows an implicit linear rule. Other rules are also possible.
 - `classes/linear/delta`: Width of each distribution class
@@ -287,17 +287,17 @@ In addition there is a functiontype which helps the client to inteprete the data
 {
   "name": "a name"
   "functionType": "histogram",
-  "valueType": "array",
+  "dataType": "array",
   "array" : {
     "count" : 50,
-    "valueType": "struct",
+    "dataType": "struct",
     "struct" {
       "count" : {
-        "valueType" : "uint64",
+        "dataType" : "uint64",
         "rule" : "explicit"
       },
       "class" : {
-        "valueType" : "uint32",
+        "dataType" : "uint32",
         "rule" : "linear",
         "linear" : {
 	      "delta": 1.0,
@@ -445,7 +445,7 @@ Both can be delivered by a separate, signal specific, meta information.
       "delta": <value>,
     },
     "unit": <unit object>,
-    "valueType": <string>,
+    "dataType": <string>,
 }
 ~~~~
 
@@ -464,7 +464,7 @@ Time is delivered as absolute time stamp for each value.
   "params": {
     "rule": "explicit",
     "unit": <unit object>,
-    "valueType": "time"
+    "dataType": "time"
   }
 }
 ~~~~
@@ -534,7 +534,7 @@ The device sends the following signal-specific meta information.
   "method": "signal",
   "params" : {
       "rule": "explicit",
-      "valueType": "float",
+      "dataType": "float",
       "unit": "V",
     ]
   }
@@ -550,7 +550,7 @@ The device sends the following signal-specific meta information.
       "start": "high noon, 1st january 2019"
       "delta": "10 ms"
     },
-    "valueType": "time"
+    "dataType": "time"
   ]  
 }
 ~~~~
@@ -573,7 +573,7 @@ The device sends the following signal-specific meta information:
   "params" : {
     "name": "decoded",
     "rule": "explicit",       
-    "valueType": "u32",
+    "dataType": "u32",
     "unit": "decoder unit"
   }
 }
@@ -584,7 +584,7 @@ The device sends the following signal-specific meta information:
   "method": "time",
   "params" : {
     "rule": "explicit",
-    "valueType": "time"
+    "dataType": "time"
   }
 }
 ~~~~
@@ -605,7 +605,7 @@ This is for counting events that happens at any time (explicit rule).
   "method": "signal",
   "params" : {
     "name": "count",
-    "valueType": "u32",
+    "dataType": "u32",
     "rule" : "linear",
     "linear": {
       "delta": 2
@@ -648,7 +648,7 @@ Data blocks will contain timestamps only. The counter changes by a known amount 
       "delta": 1,
     },
     "name": "counter",
-    "valueType": "i32",
+    "dataType": "i32",
   }
 }
 ~~~~
@@ -706,7 +706,7 @@ If the rotation direction changes, we get a (partial) meta information with a ne
   "params" : {
     "rule": "explicit",
     "name": "counter",
-    "valueType": "i32",
+    "dataType": "i32",
   }
 }
 ~~~~
@@ -736,14 +736,14 @@ Meta information describing the signal:
 
 ~~~~ {.javascript}
 {
-  "valueType": "spectrum",
+  "dataType": "spectrum",
   "spectrum" : {
     "value" : {
-      "valueType" : "double",
+      "dataType" : "double",
       "unit" : "dB"
     },
     "range" : {
-      "valueType" : "double",
+      "dataType" : "double",
       "unit" : "Hz",
       "rule" : "linear",
       "linear" : {
@@ -769,17 +769,17 @@ Meta information describing the signal:
 
 ~~~~ {.javascript}
 {
-  "valueType" : "struct",
+  "dataType" : "struct",
   "struct" : {
     "the spectrum" : {
-      "valueType": "spectrum",
+      "dataType": "spectrum",
       "spectrum" : {
         "value" : {
-          "valueType" : "double",
+          "dataType" : "double",
           "unit" : "dB"
         },
         "range" : {
-          "valueType" : "double",
+          "dataType" : "double",
           "unit" : "Hz",
           "rule" : "linear",
           "linear" : {
@@ -791,17 +791,17 @@ Meta information describing the signal:
       }  
     },
     "the peak values" : {
-      "valueType" : "array",
+      "dataType" : "array",
       "array" : {
         "count" : 16,
-        "valueType" : "struct",
+        "dataType" : "struct",
         "struct" {
           "frequency" : {          
-            "valueType" : "double"
+            "dataType" : "double"
             "unit" : "Hz",
           },
           "amplitude" : {          
-            "valueType" : "double"
+            "dataType" : "double"
             "unit" : "dB"
           }
         }
@@ -816,7 +816,7 @@ Meta information describing the signal:
   "method": "time",
   "params" : {
     "rule": "explicit",
-    "valueType": "time"
+    "dataType": "time"
   }
 }
 ~~~~
@@ -843,14 +843,14 @@ The time is explicit.
 
 ~~~~ {.javascript}
 {
-  "valueType": "spectrum",
+  "dataType": "spectrum",
   "spectrum" : {
     "value" : {
-      "valueType" : "float",
+      "dataType" : "float",
       "unit" : "dB rel 20 uPa"
     },
     "range" : {
-      "valueType" : "float",
+      "dataType" : "float",
       "unit" : "Hz",
         "rule": "cpb"
         "cpb" {
@@ -869,7 +869,7 @@ The time is explicit.
   "method": "time",
   "params" : {
     "rule": "explicit",
-    "valueType": "time"
+    "dataType": "time"
   }
 }
 ~~~~
@@ -893,13 +893,13 @@ It is made up of a struct containing an [complex value type histogram](#Histogra
 ~~~~ {.javascript}
 {
   "name": "statistic",
-  "valueType": "struct",
+  "dataType": "struct",
   "struct" : {
     "histogram": {
-      "valueType": "histogram",
+      "dataType": "histogram",
       "histogram" : {
         "classes": {
-          "valueType": "uint64",
+          "dataType": "uint64",
           "rule" : "linear",
           "linear" : {
 	    "delta": 1.0,
@@ -910,13 +910,13 @@ It is made up of a struct containing an [complex value type histogram](#Histogra
       }
     },
     "lowerThanCounter" {
-      "valueType": uint64,
+      "dataType": uint64,
     },
     "higherThanCounter" {
-      "valueType": uint64,
+      "dataType": uint64,
     },
     "totalCounter" {
-      "valueType": uint64,
+      "dataType": uint64,
     },
   }
 }
@@ -927,7 +927,7 @@ It is made up of a struct containing an [complex value type histogram](#Histogra
   "method": "time",
   "params" : {
     "rule": "explicit",
-    "valueType": "time"
+    "dataType": "time"
   ]  
 }
 ~~~~
@@ -958,13 +958,13 @@ We'll get the following signal specific meta information:
 ~~~~ {.javascript}
 {
   "name": "spectral statistics",
-  "valueType": "array",
+  "dataType": "array",
   "array" : {
     "count" : 15,
-    "valueType": "struct",
+    "dataType": "struct",
     "struct" : {
       "frequency": {
-        "valueType": "double",
+        "dataType": "double",
         "rule": "CPB"
         "CPB" {
           "basesystem": 10,
@@ -973,10 +973,10 @@ We'll get the following signal specific meta information:
         },
       },
       "histogram": {
-        "valueType": "histogram",
+        "dataType": "histogram",
         "histogram" : {
           "classes": {
-            "valueType": "uint64",
+            "dataType": "uint64",
             "rule" : "linear",
             "linear" : {
               "delta": 1.0,
@@ -987,10 +987,10 @@ We'll get the following signal specific meta information:
         }
       },
       "lowerThanCounter" {
-        "valueType": uint64
+        "dataType": uint64
       },
       "higherThanCounter" {
-        "valueType": uint64
+        "dataType": uint64
       },
     }
   }
@@ -1002,7 +1002,7 @@ We'll get the following signal specific meta information:
   "method": "time",
   "params" : }
     "rule": "explicit",
-    "valueType": "time"
+    "dataType": "time"
   }
 }
 ~~~~
@@ -1025,25 +1025,25 @@ We'll get the following signal specific meta information:
 ~~~~ {.javascript}
 {
   "name": "spectral statistics",
-  "valueType": "array",
+  "dataType": "array",
   "array" : {
     "count" : 15
-    "valueType": "struct",
+    "dataType": "struct",
     "struct" : {
       "frequency": {
-        "valueType": "double",
+        "dataType": "double",
         "rule": "explicit"
       },
       "fft": {
-        "valueType": "spectrum",
+        "dataType": "spectrum",
         "spectrum" : {
           "count" : 100,
           "value" : {
-            "valueType" : "double",
+            "dataType" : "double",
             "unit" : <unit object>
           },
         "range" : {
-          "valueType" : "double",
+          "dataType" : "double",
           "unit" : <unit object>,
           "rule" : "linear",
           "linear" : {
@@ -1062,7 +1062,7 @@ We'll get the following signal specific meta information:
   "method": "time",
   "params" : {
     "rule": "explicit",
-    "valueType": "time"
+    "dataType": "time"
   }
 }
 ~~~~
@@ -1082,20 +1082,20 @@ We'll get the following signal specific meta information:
 ~~~~ {.javascript}
 {
   "name": "position",
-  "valueType": "struct",
+  "dataType": "struct",
   "struct" : {
     "x" : {
-      "valueType" : < value type >,
+      "dataType" : < value type >,
       "rule": "explicit",
       "unit" : < unit object >
     },
     "y" : {
-      "valueType" : < value type >,
+      "dataType" : < value type >,
       "rule": "explicit",
       "unit" : < unit object >
     },
     "z" : {
-      "valueType" : < value type >,
+      "dataType" : < value type >,
       "rule": "explicit",
       "unit" : < unit object >
     }
@@ -1108,7 +1108,7 @@ We'll get the following signal specific meta information:
   "method": "time",
   "params" : {
     "rule": "explicit",
-    "valueType": "time",
+    "dataType": "time",
   }
 }
 ~~~~
@@ -1137,29 +1137,29 @@ We'll get the following signal specific meta information:
 ~~~~ {.javascript}
 {
   "name": "spectral statistics",
-  "valueType": "struct",
+  "dataType": "struct",
   "struct" : {
     "distortion" : < double >,
     "fundamental frquency" : < double >
     "harmonics" : {
-      "valueType: "array",
+      "dataType: "array",
       "array" : {
         "count": 10,
-        "valueType": "struct",
+        "dataType": "struct",
         "struct" : {
           "frequency" : {
-            "valueType": "double"
+            "dataType": "double"
           },
           "fft" : {          
-            "valueType": "spectrum",
+            "dataType": "spectrum",
             "spectrum" : {
               "count" : 360,
               "value" : {
-                "valueType" : "double",
+                "dataType" : "double",
                 "unit" : <unit object>
               },
               "range" : {
-                "valueType" : "double",
+                "dataType" : "double",
                 "unit" : <unit object>,
                 "rule" : "linear",
                 "linear" : {
@@ -1181,7 +1181,7 @@ We'll get the following signal specific meta information:
   "method": "time",
   "params" : {
     "rule": "explicit",
-    "valueType": "time",
+    "dataType": "time",
   }
 }
 ~~~~
