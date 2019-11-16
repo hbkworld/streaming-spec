@@ -115,17 +115,19 @@ There are several patterns for representing the different kinds of signals.
 ## Value Types
 
 We support the following base value types:
-* float
-* double
 * int8
 * uint8
 * int16
 * uint16
 * int32 
 * uint32
-* time (a 64 bit quantity that contains an absolute time given a specific time family)
 * int64
 * uint64
+* real32
+* real64
+* complex32
+* complex64
+* time (a 64 bit quantity that contains an absolute time given a specific time family)
 
 In addition we might have known value types that are combinations of those base value types.
 There might be implicit knowledge about how to handle those known complex value types. If one is not able to handle a type, the underlying length information can be used to skip the package.
