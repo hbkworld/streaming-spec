@@ -2,27 +2,27 @@
 
 This is a proposal how we might describe signals of any complexity.
 
-## Where HBM comes from
+Some techniques mentioned here are based on the HBM Streaming Protocol. 
+Until we have a complete specification of the new streaming protocol,
+[please refer here](https://github.com/HBM/streaming-spec/blob/master/streaming.md).
 
-### Measured Data and Meta Information
+## Measured Data and Meta Information
 
 HBM Streaming Protocol differentiates between meta information and measured data.
 The meta information describes a stream or signal and tells how to interprete the measured data of a signal.
 
-For both there is a header telling the signal id the data belongs to. If the data is related to the stream or device the signal id is 0.
+For both there is a header telling the signal id the measured data or meta information belongs to. If the data is related to the stream or device the signal id is 0.
 In addition, this header contains length information. If the content is not understood, 
 the parser can step to the next header and proceed with processing. This is usefull if the stream contains information, the client is not aware of.
 
-For more details please see the HBM Streaming Protocol specification.
-
-#### Stream Specific Meta Information
+### Stream Specific Meta Information
 
 Everything concerning the whole device or the stream. Examples:
 
 * Available Signals
 * Device status information
 
-#### Signal Specific Meta Information
+### Signal Specific Meta Information
 
 Everything describing the signal. Examples:
 
@@ -30,89 +30,10 @@ Everything describing the signal. Examples:
 * Signal name
 * Signal unit information
 
-### Examples
-#### A Voltage Sensor
-
-Synchronous output rate is 100 Hz. Signal is scaled on the device and is delivered as float.
-
-The following signal related meta information will be sent before delivering any measured data:
-
-~~~~ {.javascript}
-{
-  "method": "data",
-  "params" : {
-    "pattern": "V",
-    "endian": "little",
-    "dataType": "real32",
-  }
-}
-~~~~
-
-- `pattern`="V": No timestamps, values only. This pattern is used only for synchronous values.
-
-Signal related, after subscribing a synchronous signal there will be an absolute time for the first measured value we deliver for this signal.
-
-~~~~ {.javascript}
-{
-  "method": "time",
-  "params": {
-    "stamp": <absolute time stamp of first value>
-  }
-}
-~~~~
-
-The following signal related meta information tells the time difference between two values.
-
-~~~~ {.javascript}
-{
-  "method": "signalRate",
-  "params": {
-    "delta": <10ms time difference>
-  }
-}
-~~~~
-
-
-Data block has the measured value of this signal as 4 byte float. No time stamps.
-
-#### A CAN Decoder
-
-This is a signal that is asynchronous in time. There will be no time and signal rate meta information.
-
-~~~~ {.javascript}
-{
-  "method": "data",
-  "params" : {
-    "pattern": "TV",
-    "endian": "little",
-    "dataType": "u32",
-  }
-}
-~~~~
-
-- `pattern`="TV": One timestamp per value, first comes the timestamp, then the value. This pattern is used for asynrchonous values.
-
-
-Each value point has an absolute time stamp and one u32 value.
-
-### Shortcomings of HBM Streaming Protocol
-
-The existing HBM Streaming Protocol emphasized on two dimensional signals.
-The first idea was a signal from a sensor that measures a quantity over time.
-Then we recognized that there are synchronous and asynchronous signals. Synchronous signals deliver values with a fixed data rate.
-Asynchronous signals deliver values at any time without a fixed rate (CAN bus).
-
-After specifying the HBM Streaming Protocol we recognized, that limiting to 2 dimensions was short sighted. There are sensors that deliver more than two dimensions.
-
-Furthermore there are signal types, like for example a spectrum, where one "value" is not just a single point but a collection of several points.
-
-We had to add something to support anything that did not fit in original scheme. Those additions resulted in so called patterns. 
-There are several patterns for representing the different kinds of signals.
-
 
 \pagebreak
 
-## Value Types
+## Data Types
 
 We support the following base value types:
 * int8
