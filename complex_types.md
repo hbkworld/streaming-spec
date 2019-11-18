@@ -97,7 +97,7 @@ A combination of named members which may be of different types.
 
 ### Spectrum
 
-Spectral values over a spectral range. The axis with the spectral range follows an implicit rule
+Spectral values over a range in the spectral domain. The spectral domain follows an implicit rule
 
 ~~~~ {.javascript}
 {
@@ -108,7 +108,7 @@ Spectral values over a spectral range. The axis with the spectral range follows 
       "dataType" : "double",
       "unit" : <unit object>
     },
-    "range" : {
+    "domain" : {
       "dataType" : "double",
       "unit" : <unit object>,
       "rule" : "linear",
@@ -124,7 +124,7 @@ Spectral values over a spectral range. The axis with the spectral range follows 
 
 - `spectrum`: An object describing a spectrum
 - `value`: Describing the spectral values (i.e. amplitude, attenuation)
-- `range`: Describing the spectral range (i.e. frequency)
+- `domain`: Describing the range in the spectral domain (i.e. frequency)
 - `count`: Number of points in the spectrum
 
 #### Generic Alternative
@@ -147,7 +147,7 @@ In addition we introduce the functiontype which helps the client to inteprete th
         "unit" : <unit object>
         "rule" : "explicit"
       },
-      "range" : {
+      "domain" : {
         "dataType" : "double",
         "unit" : <unit object>,
         "rule" : "linear",
@@ -164,7 +164,7 @@ In addition we introduce the functiontype which helps the client to inteprete th
 - `functionType`: Depending on the type, the client expects a specified structure.
 - `array/count`: The number of points in each spectrum
 - `value`: Describes the measured values (i.e. amplitude, attenuation).
-- `range`: Describes the range of the spectrum (i.e. frequency)
+- `domain`: Describes the range in the spectral domain (i.e. frequency)
 
 Only `values` are explicit, hence this is the data to be transferred.
 
@@ -235,7 +235,7 @@ In addition there is a functiontype which helps the client to inteprete the data
 - `functionType`: Depending on the type, the client expects a specified structure.
 - `array/count`: The number of classes in each histogram
 - `count`: Values of the counters
-- `range`: The classes for counting
+- `class`: The classes for counting
 
 Only `count` is explicit, hence this is the data to be transferred.
 
@@ -665,7 +665,7 @@ Meta information describing the signal:
       "dataType" : "double",
       "unit" : "dB"
     },
-    "range" : {
+    "domain" : {
       "dataType" : "double",
       "unit" : "Hz",
       "rule" : "linear",
@@ -701,7 +701,7 @@ Meta information describing the signal:
           "dataType" : "double",
           "unit" : "dB"
         },
-        "range" : {
+        "domain" : {
           "dataType" : "double",
           "unit" : "Hz",
           "rule" : "linear",
@@ -772,7 +772,7 @@ The time is explicit.
       "dataType" : "float",
       "unit" : "dB rel 20 uPa"
     },
-    "range" : {
+    "domain" : {
       "dataType" : "float",
       "unit" : "Hz",
         "rule": "cpb"
@@ -965,7 +965,7 @@ We'll get the following signal specific meta information:
             "dataType" : "double",
             "unit" : <unit object>
           },
-        "range" : {
+        "domain" : {
           "dataType" : "double",
           "unit" : <unit object>,
           "rule" : "linear",
@@ -1081,7 +1081,7 @@ We'll get the following signal specific meta information:
                 "dataType" : "double",
                 "unit" : <unit object>
               },
-              "range" : {
+              "domain" : {
                 "dataType" : "double",
                 "unit" : <unit object>,
                 "rule" : "linear",
