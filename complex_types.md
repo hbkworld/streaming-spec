@@ -655,11 +655,16 @@ The signal consists of a spectum
 	* Amplitude which is explicit
 - The time is explicit. Each complete spectrum has one time stamp.
 
-Meta information describing the signal:
+
+#### Signal Meta Information
+
+Above we described two alternatives describing the spectrum within the signal meta information:
+
+##### Special Complex Type for Spectrum
 
 ~~~~ {.javascript}
 {
-  "dataType": "spectrum",
+  "dataType": "the spectrum",
   "spectrum" : {
     "value" : {
       "dataType" : "double",
@@ -679,7 +684,49 @@ Meta information describing the signal:
 }
 ~~~~
 
+##### Generic Description of Histogram
 
+~~~~ {.javascript}
+{
+  "name": "the spectrum"
+  "functionType": "spectrum",
+  "dataType": "array",
+  "array" : {
+    "count" : 1024,
+    "dataType": "struct",
+    "struct" {
+      "value" : {
+        "dataType" : "double",
+        "unit" : "dB"
+        "rule" : "explicit"
+      },
+      "domain" : {
+        "dataType" : "double",
+        "unit" : "Hz",
+        "rule" : "linear",
+        "linear" : {
+	      "delta": 10.0,
+	      "start" : 1000.0
+	    }
+      }
+    }
+  }  
+}
+~~~~
+
+##### Time Meta Information
+
+~~~~ {.javascript}
+{
+  "method": "time",
+  "params" : {
+    "rule": "explicit",
+    "dataType": "time"
+  ]  
+}
+~~~~
+
+##### Transferred Measured Data
 
 Data block will contain an absolute time stamp followed by 1024 amplitude double values. There will be no frequency values because they are implicit.
 
@@ -813,7 +860,13 @@ Often there also is a lower than lowest and higher than highest counter, and for
 Example: 50 - 99 dB statistics:
 It is made up of a struct containing an [complex value type histogram](#Histogram) with 50 classes (bins) and three additional counters for the lower than, higher than and total count.
 
-~~~~ {.javascript}
+#### Signal Meta Information
+
+Above we described two alternatives describing the histrogram within the signal meta information:
+
+##### Special Complex Type for Histogram
+
+~~~~ {.javascript} 
 {
   "name": "statistic",
   "dataType": "struct",
@@ -845,6 +898,51 @@ It is made up of a struct containing an [complex value type histogram](#Histogra
 }
 ~~~~
 
+
+##### Generic Description of Histogram
+
+~~~~ {.javascript}
+{
+  "name": "statistic",
+  "dataType": "struct",
+  "struct" : {
+    "histogram": {
+	  "functionType": "histogram",
+	  "dataType": "array",
+	  "array" : {
+		"count" : 50,
+		"dataType": "struct",
+		"struct" {
+		  "count" : {
+			"dataType" : "uint64",
+			"rule" : "explicit"
+		  },
+		  "class" : {
+			"dataType" : "uint32",
+			"rule" : "linear",
+			"linear" : {
+			  "delta": 1.0,
+			  "start" : 50.0
+			}
+		  }
+		}
+	  }
+    },
+    "lowerThanCounter" {
+      "dataType": uint64,
+    },
+    "higherThanCounter" {
+      "dataType": uint64,
+    },
+    "totalCounter" {
+      "dataType": uint64,
+    },
+  }
+}
+~~~~
+
+##### Time Meta Information
+
 ~~~~ {.javascript}
 {
   "method": "time",
@@ -855,7 +953,7 @@ It is made up of a struct containing an [complex value type histogram](#Histogra
 }
 ~~~~
 
-
+##### Transferred Measured Data
 
 Everything will be in 1 data block:
 
