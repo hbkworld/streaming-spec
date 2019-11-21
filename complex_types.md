@@ -664,7 +664,8 @@ Above we described two alternatives describing the spectrum within the signal me
 
 ~~~~ {.javascript}
 {
-  "dataType": "the spectrum",
+  "name": "the spectrum",
+  "dataType": "spectrum",
   "spectrum" : {
     "value" : {
       "dataType" : "double",
@@ -684,7 +685,7 @@ Above we described two alternatives describing the spectrum within the signal me
 }
 ~~~~
 
-##### Generic Description of Histogram
+##### Generic Description of Spectrum
 
 ~~~~ {.javascript}
 {
