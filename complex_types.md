@@ -101,7 +101,6 @@ Spectral values over a range in the spectral domain. The spectral domain follows
 
 ~~~~ {.javascript}
 {
-  "name": "spectrum name"
   "dataType": "spectrum",
   "spectrum" : {
     "value" : {
@@ -135,7 +134,6 @@ In addition we introduce the functiontype which helps the client to inteprete th
 
 ~~~~ {.javascript}
 {
-  "name": "spectrum name"
   "functionType": "spectrum",
   "dataType": "array",
   "array" : {
@@ -174,7 +172,6 @@ This is an example of such a complex value type. It is used for statistics.
 
 ~~~~ {.javascript}
 {
-  "name": "histogram name"
   "dataType": "histogram",
   "histogram": {
     "classes": {
@@ -208,7 +205,6 @@ In addition there is a functiontype which helps the client to inteprete the data
 
 ~~~~ {.javascript}
 {
-  "name": "a name"
   "functionType": "histogram",
   "dataType": "array",
   "array" : {
