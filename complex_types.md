@@ -293,6 +293,8 @@ The rule is simple: There is a start value. The value equals the start value unt
 \pagebreak
 
 ### cpb Rule
+Octave-band and fractional-octave band spectrum (CPB comes from Constant Percentage Bandwidth).
+Definitions come from CEI IEC 1260-1: Electroacoustics - Octave-band and fractonal-octave-band filters.
 
 
 ~~~~ {.javascript}
@@ -307,10 +309,57 @@ The rule is simple: There is a start value. The value equals the start value unt
 ~~~~
 
 - `rule`: Type of implicit rule
-- `cpb`: Details for the rule of type cpb
-- `cpb/basesystem` : logarithm base
-- `cpb/firstband` : first band of the spectrum
-- `cpb/numberfractions` : Number of fractions per octave
+- `cpb`: Details for the rule of type CPB
+- `cpb/basesystem` : logarithm base used in the CPB (either 2 or 10)
+- `cpb/firstband` : Index of the first band of the spectrum (Band 0 is 1 Hz and firstband may be negative)
+- `cpb/numberfractions` : Number of fractions per octave. Possible values 1 - 24
+
+
+
+
+\pagebreak
+
+### logarithmic Rule
+Logarithmic scale based on a specified factor
+
+
+~~~~ {.javascript}
+{
+  "rule": "logarithimc"
+  "logarithimc" {
+    "firstvalue": 1.0,
+    "logarithmicfactor": 2.0
+  }
+}
+~~~~
+
+- `rule`: Type of implicit rule
+- `logarithmic`: Details for the rule of type logarithmic
+- `logarithmic/firstvalue` : The first value.
+- `logarithmic/logarithmicfactor` : Multiply by this factor to get the next value.
+
+
+
+\pagebreak
+
+### logiso Rule
+Logarithmic scale based on the "ISO 3" preferred numbers.
+
+
+~~~~ {.javascript}
+{
+  "rule": "logiso"
+  "logiso" {
+    "firstband": 2,
+    "numberfractions": 3
+  }
+}
+~~~~
+
+- `rule`: Type of implicit rule
+- `logiso`: Details for the rule of type logiso
+- `logiso/firstband` : Index of the first band of the spectrum (Band 0 is 1 Hz and firstband may be negative)
+- `logiso/numberfractions` : Number of fractions per decade. Possible values: 10, 20, 40, 80
 
 
 
