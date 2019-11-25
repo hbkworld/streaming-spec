@@ -1,28 +1,30 @@
-# How to Model Complex Signals
+---
+title: "How to Model Complex Signals"
+author: Draft
+abstract: This is a proposal how we might describe signals of any complexity.
+  Some techniques mentioned here are based on the HBM Streaming Protocol
+  Until we have a complete specification of the new streaming protocol,
+  [please refer here](https://github.com/HBM/streaming-spec/blob/master/streaming.md).
+---
 
-This is a proposal how we might describe signals of any complexity.
 
-Some techniques mentioned here are based on the HBM Streaming Protocol. 
-Until we have a complete specification of the new streaming protocol,
-[please refer here](https://github.com/HBM/streaming-spec/blob/master/streaming.md).
-
-## Measured Data and Meta Information
+# Measured Data and Meta Information
 
 HBM Streaming Protocol differentiates between meta information and measured data.
 The meta information describes a stream or signal and tells how to interprete the measured data of a signal.
 
 For both there is a header telling the signal id the measured data or meta information belongs to. If the data is related to the stream or device the signal id is 0.
-In addition, this header contains length information. If the content is not understood, 
+In addition, this header contains length information. If the content is not understood,
 the parser can step to the next header and proceed with processing. This is usefull if the stream contains information, the client is not aware of.
 
-### Stream Specific Meta Information
+## Stream Specific Meta Information
 
 Everything concerning the whole device or the stream. Examples:
 
 * Available Signals
 * Device status information
 
-### Signal Specific Meta Information
+## Signal Specific Meta Information
 
 Everything describing the signal. Examples:
 
@@ -33,14 +35,14 @@ Everything describing the signal. Examples:
 
 \pagebreak
 
-## Data Types
+# Data Types
 
 We support the following base value types:
 * int8
 * uint8
 * int16
 * uint16
-* int32 
+* int32
 * uint32
 * int64
 * uint64
@@ -56,7 +58,7 @@ Currently there are no such value types.
 
 The following section describe some compound data types, that be can made by combining base data types.
 
-### Array
+## Array
 
 
 An array of values of the same type. The number of elements is fixed.
@@ -74,7 +76,7 @@ An array of values of the same type. The number of elements is fixed.
 - `array/count`: Number of elements in the array. It does neither tell about the size of data nor the number of values within each element.
 
 
-### Struct
+## Struct
 
 A combination of named members which may be of different types.
 
@@ -82,7 +84,7 @@ A combination of named members which may be of different types.
 {
   "dataType": "struct",
   "struct": {
-    { 
+    {
       <member name 1> : { < value type 1> },
       ...
       <member name n> : { < value type n> }
@@ -91,11 +93,11 @@ A combination of named members which may be of different types.
 }
 ~~~~
 
-- `<member name n>`: Each struct member has a name. 
+- `<member name n>`: Each struct member has a name.
 - `<value type n>`: The type of each struct member. The type can be a base type (e.g. uint32), or one f the compound types (e.g. array, struct, spectrum...)
-- 
+-
 
-### Spectrum
+## Spectrum
 
 Spectral values over a range in the spectral domain. The spectral domain follows an implicit rule
 
@@ -117,7 +119,7 @@ Spectral values over a range in the spectral domain. The spectral domain follows
       }
     },
     "count" : 100
-  }  
+  }
 }
 ~~~~
 
@@ -126,7 +128,7 @@ Spectral values over a range in the spectral domain. The spectral domain follows
 - `domain`: Describing the range in the spectral domain (i.e. frequency)
 - `count`: Number of points in the spectrum
 
-#### Generic Alternative
+### Generic Alternative
 
 Here we combine array, struct and base types. There are no complex value types, only a combination of the mentioned types!
 
@@ -155,7 +157,7 @@ In addition we introduce the functiontype which helps the client to inteprete th
 	    }
       }
     }
-  }  
+  }
 }
 ~~~~
 
@@ -166,7 +168,7 @@ In addition we introduce the functiontype which helps the client to inteprete th
 
 Only `values` are explicit, hence this is the data to be transferred.
 
-### Histogram {#Histogram}
+## Histogram {#Histogram}
 
 This is an example of such a complex value type. It is used for statistics.
 
@@ -197,7 +199,7 @@ This is an example of such a complex value type. It is used for statistics.
 
 
 
-#### Generic Alternative
+### Generic Alternative
 
 Here we combine array, struct and base types. There are no complex value types, only a combination of the mentioned types!
 
@@ -224,7 +226,7 @@ In addition there is a functiontype which helps the client to inteprete the data
 	    }
       }
     }
-  }  
+  }
 }
 ~~~~
 
@@ -240,7 +242,7 @@ Only `count` is explicit, hence this is the data to be transferred.
 \pagebreak
 
 
-## Implicit Rules
+# Implicit Rules
 
 A value might follow a specific rule. We do not need to transfer each value, just some start information and the rule to calculate any other value that follows.
 We use implicit rules to greatly reduce the amount of data to be transferred, stored and processed.
@@ -250,14 +252,14 @@ There are several kinds of rules. To calculate the absolute value , the rule has
 All implicit rules are described by a signal specific meta information.
 
 
-### Linear Rule {#Linear_Rule}
+## Linear Rule {#Linear_Rule}
 For equidistant value we use the linear rule.
 
-It is described by an absolute start value and a relative delta between two neighboring values. 
+It is described by an absolute start value and a relative delta between two neighboring values.
 
 ![Equidistant 2 dimensional points](images/equidistant_points.png)
 
-There are cases, where the axis is an array of values with fixed length (i.e. the frequency of a spectrum). 
+There are cases, where the axis is an array of values with fixed length (i.e. the frequency of a spectrum).
 Here we add a value count. Each array of values start with the start value.
 
 A linear axis is described as follows:
@@ -278,7 +280,7 @@ A linear axis is described as follows:
 - `linear/delta`: The difference between two values
 
 
-### constant Rule
+## constant Rule
 The rule is simple: There is a start value. The value equals the start value until a new start value is posted.
 
 ~~~~ {.javascript}
@@ -292,7 +294,7 @@ The rule is simple: There is a start value. The value equals the start value unt
 
 \pagebreak
 
-### cpb Rule
+## cpb Rule
 Octave-band and fractional-octave band spectrum (CPB comes from Constant Percentage Bandwidth).
 Definitions come from CEI IEC 1260-1: Electroacoustics - Octave-band and fractonal-octave-band filters.
 
@@ -319,7 +321,7 @@ Definitions come from CEI IEC 1260-1: Electroacoustics - Octave-band and fracton
 
 \pagebreak
 
-### logarithmic Rule
+## logarithmic Rule
 Logarithmic scale based on a specified factor
 
 
@@ -342,7 +344,7 @@ Logarithmic scale based on a specified factor
 
 \pagebreak
 
-### logiso Rule
+## logiso Rule
 Logarithmic scale based on the "ISO 3" preferred numbers.
 
 
@@ -366,7 +368,7 @@ Logarithmic scale based on the "ISO 3" preferred numbers.
 \pagebreak
 
 
-## Explicit Rule
+# Explicit Rule
 ![2 dimensional points](images/non_equidistant_points.png)
 
 When there is no implicit rule defined, each value has an absolute coordinate for this axis.
@@ -383,17 +385,17 @@ Explicit rule does not have any further parameters.
 \pagebreak
 
 
-## Time 
+# Time
 
 The time is mandatory for each signal. It is not part of the signal value.
 It can follow an implicit rule (most likely equidistant or linear) or may be explicit.
 
 
-### Linear Time
+## Linear Time
 Equidistant time is described as a [linear implicit rule](#Linear_Rule).
-To calculate the absolute time for linear time, There needs to 
-be an absolute start time and a delta time. 
-Both can be delivered by a separate, signal specific, meta information. 
+To calculate the absolute time for linear time, There needs to
+be an absolute start time and a delta time.
+Both can be delivered by a separate, signal specific, meta information.
 
 - The delta is mandatory.
 - The absolute time always belongs to the next following value
@@ -423,7 +425,7 @@ Both can be delivered by a separate, signal specific, meta information.
 - `linear/start`: The absolute timestamp for the next value point.
 - `linear/delta`: The time difference between two value points
 
-### Explicit Time
+## Explicit Time
 Time is delivered as absolute time stamp for each value.
 
 ~~~~ {.javascript}
@@ -442,12 +444,12 @@ Time is delivered as absolute time stamp for each value.
 \pagebreak
 
 
-### How to Interprete Measured Data
+## How to Interprete Measured Data
 
 After the meta information describing the signal has been received, delivered measured data blocks are to be interpreted as follows:
 
 - See whether this is more meta information or measured data from a signal.
-- Each data block contains all explicit values of a signal. 
+- Each data block contains all explicit values of a signal.
 - Non explicit Values are calculated according their rule (i.e. constant, linear).
 - Theoretically a signal might contain no explicit value at all. There won't be any component value to be transferred. All component values are to calculated using their rules.
 - A block may contain many values of this signal. They are arranged value by value.
@@ -455,7 +457,7 @@ After the meta information describing the signal has been received, delivered me
 \pagebreak
 
 
-## Groups of Signals
+# Groups of Signals
 
 There are cases were several signals are to be combined to a more complex group of signals (See [statistics example](#Statistics)).
 Those groups are just describing signals that belong together.
@@ -468,7 +470,7 @@ To express the relation between the mentioned signals, the device will give a me
     "params": {
       <signal group id>: {
         "name": "group_1"
-        "signals": [ 
+        "signals": [
           < 1st signal id>,
           < 2nd signal id>,
           ...
@@ -484,9 +486,9 @@ To express the relation between the mentioned signals, the device will give a me
 All signals in a group are in step, that is, they all have values for the same times.
 
 
-## Examples
+# Examples
 
-### A Voltage Sensor
+## A Voltage Sensor
 
 The signal has 1 scalar value. Synchronous output rate is 100 Hz
 
@@ -519,13 +521,13 @@ The device sends the following signal-specific meta information.
       "delta": "10 ms"
     },
     "dataType": "time"
-  ]  
+  ]
 }
 ~~~~
 
 Data block has the value of this signal encoded float. No time stamps.
 
-### A CAN Decoder
+## A CAN Decoder
 
 The signal has a simple scalar value.
 
@@ -540,7 +542,7 @@ The device sends the following signal-specific meta information:
   "method": "signal",
   "params" : {
     "name": "decoded",
-    "rule": "explicit",       
+    "rule": "explicit",
     "dataType": "u32",
     "unit": "decoder unit"
   }
@@ -559,7 +561,7 @@ The device sends the following signal-specific meta information:
 
 Each value point has an absolute time stamp and one u32 value.
 
-### A Simple Counter
+## A Simple Counter
 
 This is for counting events that happens at any time (explicit rule).
 
@@ -577,7 +579,7 @@ This is for counting events that happens at any time (explicit rule).
     "rule" : "linear",
     "linear": {
       "delta": 2
-    }     
+    }
   }
 }
 ~~~~
@@ -587,7 +589,7 @@ This is for counting events that happens at any time (explicit rule).
   "method": "time",
   "params" : {
     "rule": "explicit",
-  }  
+  }
 }
 ~~~~
 
@@ -598,11 +600,11 @@ We get no start value of the value, hence we are starting with 0.
 Data blocks will contain timestamps only. The counter changes by a known amount of 2.
 
 
-### A incremental Rotary Incremental Encoder with start Position
+## A incremental Rotary Incremental Encoder with start Position
 
 - The value is expressed as a base value type
 - The counter representing the angle follows a linear rule, it can go back and forth
-- Absolute start position when crossing a start position. 
+- Absolute start position when crossing a start position.
 - No initial absolute value.
 - The time is explicit.
 
@@ -632,7 +634,7 @@ Data blocks will contain timestamps only. The counter changes by a known amount 
 
 
 
-This is similar to the simple counter. Data blocks will contain timestamps only. 
+This is similar to the simple counter. Data blocks will contain timestamps only.
 The counter changes by a known amount of 1 only the time of the steps is variable.
 
 We get a (partial) meta information with a start value of the counter every time when the zero index is being crossed:
@@ -656,13 +658,13 @@ If the rotation direction changes, we get a (partial) meta information with a ne
   "params" : {
     "linear" : {
       "delta": -1
-    }      
+    }
   }
 }
 ~~~~
 
 
-### An Absolute Rotary Incremental Encoder
+## An Absolute Rotary Incremental Encoder
 
 - The value is expressed as a base value type
 - The angle is explicit, it can go back and forth
@@ -691,7 +693,7 @@ If the rotation direction changes, we get a (partial) meta information with a ne
 Data block will contain a tuple of counter and time stamp. There will be no meta ionformation when direction changes.
 
 
-### An Optical Spectrum {#Optical_Spectrum}
+## An Optical Spectrum {#Optical_Spectrum}
 
 The signal consists of a spectum
 
@@ -701,11 +703,11 @@ The signal consists of a spectum
 - The time is explicit. Each complete spectrum has one time stamp.
 
 
-#### Signal Meta Information
+### Signal Meta Information
 
 Above we described two alternatives describing the spectrum within the signal meta information:
 
-##### Special Complex Type for Spectrum
+#### Special Complex Type for Spectrum
 
 ~~~~ {.javascript}
 {
@@ -726,11 +728,11 @@ Above we described two alternatives describing the spectrum within the signal me
       }
     },
     "count" : 1024
-  }  
+  }
 }
 ~~~~
 
-##### Generic Description of Spectrum
+#### Generic Description of Spectrum
 
 ~~~~ {.javascript}
 {
@@ -756,11 +758,11 @@ Above we described two alternatives describing the spectrum within the signal me
 	    }
       }
     }
-  }  
+  }
 }
 ~~~~
 
-##### Time Meta Information
+#### Time Meta Information
 
 ~~~~ {.javascript}
 {
@@ -768,17 +770,17 @@ Above we described two alternatives describing the spectrum within the signal me
   "params" : {
     "rule": "explicit",
     "dataType": "time"
-  ]  
+  ]
 }
 ~~~~
 
-##### Transferred Measured Data
+#### Transferred Measured Data
 
 Data block will contain an absolute time stamp followed by 1024 amplitude double values. There will be no frequency values because they are implicit.
 
 ### An Optical Spectrum with Peak Values
 
-The signal consists of a spectum and the peak values. Number of peaks is fixed 16. 
+The signal consists of a spectum and the peak values. Number of peaks is fixed 16.
 If the number of peaks does change, there will be a meta information telling about the new amount of peaks!
 
 Meta information describing the signal:
@@ -804,7 +806,7 @@ Meta information describing the signal:
           }
         },
         "count" : 1024
-      }  
+      }
     },
     "the peak values" : {
       "dataType" : "array",
@@ -812,18 +814,18 @@ Meta information describing the signal:
         "count" : 16,
         "dataType" : "struct",
         "struct" {
-          "frequency" : {          
+          "frequency" : {
             "dataType" : "double"
             "unit" : "Hz",
           },
-          "amplitude" : {          
+          "amplitude" : {
             "dataType" : "double"
             "unit" : "dB"
           }
         }
-      }      
+      }
     }
-  }  
+  }
 }
 ~~~~
 
@@ -839,12 +841,12 @@ Meta information describing the signal:
 
 Data block will contain:
 
-- 1 absolute time stamp 
+- 1 absolute time stamp
 - 1024 spectrum amplitude double values. No spectrum frequncy values because those are implicit.
 - 16 amplitude, frequency pairs.
 
 
-### CPB Spectrum
+## CPB Spectrum
 
 A CPB (Constant Percentage Bandwidth) spectrum is a logarithmic frequency spectrum where the actual bands are defined by a standard (not exactly logarithmic).
 The spectrum is defined by the following values:
@@ -876,7 +878,7 @@ The time is explicit.
         },
     },
     "count" : 15
-  }  
+  }
 }
 ~~~~
 
@@ -895,7 +897,7 @@ Data block will contain an absolute time stamp followed by 15 real32 with the am
 
 
 
-### Statistics {#Statistics}
+## Statistics {#Statistics}
 
 Statistics consists of N "counters" each covering a value interval. If the measured value is within a counter interval, then that counter is incremented.
 For instance the interval from 50 to 99 dB might be covered by 50 counters. Each of these counters then would cover 1 dB.
@@ -906,13 +908,13 @@ Often there also is a lower than lowest and higher than highest counter, and for
 Example: 50 - 99 dB statistics:
 It is made up of a struct containing an [complex value type histogram](#Histogram) with 50 classes (bins) and three additional counters for the lower than, higher than and total count.
 
-#### Signal Meta Information
+### Signal Meta Information
 
 Above we described two alternatives describing the histrogram within the signal meta information:
 
-##### Special Complex Type for Histogram
+#### Special Complex Type for Histogram
 
-~~~~ {.javascript} 
+~~~~ {.javascript}
 {
   "name": "statistic",
   "dataType": "struct",
@@ -945,7 +947,7 @@ Above we described two alternatives describing the histrogram within the signal 
 ~~~~
 
 
-##### Generic Description of Histogram
+#### Generic Description of Histogram
 
 ~~~~ {.javascript}
 {
@@ -987,7 +989,7 @@ Above we described two alternatives describing the histrogram within the signal 
 }
 ~~~~
 
-##### Time Meta Information
+#### Time Meta Information
 
 ~~~~ {.javascript}
 {
@@ -995,22 +997,22 @@ Above we described two alternatives describing the histrogram within the signal 
   "params" : {
     "rule": "explicit",
     "dataType": "time"
-  ]  
+  ]
 }
 ~~~~
 
-##### Transferred Measured Data
+#### Transferred Measured Data
 
 Everything will be in 1 data block:
 
 - 1 absolute time stamp.
-- 50 uint64 for the 50 counters, 
+- 50 uint64 for the 50 counters,
 - 1 uint64 for the higher than counter
 - 1 uint64 for the lower than counter
 - 1 uint64 for the total counter
 
 
-### Spectral Statistics
+## Spectral Statistics
 
 Spectral statistics is a swarm of statistics over an additional axis.
 This axis could for instance be a CPB axis, for each CPB band there is a statistic.
@@ -1077,12 +1079,12 @@ We'll get the following signal specific meta information:
 
 Data block will contain a absolute time stamp followed by:
 - 15 statistics, each containing:
-  * 50 uint64 for the 50 histogram classes, 
+  * 50 uint64 for the 50 histogram classes,
   * 1 uint64 for the higher than counter
   * 1 uint64 for the lower than counter
 
 
-### Run up
+## Run up
 
 This is an array of 15 structs containing a fft and a frequency.
 Fft amplitudes and frenqeuncy are explicit.
@@ -1119,7 +1121,7 @@ We'll get the following signal specific meta information:
           }
         }
       }
-    }      
+    }
   }
 }
 ~~~~
@@ -1136,11 +1138,11 @@ We'll get the following signal specific meta information:
 
 
 
-Data block will contain an absolute time stamp followed by 15 
+Data block will contain an absolute time stamp followed by 15
 frequencies with the corresponding spectra containing 100 amplitude values each.
 
 
-### Position in 3 dimensional Space
+## Position in 3 dimensional Space
 
 The value is a struct of three double values x, y, and z.
 
@@ -1187,7 +1189,7 @@ We receive 1 data block with one abolute time stamp and a struct with three doub
 
 
 
-### Harmonic Analysis
+## Harmonic Analysis
 
 The result delivered from harmonic analysis done by HBM Genesis/Perception is fairly complex.
 One combined value consists of the following:
@@ -1200,10 +1202,10 @@ One combined value consists of the following:
 - an array of structures with information about the heamonics.
   * amplitude: Amplitude of the n-th hramonics
   * phase: Phase of the n-th hramonics
-  
+
 All elements are explicit.
 
-Right now we have arrays of fxed size only. Hence we always get 50 elements 
+Right now we have arrays of fxed size only. Hence we always get 50 elements
 event if the count is much smaller.
 
 We'll get the following signal specific meta information:
@@ -1248,14 +1250,14 @@ We'll get the following signal specific meta information:
             "dataType" : "double",
             "unit" : <unit object>,
             "rule" : "explicit",
-          }          
+          }
           "phase" : {
             "dataType" : "double",
             "unit" : <unit object>,
             "rule" : "explicit",
-          }          
-        }        
-      }      
+          }
+        }
+      }
     }
   }
 }
@@ -1271,8 +1273,6 @@ We'll get the following signal specific meta information:
 }
 ~~~~
 
-
-
 Here we get the following values in 1 data block:
 
 - 1 time stamp as uint64
@@ -1284,6 +1284,3 @@ Here we get the following values in 1 data block:
 - array with 50 harmonic structs containing:
   * a double value with the amplitude of the harmonic
   * a double value with the phase of the harmonic
- 
-
-  
