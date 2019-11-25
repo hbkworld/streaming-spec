@@ -1189,15 +1189,22 @@ We receive 1 data block with one abolute time stamp and a struct with three doub
 
 ### Harmonic Analysis
 
-Matthias: I'm not sure whether I understood the structure correctly. This needs to be clarified.
-
 The result delivered from harmonic analysis done by HBM Genesis/Perception is fairly complex.
 One combined value consists of the following:
-- a scalar value distortion
-- a scalar value fundamental frequency
-- an array of ffts each one belonging to the harmonixc frequencies.
+- some scalar values
+  * distortion: The Total Harmonic Distortion (according to IEC 61000-4-7).
+  * fundamental frquency: Average fundamental frequency.
+  * dcAmplitude: The amplitude of the DC component.
+  * cycleCount: The number of cycles in the window (according to IEC 61000-4-7)
+  * harmonicCount: The number of harmonic orders (0 ... (MAX_HARMONIC_ORDERS = 50)).
+- an array of structures with information about the heamonics.
+  * amplitude: Amplitude of the n-th hramonics
+  * phase: Phase of the n-th hramonics
+  
+All elements are explicit.
 
-Here we define a complex type that is made up struct with some base types and an array of 10 spectras.
+Right now we have arrays of fxed size only. Hence we always get 50 elements 
+event if the count is much smaller.
 
 We'll get the following signal specific meta information:
 
@@ -1206,35 +1213,46 @@ We'll get the following signal specific meta information:
   "name": "spectral statistics",
   "dataType": "struct",
   "struct" : {
-    "distortion" : < double >,
-    "fundamental frquency" : < double >
+    "distortion" : {
+            "dataType" : "double",
+            "unit" : <unit object>,
+            "rule" : "explicit",
+          },
+    "fundamental frquency" : {
+            "dataType" : "double",
+            "unit" : <unit object>,
+            "rule" : "explicit",
+          },
+    "dcAmplitude" : {
+            "dataType" : "double",
+            "unit" : <unit object>,
+            "rule" : "explicit",
+          },
+    "cycleCount": {
+            "dataType" : "unsigned int",
+            "unit" : <unit object>,
+            "rule" : "explicit",
+          },
+    "harmonicCount" {
+            "dataType" : "unsigned int",
+            "unit" : <unit object>,
+            "rule" : "explicit",
+          },
     "harmonics" : {
       "dataType: "array",
       "array" : {
-        "count": 10,
+        "count": 50,
         "dataType": "struct",
         "struct" : {
-          "frequency" : {
-            "dataType": "double"
-          },
-          "fft" : {          
-            "dataType": "spectrum",
-            "spectrum" : {
-              "count" : 360,
-              "value" : {
-                "dataType" : "double",
-                "unit" : <unit object>
-              },
-              "domain" : {
-                "dataType" : "double",
-                "unit" : <unit object>,
-                "rule" : "linear",
-                "linear" : {
-                  "delta": 1,
-  		          "start" : 0
-                }
-              }
-            }          
+          "amplitude" : {
+            "dataType" : "double",
+            "unit" : <unit object>,
+            "rule" : "explicit",
+          }          
+          "phase" : {
+            "dataType" : "double",
+            "unit" : <unit object>,
+            "rule" : "explicit",
           }          
         }        
       }      
@@ -1257,9 +1275,15 @@ We'll get the following signal specific meta information:
 
 Here we get the following values in 1 data block:
 
-- 1 time stamp
+- 1 time stamp as uint64
 - a double value distortion
 - a double value fundemantal frequency
-- array with 10 structs containing:
-  * a double value freuqency 
-  * 360 double spectrum values for the amplitude over phase
+- a double value with the dc amplitude
+- an unsigned integer with the cycle count
+- an unsigned integer with the harmonics count
+- array with 50 harmonic structs containing:
+  * a double value with the amplitude of the harmonic
+  * a double value with the phase of the harmonic
+ 
+
+  
