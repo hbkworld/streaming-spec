@@ -38,6 +38,7 @@ Everything describing the signal. Examples:
 # Data Types
 
 We support the following base value types:
+
 * int8
 * uint8
 * int16
