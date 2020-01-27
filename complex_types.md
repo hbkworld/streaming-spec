@@ -505,10 +505,10 @@ The device sends the following signal-specific meta information.
 {
   "method": "signal",
   "params" : {
-      "rule": "explicit",
-      "dataType": "float",
-      "unit": "V",
-    ]
+    "name": "voltage 1",
+    "rule": "explicit",
+    "dataType": "float",
+    "unit": "V",
   }
 }
 ~~~~
@@ -543,7 +543,7 @@ The device sends the following signal-specific meta information:
 {
   "method": "signal",
   "params" : {
-    "name": "decoded",
+    "name": "decoder 6",
     "rule": "explicit",
     "dataType": "u32",
     "unit": "decoder unit"
@@ -569,18 +569,19 @@ This is for counting events that happens at any time (explicit rule).
 
 - The value is expressed as a base value type
 - The count value is linear with an increment of 2, it runs in one direction
-- The device sends an initial absolute value.
+- The device sends an initial absolute value within the meta information describing the signal.
 - The time is explicit.
 
 ~~~~ {.javascript}
 {
   "method": "signal",
   "params" : {
-    "name": "count",
+    "name": "counter",
     "dataType": "u32",
     "rule" : "linear",
     "linear": {
-      "delta": 2
+      "start" : 0,
+      "delta" : 2
     }
   }
 }
@@ -597,9 +598,39 @@ This is for counting events that happens at any time (explicit rule).
 
 
 Value is linear with a step width of 2.
-We get no start value of the value, hence we are starting with 0.
 
-Data blocks will contain timestamps only. The counter changes by a known amount of 2.
+The counter value has a non explicit rule, hence `counter` won't be transferred. Data blocks will contain timestamps only.
+
+
+
+## An Absolute Rotary Incremental Encoder
+
+- The value is expressed as a base value type
+- The angle is explicit, it can go back and forth
+- The time is explicit.
+
+~~~~ {.javascript}
+{
+  "method": "signal",
+  "params" : {
+    "rule": "explicit",
+    "name": "angle",
+    "dataType": "i32",
+  }
+}
+~~~~
+
+~~~~ {.javascript}
+{
+  "method": "time",
+  "params" : {
+    "rule": "explicit",
+  }
+}
+~~~~
+
+Data block will contain a tuple of angle and time stamp. There will be no meta ionformation when direction changes.
+
 
 
 ## A incremental Rotary Incremental Encoder with start Position
@@ -619,7 +650,7 @@ Data blocks will contain timestamps only. The counter changes by a known amount 
     "linear": {
       "delta": 1,
     },
-    "name": "counter",
+    "name": "angle",
     "dataType": "i32",
   }
 }
@@ -635,9 +666,8 @@ Data blocks will contain timestamps only. The counter changes by a known amount 
 ~~~~
 
 
-
 This is similar to the simple counter. Data blocks will contain timestamps only.
-The counter changes by a known amount of 1 only the time of the steps is variable.
+`angle` changes by a known amount of 1. Only time stamps are being reansferred.
 
 We get a (partial) meta information with a start value of the counter every time when the zero index is being crossed:
 
@@ -665,37 +695,11 @@ If the rotation direction changes, we get a (partial) meta information with a ne
 }
 ~~~~
 
-
-## An Absolute Rotary Incremental Encoder
-
-- The value is expressed as a base value type
-- The angle is explicit, it can go back and forth
-- The time is explicit.
-
-~~~~ {.javascript}
-{
-  "method": "signal",
-  "params" : {
-    "rule": "explicit",
-    "name": "counter",
-    "dataType": "i32",
-  }
-}
-~~~~
-
-~~~~ {.javascript}
-{
-  "method": "time",
-  "params" : {
-    "rule": "explicit",
-  }
-}
-~~~~
-
-Data block will contain a tuple of counter and time stamp. There will be no meta ionformation when direction changes.
+This type of counter is usefull when having a high counting rate with only few changes of direction. The handling is complicated because there are lots of meta information being send.
 
 
-## An Optical Spectrum {#Optical_Spectrum}
+
+## A Spectrum
 
 The signal consists of a spectum
 
@@ -732,25 +736,29 @@ Meta information describing the signal:
 ~~~~ {.javascript}
 {
   "struct" : [
-    {
-      "name" : "the spectrum",
-      "dataType": "spectrum",
-      "spectrum" : {
-        "count" : 1024
-        "value" : {
-          "dataType" : "double",
-          "unit" : "dB",
-          "rule" : "explicit"
-        },
-        "domain" : {
-          "dataType" : "double",
-          "unit" : "Hz",
-          "rule" : "linear",
-          "linear" : {
-	        "delta": 10.0,
-	        "start" : 100.0
+    {    
+      "name": "spectrum",
+      "functionType": "spectrum",
+      "array": {
+        "count": 100,
+        "struct": [
+          {
+            "name": "amplitude",
+            "dataType": "double",
+            "unit": "dB",
+            "rule": "explicit"
+          },
+          {
+            "name": "frequency",
+            "dataType": "double",
+            "unit": "Hz",
+            "rule": "linear",
+            "linear": {
+              "delta": 10.0,
+              "start": 1000.0
+            }
           }
-        },
+        ]
       }
     },
     {
@@ -791,54 +799,6 @@ Data block will contain:
 - 16 amplitude, frequency pairs.
 
 
-## CPB Spectrum
-
-A CPB (Constant Percentage Bandwidth) spectrum is a logarithmic frequency spectrum where the actual bands are defined by a standard (not exactly logarithmic).
-The spectrum is defined by the following values:
-
-- Number of fractions per octave (e.g. 3)
-- Id of the first band of the spectrum.
-- The logarithmic base of the spectrum (2 or 10)
-- Number of bands
-
-The time is explicit.
-
-
-~~~~ {.javascript}
-{
-  "dataType": "spectrum",
-  "spectrum" : {
-    "count" : 15
-    "value" : {
-      "dataType" : "float",
-      "unit" : "dB rel 20 uPa"
-    },
-    "domain" : {
-      "dataType" : "float",
-      "unit" : "Hz",
-        "rule": "cpb"
-        "cpb" {
-          "basesystem": 10,
-          "firstband": 2,
-          "numberfractions": 3,
-        },
-    },
-  }
-}
-~~~~
-
-~~~~ {.javascript}
-{
-  "method": "time",
-  "params" : {
-    "rule": "explicit",
-    "dataType": "time"
-  }
-}
-~~~~
-
-
-Data block will contain an absolute time stamp followed by 15 real32 with the amplitude information.
 
 
 
