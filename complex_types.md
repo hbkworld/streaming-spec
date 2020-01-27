@@ -106,6 +106,7 @@ Spectral values over a range in the spectral domain. The spectral domain follows
 {
   "dataType": "spectrum",
   "spectrum" : {
+    "count" : 100
     "value" : {
       "dataType" : "double",
       "unit" : <unit object>
@@ -119,15 +120,14 @@ Spectral values over a range in the spectral domain. The spectral domain follows
 		"start" : 1000.0
       }
     },
-    "count" : 100
   }
 }
 ~~~~
 
 - `spectrum`: An object describing a spectrum
+- `count`: Number of points in the spectrum
 - `value`: Describing the spectral values (i.e. amplitude, attenuation)
 - `domain`: Describing the range in the spectral domain (i.e. frequency)
-- `count`: Number of points in the spectrum
 
 ### Generic Alternative
 
@@ -178,13 +178,13 @@ This is an example of such a complex value type. It is used for statistics.
   "dataType": "histogram",
   "histogram": {
     "classes": {
+      "count": 50,
       "dataType": "uint64",
       "rule" : "linear",
       "linear" : {
 		"delta": 1.0,
 		"start": 50.0
 	  }
-      "count": 50,
     },
   },
 }
@@ -192,8 +192,8 @@ This is an example of such a complex value type. It is used for statistics.
 
 - `histogram`: An object describing the histogram
 - `classes`: The distribution classes are desribed here. This equals very much the linear implicit axis rule!
-- `classes/dataType`: Type of counter
 - `classes/count`: Number of distributaion classes
+- `classes/dataType`: Type of counters
 - `classes/rule`: This histogram follows an implicit linear rule. Other rules are also possible.
 - `classes/linear/delta`: Width of each distribution class
 - `classes/linear/start`: First distribution class starts here
@@ -724,21 +724,23 @@ Data block will contain an absolute time stamp followed by 1024 amplitude double
 
 ## An Optical Spectrum with Peak Values
 
-The signal consists of a spectum and the peak values. Number of peaks is fixed 16.
-If the number of peaks does change, there will be a meta information telling about the new amount of peaks!
+The signal consists of a spectum and an array of peak values. Number of peaks is fixed 16.
+If the number of peaks does change, there will be a meta information telling about the new amount (`count`) of peaks!
 
 Meta information describing the signal:
 
 ~~~~ {.javascript}
 {
-  "dataType" : "struct",
-  "struct" : {
-    "the spectrum" : {
+  "struct" : [
+    {
+      "name" : "the spectrum",
       "dataType": "spectrum",
       "spectrum" : {
+        "count" : 1024
         "value" : {
           "dataType" : "double",
-          "unit" : "dB"
+          "unit" : "dB",
+          "rule" : "explicit"
         },
         "domain" : {
           "dataType" : "double",
@@ -749,20 +751,19 @@ Meta information describing the signal:
 	        "start" : 100.0
           }
         },
-        "count" : 1024
       }
     },
-    "the peak values" : {
-      "dataType" : "array",
+    {
+      "name" : "the peak values",
       "array" : {
         "count" : 16,
-        "dataType" : "struct",
-        "struct" {
-          "frequency" : {
+        "struct" [
+          {
+            "name" : "frequency",
             "dataType" : "double"
             "unit" : "Hz",
           },
-          "amplitude" : {
+            "name" : "amplitude",
             "dataType" : "double"
             "unit" : "dB"
           }
@@ -807,6 +808,7 @@ The time is explicit.
 {
   "dataType": "spectrum",
   "spectrum" : {
+    "count" : 15
     "value" : {
       "dataType" : "float",
       "unit" : "dB rel 20 uPa"
@@ -821,7 +823,6 @@ The time is explicit.
           "numberfractions": 3,
         },
     },
-    "count" : 15
   }
 }
 ~~~~
@@ -856,14 +857,14 @@ It is made up of a struct containing an [complex value type histogram](#Histogra
 
 Above we described two alternatives describing the histrogram within the signal meta information:
 
-#### Special Data Type for Statistics
+#### Special Data Type for Histogram
 
 ~~~~ {.javascript}
 {
   "name": "statistic",
-  "dataType": "struct",
-  "struct" : {
-    "histogram": {
+  "struct" : [
+    {
+      "name" : "histogram",
       "dataType": "histogram",
       "histogram" : {
         "classes": {
@@ -892,19 +893,20 @@ Above we described two alternatives describing the histrogram within the signal 
       "dataType": uint64,
       "rule" : "explicit",
     },
-  }
+  ]
 }
 ~~~~
 
 
 
-#### Generic Description of Statistics
+#### Generic Description of Histogram
 
 ~~~~ {.javascript}
 {
   "name": "statistic",
-  "struct" : {    
+  "struct" : [  
     {
+      "name" : "histogram",
       "functionType": "histogram",
       "array": {
         "count": 50,
@@ -942,7 +944,7 @@ Above we described two alternatives describing the histrogram within the signal 
       "dataType": uint64,
       "rule": "explicit"
     },
-  }
+  ]
 }
 ~~~~
 
