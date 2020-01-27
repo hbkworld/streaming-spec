@@ -53,23 +53,21 @@ We support the following base value types:
 * complex64
 * time (a 64 bit quantity that contains an absolute time given a specific time family)
 
-In addition we might have known value types that are combinations of those base value types.
-There might be implicit knowledge about how to handle those known complex value types. If one is not able to handle a type, the underlying length information can be used to skip the package.
+In addition we might have known compound value types that are combinations of those base value types.
+There might be implicit knowledge about how to handle those known compound value types. If one is not able to handle a type, the underlying length information can be used to skip the package.
 Currently there are no such value types.
 
 The following section describe some compound data types, that be can made by combining base data types.
 
 ## Array
 
-
 An array of values of the same type. The number of elements is fixed.
 
 ~~~~ {.javascript}
 {
-  "dataType": "array",
-  "array" : {
-    "count" : <unsigned int>
-    "dataType" : <string>,
+  "array": {
+    "count": 50,
+    <member description>
   }
 }
 ~~~~
@@ -83,20 +81,25 @@ A combination of named members which may be of different types.
 
 ~~~~ {.javascript}
 {
-  "dataType": "struct",
-  "struct": {
+  "struct": [
     {
-      <member name 1> : { < value type 1> },
+      "name" : <member name>
+      <member description>
       ...
-      <member name n> : { < value type n> }
+    },
+      ...
+    {
+      "name" : <member name>
+      
+      ...
     }
-  }
+  ]
 }
 ~~~~
 
-- `<member name n>`: Each struct member has a name.
-- `<value type n>`: The type of each struct member. The type can be a base type (e.g. uint32), or one f the compound types (e.g. array, struct, spectrum...)
--
+- `name`: Each struct member has a name.
+- `<member description>`: The type of each struct member. The type can be a base type (e.g. uint32), or one f the compound types (e.g. array, struct, spectrum...)
+
 
 ## Spectrum {#Spectrum}
 
@@ -131,7 +134,7 @@ Spectral values over a range in the spectral domain. The spectral domain follows
 
 ### Generic Alternative
 
-Here we combine array, struct and base types. There are no complex value types, only a combination of the mentioned types!
+Here we combine array, struct and base types. There are no compound value types, only a combination of the mentioned types!
 
 In addition we introduce the functiontype which helps the client to inteprete the data.
 
@@ -171,7 +174,7 @@ Only struct member `amplitude` is explicit, hence this is the data to be transfe
 
 ## Histogram {#Histogram}
 
-This is an example of such a complex value type. It is used for statistics.
+This is an example of such a compound value type. It is used for statistics.
 
 ~~~~ {.javascript}
 {
@@ -202,7 +205,7 @@ This is an example of such a complex value type. It is used for statistics.
 
 ### Generic Alternative
 
-Here we combine array, struct and base types. There are no complex value types, only a combination of the mentioned types!
+Here we combine array, struct and base types. There are no compound value types, only a combination of the mentioned types!
 
 In addition there is a functiontype which helps the client to inteprete the data.
 
@@ -458,34 +461,6 @@ After the meta information describing the signal has been received, delivered me
 
 \pagebreak
 
-
-# Groups of Signals
-
-There are cases were several signals are to be combined to a more complex group of signals (See [statistics example](#Statistics)).
-Those groups are just describing signals that belong together.
-
-To express the relation between the mentioned signals, the device will give a meta information about the grouping:
-
-~~~~ {.javascript}
-{
-  "method": "signalGroups" {
-    "params": {
-      <signal group id>: {
-        "name": "group_1"
-        "signals": [
-          < 1st signal id>,
-          < 2nd signal id>,
-          ...
-        ],
-      },
-    },
-  }
-~~~~
-
-- `<signal group id>`: A number with the groupt id, unique within the device
-- `signals`: An arrays with the unique signal ids of all signals that belong to the group.
-
-All signals in a group are in step, that is, they all have values for the same times.
 
 
 # Examples
@@ -816,7 +791,7 @@ Often there also is a lower than lowest and higher than highest counter, and for
 
 
 Example: 50 - 99 dB statistics:
-It is made up of a struct containing an [complex value type histogram](#Histogram) with 50 classes (bins) and three additional counters for the lower than, higher than and total count.
+It is made up of a struct containing an [compound value type histogram](#Histogram) with 50 classes (bins) and three additional counters for the lower than, higher than and total count.
 
 ### Signal Meta Information
 
@@ -1217,6 +1192,6 @@ Here we get the following values in 1 data block:
 - a double value with the dc amplitude
 - an unsigned integer with the cycle count
 - an unsigned integer with the harmonics count
-- array with 50 harmonic structs containing:
+- array with 50 harmonic structs each containing:
   * a double value with the amplitude of the harmonic
   * a double value with the phase of the harmonic
