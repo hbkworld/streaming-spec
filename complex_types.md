@@ -1017,34 +1017,38 @@ We'll get the following signal specific meta information:
 
 ~~~~ {.javascript}
 {
-  "functionType": "spectralStatistics",
-  "array" : {
-    "count" : 15
-    "struct" : {
-      {
-        "name": "frequency",
-        "dataType": "double",
-        "rule": "explicit"
-      },
-      {
-        "name": "fft",
-        "dataType": "spectrum",
-        "spectrum" : {
-          "count" : 100,
-          "value" : {
-            "dataType" : "double",
-            "unit" : <unit object>
-          },
-        "domain" : {
-          "dataType" : "double",
-          "unit" : <unit object>,
-          "rule" : "linear",
-          "linear" : {
-	        "delta": 10.0,
-	        "start" : 1000.0
+  "method": "signal",
+  "params": {
+    "name": "run up",
+    "array": {
+      "count": 15,
+      "struct": [
+        {
+          "name": "frequency",
+          "dataType": "double",
+          "rule": "explicit"
+        },
+        {
+          "name": "fft",
+          "dataType": "spectrum",
+          "spectrum": {
+            "count": 100,
+            "value": {
+              "dataType": "double",
+              "unit": "db"
+            },
+            "domain": {
+              "dataType": "double",
+              "unit": "frequency",
+              "rule": "linear",
+              "linear": {
+                "delta": 10,
+                "start": 1000
+              }
+            }
           }
         }
-      }
+      ]
     }
   }
 }
@@ -1074,27 +1078,30 @@ We'll get the following signal specific meta information:
 
 ~~~~ {.javascript}
 {
-  "functionType": "cartesianPosition",
-  "dataType": "struct",
-  "struct" : [
-    {
-      "name": "x",
-      "dataType" : < value type >,
-      "rule": "explicit",
-      "unit" : < unit object >
-    },
-    {
-      "name": "y",
-      "dataType" : < value type >,
-      "rule": "explicit",
-      "unit" : < unit object >
-    },
-    {
-      "name": "z",
-      "dataType" : < value type >,
-      "rule": "explicit",
-      "unit" : < unit object >
-    }
+  "method": "signal",
+  "params": {
+    "functionType": "cartesianCoordinate",
+    "dataType": "struct",
+    "struct": [
+      {
+        "name": "x",
+        "dataType": "double",
+        "rule": "explicit",
+        "unit": "m"
+      },
+      {
+        "name": "y",
+        "dataType": "double",
+        "rule": "explicit",
+        "unit": "m"
+      },
+      {
+        "name": "z",
+        "dataType": "double",
+        "rule": "explicit",
+        "unit": "m"
+      }
+    ]
   }
 }
 ~~~~
@@ -1139,61 +1146,56 @@ We'll get the following signal specific meta information:
 
 ~~~~ {.javascript}
 {
-  "functionType": "spectralAnalysis",
-  "struct": [
-    {
-      "name": "distortion",
-      "dataType": "double",
-      "rule": {
-        "ruleType": "explicit"
+  "method": "signal",
+  "params": {
+    "functionType": "spectralAnalysis",
+    "struct": [
+      {
+        "name": "distortion",
+        "dataType": "double",
+        "rule": "explicit"
+      },
+      {
+        "name": "fundamentalFrequency",
+        "dataType": "double",
+        "rule": "explicit"
+        "unit": "Hz"
+      },
+      {
+        "name": "dcAmplitude",
+        "dataType": "double",
+        "rule": "explicit",
+        "unit": "V"
+      },
+      {
+        "name": "cycleCount",
+        "dataType": "double",
+        "rule": "explicit"
+      },
+      {
+        "name": "harmonicCount",
+        "dataType": "double",
+        "rule": "explicit"
+      },
+      {
+        "name": "harmonics",
+        "array": {
+          "count": 50,
+          "struct": [
+            {
+              "name": "amplitude",
+              "rule": "explicit"
+            },
+            {
+              "name": "phase",
+              "unit": "rad",
+              "rule": "explicit"
+            }
+          ]
+        }
       }
-    },
-    {
-      "name": "fundamentalFrequency",
-      "dataType": "double",
-      "rule": {
-        "ruleType": "explicit"
-      }
-    },
-    {
-      "name": "dcAmplitude",
-      "dataType": "double",
-      "rule": {
-        "ruleType": "explicit"
-      }
-    },
-    {
-      "name": "cycleCount",
-      "dataType": "double",
-      "rule": {
-        "ruleType": "explicit"
-      }
-    },
-    {
-      "name": "harmonicCount",
-      "dataType": "double",
-      "rule": {
-        "ruleType": "explicit"
-      }
-    },
-    {
-      "name": "harmonics",
-      "array": {
-        "count": 50,
-        "struct": [
-          {
-            "name": "amplitude",
-            "rule": "explicit"
-          },
-          {
-            "name": "phase",
-            "unit": "rad",
-            "rule": "explicit"
-          }
-        ]
-      }
-    }
-  ]
+    ]
+  }
 }
 ~~~~
 
