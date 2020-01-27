@@ -85,25 +85,24 @@ A combination of named members which may be of different types.
     {
       "name" : <member name>
       <member description>
-      ...
     },
       ...
     {
       "name" : <member name>
-      
-      ...
+      <member description>
     }
   ]
 }
 ~~~~
 
 - `name`: Each struct member has a name.
-- `<member description>`: The type of each struct member. The type can be a base type (e.g. uint32), or one f the compound types (e.g. array, struct, spectrum...)
+- `<member description>`: The type of each struct member. The type can be a base type (e.g. uint32), or one f the compound types (e.g. array, struct, spectrum, histogram...)
 
+## A Spectrum {#Spectrum}
 
-## Spectrum {#Spectrum}
+### Spectrum As a Compound Value Type
 
-Spectral values over a range in the spectral domain. The spectral domain follows an implicit rule
+Spectral values over a range in the spectral domain.
 
 ~~~~ {.javascript}
 {
@@ -127,7 +126,9 @@ Spectral values over a range in the spectral domain. The spectral domain follows
 }
 ~~~~
 
-- `spectrum`: An object describing a spectrum
+In this example the spectral domain follows an implicit rule. 
+
+- `spectrum`: A compound value type describing a spectrum
 - `count`: Number of points in the spectrum
 - `value`: Describing the spectral values (i.e. amplitude, attenuation)
 - `domain`: Describing the range in the spectral domain (i.e. frequency)
@@ -174,7 +175,8 @@ Only struct member `amplitude` is explicit, hence this is the data to be transfe
 
 ## Histogram {#Histogram}
 
-This is an example of such a compound value type. It is used for statistics.
+### Histogram As a Compound Value Type
+
 
 ~~~~ {.javascript}
 {
@@ -193,15 +195,13 @@ This is an example of such a compound value type. It is used for statistics.
 }
 ~~~~
 
-- `histogram`: An object describing the histogram
+- `histogram`: An compound value type describing the histogram
 - `classes`: The distribution classes are desribed here. This equals very much the linear implicit axis rule!
 - `classes/count`: Number of distributaion classes
 - `classes/dataType`: Type of counters
 - `classes/rule`: This histogram follows an implicit linear rule. Other rules are also possible.
 - `classes/linear/delta`: Width of each distribution class
 - `classes/linear/start`: First distribution class starts here
-
-
 
 ### Generic Alternative
 
