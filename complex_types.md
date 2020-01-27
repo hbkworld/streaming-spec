@@ -395,6 +395,17 @@ Explicit rule does not have any further parameters.
 The time is mandatory for each signal. It is not part of the signal value.
 It can follow an implicit rule (most likely equidistant or linear) or may be explicit.
 
+## Time Stamp format
+
+We are going to use the B&K time stamping format. 
+
+It uses a so called family time base, which is the base frequency of the time stamp counter. Absolute time stamps are 64 bits ticks since 1970 (unix epoch).
+
+The family time base frequency is determined as follows: 
+2^k * 3^l * 5^m * 7^n Hz
+
+Where k, l, m and n range from 0 to 255.
+
 
 ## Linear Time
 Equidistant time is described as a [linear implicit rule](#Linear_Rule).
