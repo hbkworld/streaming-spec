@@ -856,7 +856,7 @@ It is made up of a struct containing an [complex value type histogram](#Histogra
 
 Above we described two alternatives describing the histrogram within the signal meta information:
 
-#### Special Complex Type for Histogram
+#### Special Data Type for Statistics
 
 ~~~~ {.javascript}
 {
@@ -870,64 +870,77 @@ Above we described two alternatives describing the histrogram within the signal 
           "dataType": "uint64",
           "rule" : "linear",
           "linear" : {
-	    "delta": 1.0,
-	    "start": 50.0
-	  }
-          "count": 50.0,
+	        "delta": 1.0,
+	        "start": 50.0
+	      }
+          "count": 50,
         }
       }
     },
-    "lowerThanCounter" {
+    {
+      "name" : "lowerThanCounter",
       "dataType": uint64,
+      "rule" : "explicit",
     },
-    "higherThanCounter" {
+    {
+      "name" : "higherThanCounter",
       "dataType": uint64,
+      "rule" : "explicit",
     },
-    "totalCounter" {
+    {
+      "name" : "totalCounter",
       "dataType": uint64,
+      "rule" : "explicit",
     },
   }
 }
 ~~~~
 
 
-#### Generic Description of Histogram
+
+#### Generic Description of Statistics
 
 ~~~~ {.javascript}
 {
   "name": "statistic",
-  "dataType": "struct",
-  "struct" : {
-    "histogram": {
-	  "functionType": "histogram",
-	  "dataType": "array",
-	  "array" : {
-		"count" : 50,
-		"dataType": "struct",
-		"struct" {
-		  "count" : {
-			"dataType" : "uint64",
-			"rule" : "explicit"
-		  },
-		  "class" : {
-			"dataType" : "uint32",
-			"rule" : "linear",
-			"linear" : {
-			  "delta": 1.0,
-			  "start" : 50.0
-			}
-		  }
-		}
-	  }
-    },
-    "lowerThanCounter" {
+  "struct" : {    
+    {
+      "functionType": "histogram",
+      "array": {
+        "count": 50,
+        "struct": [
+        {
+          "name": "count",
+          "dataType": "uint64",
+          "rule": "explicit"
+        },
+        {
+          "name": "class",
+          "dataType": "double",
+          "unit": "Hz",
+          "rule": "linear",
+          "linear" : {
+            "delta": 1.0,
+            "start": 50.0
+          }
+        }
+        ]
+      }
+    },    
+    {
+      "name" : "lowerThanCounter",
       "dataType": uint64,
+      "rule": "explicit"
     },
-    "higherThanCounter" {
+    {
+      "name" : "higherThanCounter",
       "dataType": uint64,
+      "rule": "explicit"
     },
-    "totalCounter" {
+    {
+      "name" : "totalCounter",
       "dataType": uint64,
+      "rule": "explicit"
     },
   }
 }
