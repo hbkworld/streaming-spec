@@ -95,92 +95,7 @@ A combination of named members which may be of different types.
 - `name`: Each struct member has a name.
 - `<member description>`: The type of each struct member. Can be a base type, array, or struct
 
-## A Spectrum {#Spectrum}
 
-Spectral values over a range in the spectral domain.
-We combine array, struct and base types.
-
-In addition we introduce the `function` object which helps the client to inteprete the data.
-
-~~~~ {.javascript}
-{
-  "function" : {
-    "type": "spectrum"
-  },
-  "array": {
-    "count": 100,
-    "struct": [
-      {
-        "name": "amplitude",
-        "dataType": "double",
-        "unit": "dB",
-        "rule": "explicit"
-      },
-      {
-        "name": "frequency",
-        "dataType": "double",
-        "unit": "Hz",
-        "rule": "linear",
-        "linear": {
-          "delta": 10.0,
-          "start": 1000.0
-        }
-      }
-    ]
-  }
-}
-~~~~
-
-- `function/type`: Depending on the type, the client expects a specified structure.
-- `array/count`: The number of points in each spectrum
-- struct member `amplitude`: Describes the measured values (i.e. amplitude, attenuation).
-- struct member `frequency`: Describes the range in the spectral domain (i.e. frequency)
-
-Only struct member `amplitude` is explicit, hence this is the data to be transferred.
-
-## Histogram {#Histogram}
-
-We combine array, struct and base types.
-
-In addition there is the object `function` which helps the client to inteprete the data.
-
-~~~~ {.javascript}
-{
-  "function" : {
-    "type": "histogram",
-  }
-  "array": {
-    "count": 50,
-    "struct": [
-    {
-      "name": "count",
-      "dataType": "uint64",
-      "rule": "explicit"
-    },
-    {
-      "name": "class",
-      "dataType": "double",
-      "unit": "Hz",
-      "rule": "linear",
-      "linear" : {
-        "delta": 1.0,
-        "start": 50.0
-      }
-    }
-    ]
-  }
-}
-~~~~
-
-- `function/type`: Depending on the type, the client expects a specified structure.
-- `array/count`: The number of classes in each histogram
-- struct member `count`: Value of the counter
-- struct member `class`: Class
-
-Only struct member `count` is explicit, hence this is the data to be transferred.
-
-
-\pagebreak
 
 
 # Rules
@@ -626,7 +541,50 @@ The signal consists of a spectum
 	* Amplitude which is explicit
 - The time is explicit. Each complete spectrum has one time stamp.
 
-Above you can find the [signal meta information describing a spectrum](#Spectrum). Just set the `count`to 1024.
+
+
+
+Spectral values over a range in the spectral domain.
+We combine array, struct and base types.
+
+In addition we introduce the `function` object which helps the client to inteprete the data.
+
+~~~~ {.javascript}
+{
+  "function" : {
+    "type": "spectrum"
+  },
+  "array": {
+    "count": 1024,
+    "struct": [
+      {
+        "name": "amplitude",
+        "dataType": "double",
+        "unit": "dB",
+        "rule": "explicit"
+      },
+      {
+        "name": "frequency",
+        "dataType": "double",
+        "unit": "Hz",
+        "rule": "linear",
+        "linear": {
+          "delta": 10.0,
+          "start": 1000.0
+        }
+      }
+    ]
+  }
+}
+~~~~
+
+- `function/type`: Depending on the type, the client expects a specified structure.
+- `array/count`: The number of points in each spectrum
+- struct member `amplitude`: Describes the measured values (i.e. amplitude, attenuation).
+- struct member `frequency`: Describes the range in the spectral domain (i.e. frequency)
+
+Only struct member `amplitude` is explicit, hence this is the data to be transferred.
+
 
 ### Time Meta Information
 
@@ -794,6 +752,22 @@ Above we described two alternatives describing the histrogram within the signal 
 }
 ~~~~
 
+Within there is a object describing a histrogram. It has the following members:
+- `function/type`: Depending on the type, the client expects a specified structure.
+- `array/count`: The number of classes in each histogram
+- struct member `count`: Value of the counter
+- struct member `class`: Class
+
+It has its own function description.
+
+
+
+
+
+
+
+
+
 #### Time Meta Information
 
 ~~~~ {.javascript}
@@ -833,7 +807,7 @@ We'll get the following signal specific meta information:
 {
   "method": "signal",
   "params": {
-    "function" : { 
+    "function": {
       "type": "spectralStatistics"
     },
     "array": {
@@ -846,22 +820,29 @@ We'll get the following signal specific meta information:
         },
         {
           "name": "fft",
-          "dataType": "spectrum",
-          "spectrum": {
+          "function": {
+            "type": "spectrum"
+          },
+          "array": {
             "count": 100,
-            "value": {
-              "dataType": "double",
-              "unit": "db"
-            },
-            "domain": {
-              "dataType": "double",
-              "unit": "frequency",
-              "rule": "linear",
-              "linear": {
-                "delta": 10,
-                "start": 1000
+            "struct": [
+              {
+                "name": "amplitude",
+                "dataType": "double",
+                "unit": "dB",
+                "rule": "explicit"
+              },
+              {
+                "name": "frequency",
+                "dataType": "double",
+                "unit": "Hz",
+                "rule": "linear",
+                "linear": {
+                  "delta": 10,
+                  "start": 1000
+                }
               }
-            }
+            ]
           }
         }
       ]
@@ -910,22 +891,29 @@ We'll get the following signal specific meta information:
         },
         {
           "name": "fft",
-          "dataType": "spectrum",
-          "spectrum": {
+          "function": {
+            "type": "spectrum"
+          },
+          "array": {
             "count": 100,
-            "value": {
-              "dataType": "double",
-              "unit": "db"
-            },
-            "domain": {
-              "dataType": "double",
-              "unit": "frequency",
-              "rule": "linear",
-              "linear": {
-                "delta": 10,
-                "start": 1000
+            "struct": [
+              {
+                "name": "amplitude",
+                "dataType": "double",
+                "unit": "dB",
+                "rule": "explicit"
+              },
+              {
+                "name": "frequency",
+                "dataType": "double",
+                "unit": "Hz",
+                "rule": "linear",
+                "linear": {
+                  "delta": 10,
+                  "start": 1000
+                }
               }
-            }
+            ]
           }
         }
       ]
@@ -950,9 +938,10 @@ Data block will contain an absolute time stamp followed by 15
 frequencies with the corresponding spectra containing 100 amplitude values each.
 
 
-## Position in 3 dimensional Space
+## Point in Cartesian Space
 
-The value is a struct of three double values x, y, and z.
+Depending on the the number of dimensions n, 
+The value is a struct of n double values. In this example we choose 3 dimensions x, y, and z.
 
 We'll get the following signal specific meta information:
 
