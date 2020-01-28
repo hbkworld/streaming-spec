@@ -57,8 +57,6 @@ In addition we might have known compound value types that are combinations of th
 There might be implicit knowledge about how to handle those known compound value types. If one is not able to handle a type, the underlying length information can be used to skip the package.
 Currently there are no such value types.
 
-The following section describe some compound data types, that be can made by combining base data types.
-
 ## Array
 
 An array of values of the same type. The number of elements is fixed.
@@ -96,52 +94,21 @@ A combination of named members which may be of different types.
 ~~~~
 
 - `name`: Each struct member has a name.
-- `<member description>`: The type of each struct member. The type can be a base type (e.g. uint32), or one f the compound types (e.g. array, struct, spectrum, histogram...)
+- `<member description>`: The type of each struct member. Can be a base type (e.g. uint32), or array, or struct
 
 ## A Spectrum {#Spectrum}
 
-### Spectrum As a Compound Value Type
 
 Spectral values over a range in the spectral domain.
+We combine array, struct and base types.
+
+In addition we introduce the `function` object which helps the client to inteprete the data.
 
 ~~~~ {.javascript}
 {
-  "dataType": "spectrum",
-  "spectrum" : {
-    "count" : 100
-    "value" : {
-      "dataType" : "double",
-      "unit" : <unit object>
-    },
-    "domain" : {
-      "dataType" : "double",
-      "unit" : <unit object>,
-      "rule" : "linear",
-      "linear" : {
-		"delta": 10.0,
-		"start" : 1000.0
-      }
-    },
-  }
-}
-~~~~
-
-In this example the spectral domain follows an implicit rule. 
-
-- `spectrum`: A compound value type describing a spectrum
-- `count`: Number of points in the spectrum
-- `value`: Describing the spectral values (i.e. amplitude, attenuation)
-- `domain`: Describing the range in the spectral domain (i.e. frequency)
-
-### Generic Alternative
-
-Here we combine array, struct and base types. There are no compound value types, only a combination of the mentioned types!
-
-In addition we introduce the functiontype which helps the client to inteprete the data.
-
-~~~~ {.javascript}
-{
-  "functionType": "spectrum",
+  "function" : {
+    "type": "spectrum"
+  },
   "array": {
     "count": 100,
     "struct": [
@@ -166,7 +133,7 @@ In addition we introduce the functiontype which helps the client to inteprete th
 }
 ~~~~
 
-- `functionType`: Depending on the type, the client expects a specified structure.
+- `function/type`: Depending on the type, the client expects a specified structure.
 - `array/count`: The number of points in each spectrum
 - struct member `amplitude`: Describes the measured values (i.e. amplitude, attenuation).
 - struct member `frequency`: Describes the range in the spectral domain (i.e. frequency)
@@ -175,43 +142,15 @@ Only struct member `amplitude` is explicit, hence this is the data to be transfe
 
 ## Histogram {#Histogram}
 
-### Histogram As a Compound Value Type
+We combine array, struct and base types.
 
-
-~~~~ {.javascript}
-{
-  "dataType": "histogram",
-  "histogram": {
-    "classes": {
-      "count": 50,
-      "dataType": "uint64",
-      "rule" : "linear",
-      "linear" : {
-		"delta": 1.0,
-		"start": 50.0
-	  }
-    },
-  },
-}
-~~~~
-
-- `histogram`: An compound value type describing the histogram
-- `classes`: The distribution classes are desribed here. This equals very much the linear implicit axis rule!
-- `classes/count`: Number of distributaion classes
-- `classes/dataType`: Type of counters
-- `classes/rule`: This histogram follows an implicit linear rule. Other rules are also possible.
-- `classes/linear/delta`: Width of each distribution class
-- `classes/linear/start`: First distribution class starts here
-
-### Generic Alternative
-
-Here we combine array, struct and base types. There are no compound value types, only a combination of the mentioned types!
-
-In addition there is a functiontype which helps the client to inteprete the data.
+In addition there is the object `function` which helps the client to inteprete the data.
 
 ~~~~ {.javascript}
 {
-  "functionType": "histogram",
+  "function" : {
+    "type": "histogram",
+  }
   "array": {
     "count": 50,
     "struct": [
@@ -235,13 +174,12 @@ In addition there is a functiontype which helps the client to inteprete the data
 }
 ~~~~
 
-- `functionType`: Depending on the type, the client expects a specified structure.
+- `function/type`: Depending on the type, the client expects a specified structure.
 - `array/count`: The number of classes in each histogram
 - struct member `count`: Value of the counter
 - struct member `class`: Class
 
 Only struct member `count` is explicit, hence this is the data to be transferred.
-
 
 
 \pagebreak
@@ -727,7 +665,9 @@ Meta information describing the signal:
     "struct": [
       {
         "name": "spectrum",
-        "functionType": "spectrum",
+        "function" : { 
+          "type": "spectrum"
+        },
         "array": {
           "count": 100,
           "struct": [
@@ -802,66 +742,24 @@ Often there also is a lower than lowest and higher than highest counter, and for
 
 
 Example: 50 - 99 dB statistics:
-It is made up of a struct containing an [compound value type histogram](#Histogram) with 50 classes (bins) and three additional counters for the lower than, higher than and total count.
+It is made up of a struct containing an histogram with 50 classes (bins) and three additional counters for the lower than, higher than and total count.
 
 ### Signal Meta Information
 
 Above we described two alternatives describing the histrogram within the signal meta information:
 
-#### With Special Data Type for Histogram
-
-~~~~ {.javascript}
-{
-  "method": "signal",
-  "params": {
-    "name": "statistic",
-    "struct": [
-      {
-        "name": "histogram",
-        "dataType": "histogram",
-        "histogram": {
-          "classes": {
-            "dataType": "uint64",
-            "rule": "linear",
-            "linear": {
-              "delta": 1,
-              "start": 50
-            },
-            "count": 50
-          }
-        }
-      },
-      {
-        "name": "lowerThanCounter",
-        "dataType": "uint64",
-        "rule": "explicit"
-      },
-      {
-        "name": "higherThanCounter",
-        "dataType": "uint64",
-        "rule": "explicit"
-      },
-      {
-        "name": "totalCounter",
-        "dataType": "uint64",
-        "rule": "explicit"
-      }
-    ]
-  }
-}
-~~~~
-
-
-
-#### Generic Description
-
 ~~~~ {.javascript}
 {
   "name": "statistic",
+  "function" : { 
+    "type": "statistic"
+  },
   "struct": [
     {
       "name": "histogram",
-      "functionType": "histogram",
+      "function" : { 
+        "type": "histogram"
+      },
       "array": {
         "count": 50,
         "struct": [
@@ -941,7 +839,9 @@ We'll get the following signal specific meta information:
 {
   "method": "signal",
   "params": {
-    "functionType": "spectralStatistics",
+    "function" : { 
+      "type": "spectralStatistics"
+    },
     "array": {
       "count": 15,
       "struct": [
@@ -1066,7 +966,9 @@ We'll get the following signal specific meta information:
 {
   "method": "signal",
   "params": {
-    "functionType": "cartesianCoordinate",
+    "function" : {
+      "type": "cartesianCoordinate"
+    },
     "dataType": "struct",
     "struct": [
       {
@@ -1134,7 +1036,9 @@ We'll get the following signal specific meta information:
 {
   "method": "signal",
   "params": {
-    "functionType": "spectralAnalysis",
+    "function" : {
+      "type": "spectralAnalysis"
+    },
     "struct": [
       {
         "name": "distortion",
