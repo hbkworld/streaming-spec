@@ -54,8 +54,6 @@ We support the following base value types:
 * time (a 64 bit quantity that contains an absolute time given a specific time family)
 
 In addition we might have known compound value types that are combinations of those base value types.
-There might be implicit knowledge about how to handle those known compound value types. If one is not able to handle a type, the underlying length information can be used to skip the package.
-Currently there are no such value types.
 
 ## Array
 
@@ -70,7 +68,8 @@ An array of values of the same type. The number of elements is fixed.
 }
 ~~~~
 
-- `array/count`: Number of elements in the array. It does neither tell about the size of data nor the number of values within each element.
+- `array/count`: Number of elements in the array. It does neither tell about the size of data.
+- `<member description>`: Might be a base type, another array or a struct
 
 
 ## Struct
@@ -94,10 +93,9 @@ A combination of named members which may be of different types.
 ~~~~
 
 - `name`: Each struct member has a name.
-- `<member description>`: The type of each struct member. Can be a base type (e.g. uint32), or array, or struct
+- `<member description>`: The type of each struct member. Can be a base type, array, or struct
 
 ## A Spectrum {#Spectrum}
-
 
 Spectral values over a range in the spectral domain.
 We combine array, struct and base types.
@@ -185,15 +183,17 @@ Only struct member `count` is explicit, hence this is the data to be transferred
 \pagebreak
 
 
-# Implicit Rules
+# Rules
 
 A value might follow a specific rule. We do not need to transfer each value, just some start information and the rule to calculate any other value that follows.
-We use implicit rules to greatly reduce the amount of data to be transferred, stored and processed.
+Using rules can greatly reduce the amount of data to be transferred, stored and processed.
 
-There are several kinds of rules. To calculate the absolute value , the rule has to be applied.
+There are cases, where we get an array of values with fixed length (i.e. the frequency of a spectrum).
+Here we add a value count. Each array of values starts with the start value.
 
-All implicit rules are described by a signal specific meta information.
+All rules are described by a signal specific meta information.
 
+There are different kinds of rules.
 
 ## Linear Rule {#Linear_Rule}
 For equidistant value we use the linear rule.
@@ -202,8 +202,6 @@ It is described by an absolute start value and a relative delta between two neig
 
 ![Equidistant 2 dimensional points](images/equidistant_points.png)
 
-There are cases, where the axis is an array of values with fixed length (i.e. the frequency of a spectrum).
-Here we add a value count. Each array of values start with the start value.
 
 A linear axis is described as follows:
 
@@ -308,14 +306,10 @@ Logarithmic scale based on the "ISO 3" preferred numbers.
 
 
 
-\pagebreak
-
-
-# Explicit Rule
+## Explicit Rule
 ![2 dimensional points](images/non_equidistant_points.png)
 
-When there is no implicit rule defined, each value has an absolute coordinate for this axis.
-There is no rule how to calculate the absolute value. We call it an explicit rule.
+When there is no rule to calculate values depending on a start value the explicit rule is being used: Each value is transferred as an absolute value.
 
 ~~~~ {.javascript}
 {
@@ -323,7 +317,7 @@ There is no rule how to calculate the absolute value. We call it an explicit rul
 }
 ~~~~
 
-Explicit rule does not have any further parameters.
+Explicit rule does not have any parameters.
 
 \pagebreak
 
@@ -374,8 +368,8 @@ Both can be delivered by a separate, signal specific, meta information.
 ~~~~
 
 - `method`: Type of meta information
-- `rule`: type of axis
-- `unit`: Unit of the axis
+- `rule`: type of rule
+- `unit`: Unit
 - `linear/start`: The absolute timestamp for the next value point.
 - `linear/delta`: The time difference between two value points
 
