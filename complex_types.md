@@ -10,26 +10,26 @@ abstract: This is a proposal how we might describe signals of any complexity.
 
 # Measured Data and Meta Information
 
-HBM Streaming Protocol differentiates between meta information and measured data.
+HBK Streaming Protocol differentiates between meta information and measured data.
 The meta information describes a stream or signal and tells how to interprete the measured data of a signal.
 
-For both there is a header telling the signal id the measured data or meta information belongs to. If the data is related to the stream or device the signal id is 0.
-In addition, this header contains length information. If the content is not understood,
-the parser can step to the next header and proceed with processing. This is usefull if the stream contains information, the client is not aware of.
+For both meta information and measured data there is a header which includes a signal id telling to which signal they belong to. If the data is related to the stream the signal id is 0.
+In addition, this header contains length information. If content is not understood,
+the parser can read over to the next header and proceed with processing. This is useful if the stream contains information the client is not aware of.
 
 ## Stream Specific Meta Information
 
 Everything concerning the whole device or the stream. Examples:
 
 * Available Signals
-* Device status information
+* Device status information (SG: what are these)
 
 ## Signal Specific Meta Information
 
 Everything describing the signal. Examples:
 
-* Endianness of the binary data transferred.
-* Signal name
+* Endianness of the binary data transferred,
+* Signal name,
 * Signal unit information
 
 
@@ -68,7 +68,7 @@ An array of values of the same type. The number of elements is fixed.
 }
 ~~~~
 
-- `array/count`: Number of elements in the array. It does neither tell about the size of data.
+- `array/count`: Number of elements in the array.
 - `<member description>`: Might be a base type, another array or a struct
 
 
@@ -126,6 +126,7 @@ A linear axis is described as follows:
   "linear": {
     "start": <value>,
     "delta": <value>,
+    "count": <value>,
   },
 }
 ~~~~
@@ -134,6 +135,7 @@ A linear axis is described as follows:
 - `linear`: Properties of the implicit linear rule
 - `linear/start`: the first value
 - `linear/delta`: The difference between two values
+- `linear/count`: The number of values until a rollover to the start value occurs
 
 
 ## constant Rule
@@ -161,7 +163,7 @@ Definitions come from CEI IEC 1260-1: Electroacoustics - Octave-band and fracton
   "cpb" {
     "basesystem": 10,
     "firstband": 2,
-    "numberfractions": 3
+    "numberOfFractions": 3
   }
 }
 ~~~~
@@ -170,7 +172,7 @@ Definitions come from CEI IEC 1260-1: Electroacoustics - Octave-band and fracton
 - `cpb`: Details for the rule of type CPB
 - `cpb/basesystem` : logarithm base used in the CPB (either 2 or 10)
 - `cpb/firstband` : Index of the first band of the spectrum (Band 0 is 1 Hz and firstband may be negative)
-- `cpb/numberfractions` : Number of fractions per octave. Possible values 1 - 24
+- `cpb/numberOfFractions` : Number of fractions per octave. Possible values 1 - 24
 
 
 
@@ -209,7 +211,7 @@ Logarithmic scale based on the "ISO 3" preferred numbers.
   "rule": "logiso"
   "logiso" {
     "firstband": 2,
-    "numberfractions": 3
+    "numberOfFractions": 3
   }
 }
 ~~~~
@@ -217,14 +219,14 @@ Logarithmic scale based on the "ISO 3" preferred numbers.
 - `rule`: Type of implicit rule
 - `logiso`: Details for the rule of type logiso
 - `logiso/firstband` : Index of the first band of the spectrum (Band 0 is 1 Hz and firstband may be negative)
-- `logiso/numberfractions` : Number of fractions per decade. Possible values: 10, 20, 40, 80
+- `logiso/numberOfFractions` : Number of fractions per decade. Possible values: 10, 20, 40, 80
 
 
 
 ## Explicit Rule
 ![2 dimensional points](images/non_equidistant_points.png)
 
-When there is no rule to calculate values depending on a start value the explicit rule is being used: Each value is transferred as an absolute value.
+When there is no rule to calculate values depending on a start value the explicit rule is being used: Each value is transferred.
 
 ~~~~ {.javascript}
 {
@@ -256,7 +258,7 @@ Where k, l, m and n range from 0 to 255.
 
 ## Linear Time
 Equidistant time is described as a [linear implicit rule](#Linear_Rule).
-To calculate the absolute time for linear time, There needs to
+To calculate the absolute time for linear time, there needs to
 be an absolute start time and a delta time.
 Both can be delivered by a separate, signal specific, meta information.
 
@@ -274,17 +276,17 @@ Both can be delivered by a separate, signal specific, meta information.
   "params": {
     "rule": "linear",
     "linear": {
-      "start": <value>,
+      "start": <value>, // Always in ISO8601 format
       "delta": <value>,
     },
     "unit": <unit object>,
-    "dataType": <string>,
+    "dataType": "time",
 }
 ~~~~
 
 - `method`: Type of meta information
 - `rule`: type of rule
-- `unit`: Unit
+- `unit`: Unit. Could be s, ms, Hz, mHz etc.
 - `linear/start`: The absolute timestamp for the next value point.
 - `linear/delta`: The time difference between two value points
 
@@ -307,14 +309,14 @@ Time is delivered as absolute time stamp for each value.
 \pagebreak
 
 
-## How to Interprete Measured Data
+## How to Interpret Measured Data
 
 After the meta information describing the signal has been received, delivered measured data blocks are to be interpreted as follows:
 
 - See whether this is more meta information or measured data from a signal.
 - Each data block contains all explicit values of a signal.
 - Non explicit Values are calculated according their rule (i.e. constant, linear).
-- Theoretically a signal might contain no explicit value at all. There won't be any component value to be transferred. All component values are to calculated using their rules.
+- Theoretically, a signal might contain no explicit value at all. There won't be any component value to be transferred. All component values are to calculated using their rules.
 - A block may contain many values of this signal. They are arranged value by value.
 
 \pagebreak
@@ -352,10 +354,11 @@ The device sends the following signal-specific meta information.
   "params" : {
     "rule": "linear",
     "linear": {
-      "start": "high noon, 1st january 2019"
+      "start": "2007-12-24T18:21:16,3Z"
       "delta": "10 ms"
     },
     "dataType": "time"
+    "unit": "???"
   ]
 }
 ~~~~
@@ -996,7 +999,7 @@ We receive 1 data block with one abolute time stamp and a struct with three doub
 
 ## Harmonic Analysis
 
-The result delivered from harmonic analysis done by HBM Genesis/Perception is fairly complex.
+The result delivered from harmonic analysis done by HBK Genesis/Perception is fairly complex.
 One combined value consists of the following:
 - some scalar values
   * distortion: The Total Harmonic Distortion (according to IEC 61000-4-7).
