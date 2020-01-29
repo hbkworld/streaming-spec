@@ -10,7 +10,7 @@ abstract: This is a proposal how we might describe signals of any complexity.
 
 # Data Types
 
-We support the following base value types:
+We support the following base data types:
 
 * int8
 * uint8
@@ -26,11 +26,10 @@ We support the following base value types:
 * complex64
 * time (a 64 bit quantity that contains an absolute time given a specific time family)
 
-In addition we might have known compound value types that are combinations of those base value types.
 
 ## Array
 
-An array of values of the same type. The number of elements is fixed.
+An array of members of the same type. The number of elements is fixed.
 
 ~~~~ {.javascript}
 {
@@ -357,26 +356,20 @@ No more data with the same signal id MUST be sent after the unsubscribe acknowle
 
 # Signal Specific Meta Information
 
-Everything describing the signal. Examples:
+## Signal and Time description
 
-* Endianness of the binary data transferred,
+A measured value of a signal consist of one or more members. 
+All members and there properties are described in a signal related meta information `signal`.
+In addition, each signal has time information which is described in a separate `time` meta information.
 
-
-\pagebreak
-
-
-
-
-
-
-## Examples
+Here are some examples:
 
 ### A Voltage Sensor
 
 The signal has 1 scalar value. Synchronous output rate is 100 Hz
 
-- The voltage is expressed as a base value type
-- The device delivers scaled component value in 32 bit float format
+- Each measured value consists of one member
+- This member is a scaled 32 bit float base data type which is explicit
 - The time is linear.
 
 The device sends the following signal-specific meta information.
@@ -409,14 +402,14 @@ The device sends the following signal-specific meta information.
 }
 ~~~~
 
-Data block has the value of this signal encoded float. No time stamps.
+Data block contains the value of this signal encoded float. No time stamps.
 
 ### A CAN Decoder
 
-The signal has a simple scalar value.
+The signal has a simple scalar member.
 
-- The value is expressed as a base value type
-- The value is explicit.
+- The value is expressed as a base data type
+- The member is explicit.
 - The time is explicit.
 
 The device sends the following signal-specific meta information:
@@ -443,16 +436,16 @@ The device sends the following signal-specific meta information:
 }
 ~~~~
 
-Each value point has an absolute time stamp and one u32 value.
+Each value point has an absolute time stamp and one u32 member.
 
 ### A Simple Counter
 
 This is for counting events that happens at any time (explicit rule).
 
-- The value is expressed as a base value type
-- The count value is linear with an increment of 2, it runs in one direction
-- The device sends an initial absolute value within the meta information describing the signal.
-- The time is explicit.
+- The measured value is expressed as a base data type
+- The member `counter` is linear with an increment of 2, it runs in one direction
+- The device sends an initial absolute value of `counter` within the meta information describing the signal.
+- `time` is explicit.
 
 ~~~~ {.javascript}
 {
@@ -478,18 +471,15 @@ This is for counting events that happens at any time (explicit rule).
 }
 ~~~~
 
-
-Value is linear with a step width of 2.
-
-The counter value has a non explicit rule, hence `counter` won't be transferred. Data blocks will contain timestamps only.
+`counter` has a linear rule with a step width of 2, hence `counter` won't be transferred. Data blocks will contain timestamps only.
 
 
 
 ### An Absolute Rotary Encoder
 
-- The value is expressed as a base value type
-- The angle is explicit, it can go back and forth
-- The time is explicit.
+- The measured value is expressed as a base data type
+- `angle` is explicit, it can go back and forth
+- `time` is explicit.
 
 ~~~~ {.javascript}
 {
@@ -511,13 +501,13 @@ The counter value has a non explicit rule, hence `counter` won't be transferred.
 }
 ~~~~
 
-Data block will contain a tuple of absolute angle and time stamp. There will be no meta ionformation when direction changes.
+Data block will contain a tuple of `angle` and an absolute time stamp. There will be no meta ionformation when direction changes.
 
 
 
 ### An Incremental Rotary Encoder with start Position
 
-- The value is expressed as a base value type
+- The measured value is expressed as a base data type
 - The counter representing the angle follows a linear rule, it can go back and forth
 - Absolute start position when crossing a start position.
 - No initial absolute value.
@@ -1148,10 +1138,10 @@ Here we get the following values in 1 data block:
 
 After the meta information describing the signal has been received, delivered measured data blocks are to be interpreted as follows:
 
-- See whether this is more meta information or measured data from a signal.
-- Each data block contains all explicit values of a signal.
-- Non explicit Values are calculated according their rule (i.e. constant, linear).
-- Theoretically, a signal might contain no explicit value at all. There won't be any component value to be transferred. All component values are to calculated using their rules.
-- A block may contain many values of this signal. They are arranged value by value.
+- Measured data blocks contain complete measured values with all their members as described in the signal description for the signals.
+- Only members with an explicit rule are transferred.
+- The size of a complete measured value within the measured value data block derives from the sum of the sizes of all explicit members
+- Non explicit members are calculated according their rule (i.e. constant, linear). They take no room within the transferred measured data blocks.
+- A measured data block may contain many complete measured values of a signal.
 
   
