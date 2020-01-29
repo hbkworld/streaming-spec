@@ -8,33 +8,6 @@ abstract: This is a proposal how we might describe signals of any complexity.
 ---
 
 
-# Measured Data and Meta Information
-
-HBK Streaming Protocol differentiates between meta information and measured data.
-The meta information describes a stream or signal and tells how to interprete the measured data of a signal.
-
-For both meta information and measured data there is a header which includes a signal id telling to which signal they belong to. If the data is related to the stream the signal id is 0.
-In addition, this header contains length information. If content is not understood,
-the parser can read over to the next header and proceed with processing. This is useful if the stream contains information the client is not aware of.
-
-## Stream Specific Meta Information
-
-Everything concerning the whole device or the stream. Examples:
-
-* Available Signals
-* Device status information (SG: what are these)
-
-## Signal Specific Meta Information
-
-Everything describing the signal. Examples:
-
-* Endianness of the binary data transferred,
-* Signal name,
-* Signal unit information
-
-
-\pagebreak
-
 # Data Types
 
 We support the following base value types:
@@ -94,7 +67,6 @@ A combination of named members which may be of different types.
 
 - `name`: Each struct member has a name.
 - `<member description>`: The type of each struct member. Can be a base type, array, or struct
-
 
 
 
@@ -309,23 +281,97 @@ Time is delivered as absolute time stamp for each value.
 \pagebreak
 
 
-## How to Interpret Measured Data
+# Measured Data and Meta Information
 
-After the meta information describing the signal has been received, delivered measured data blocks are to be interpreted as follows:
+HBK Streaming Protocol differentiates between meta information and measured data.
+The meta information describes a device, stream or signal and tells how to interprete the measured data of a signal.
 
-- See whether this is more meta information or measured data from a signal.
-- Each data block contains all explicit values of a signal.
-- Non explicit Values are calculated according their rule (i.e. constant, linear).
-- Theoretically, a signal might contain no explicit value at all. There won't be any component value to be transferred. All component values are to calculated using their rules.
-- A block may contain many values of this signal. They are arranged value by value.
+For both meta information and measured data there is a header which includes a signal id telling to which signal they belong to.
+If the data is related to the device, stream the signal id is 0. 
+
+In addition, this header contains length information. If content is not understood,
+the parser can read over to the next header and proceed with processing. This is useful if the stream contains information the client is not aware of.
+
+
+# Device Specific Meta Information
+
+Everything concerning the whole device.
+
+## Available signals
+
+If connecting to the streaming server, the names of all signals that are currently available will be delivered.
+If new signals appear afterwards, those new signals will be introduced by sending an `available` with the new signal names.
+
+~~~~ {.javascript}
+{
+  "method": "available",
+  "params": [<signal name>,...]
+}
+~~~~
+
+## Unavailable signals
+
+If signals disappear while being connected, there will be an `unavailable` with the names of all signals that disappeared.
+
+~~~~ {.javascript}
+{
+  "method": "unavailable"
+  "params": [<signal name>,...]
+}
+~~~~
+
+
+# Stream Specific Meta Information
+
+Everything concerning the stream.
+
+## Subscribe Meta Information
+
+The string value of the subscribe key always carries the unique signal name of the signal.
+It constitutes the link between the subsrcibed signal name and the signal id used on the transport layer.
+
+~~~~ {.javascript}
+{
+  "method": "subscribe",
+  "params": <signal name>
+}
+~~~~
+
+`"params"`: Signal names of the subscribed signal.
+
+
+
+## Unsubscribe Meta Information
+
+The unsubscribe Meta information indicates that there will be send no more data with the same signal id upon next subscribe.
+This Meta information is emitted after a signal got unsubscribed.
+No more data with the same signal id MUST be sent after the unsubscribe acknowledgement.
+
+
+~~~~ {.javascript}
+{
+  "method": "unsubscribe"
+}
+~~~~
+
+
+# Signal Specific Meta Information
+
+Everything describing the signal. Examples:
+
+* Endianness of the binary data transferred,
+
 
 \pagebreak
 
 
 
-# Examples
 
-## A Voltage Sensor
+
+
+## Examples
+
+### A Voltage Sensor
 
 The signal has 1 scalar value. Synchronous output rate is 100 Hz
 
@@ -365,7 +411,7 @@ The device sends the following signal-specific meta information.
 
 Data block has the value of this signal encoded float. No time stamps.
 
-## A CAN Decoder
+### A CAN Decoder
 
 The signal has a simple scalar value.
 
@@ -399,7 +445,7 @@ The device sends the following signal-specific meta information:
 
 Each value point has an absolute time stamp and one u32 value.
 
-## A Simple Counter
+### A Simple Counter
 
 This is for counting events that happens at any time (explicit rule).
 
@@ -439,7 +485,7 @@ The counter value has a non explicit rule, hence `counter` won't be transferred.
 
 
 
-## An Absolute Rotary Encoder
+### An Absolute Rotary Encoder
 
 - The value is expressed as a base value type
 - The angle is explicit, it can go back and forth
@@ -469,7 +515,7 @@ Data block will contain a tuple of absolute angle and time stamp. There will be 
 
 
 
-## An Incremental Rotary Encoder with start Position
+### An Incremental Rotary Encoder with start Position
 
 - The value is expressed as a base value type
 - The counter representing the angle follows a linear rule, it can go back and forth
@@ -535,7 +581,7 @@ This type of counter is usefull when having a high counting rate with only few c
 
 
 
-## A Spectrum
+### A Spectrum
 
 The signal consists of a spectum
 
@@ -601,11 +647,11 @@ Only struct member `amplitude` is explicit, hence this is the data to be transfe
 }
 ~~~~
 
-### Transferred Measured Data
+#### Transferred Measured Data
 
 Data block will contain an absolute time stamp followed by 1024 amplitude double values. There will be no frequency values because they are implicit.
 
-## An Optical Spectrum with Peak Values
+### An Optical Spectrum with Peak Values
 
 The signal consists of a spectum and an array of peak values. Number of peaks is fixed 16.
 If the number of peaks does change, there will be a meta information telling about the new amount (`count`) of peaks!
@@ -688,7 +734,7 @@ Data block will contain:
 
 
 
-## Statistics {#Statistics}
+### Statistics {#Statistics}
 
 Statistics consists of N "counters" each covering a value interval. If the measured value is within a counter interval, then that counter is incremented.
 For instance the interval from 50 to 99 dB might be covered by 50 counters. Each of these counters then would cover 1 dB.
@@ -699,7 +745,7 @@ Often there also is a lower than lowest and higher than highest counter, and for
 Example: 50 - 99 dB statistics:
 It is made up of a struct containing an histogram with 50 classes (bins) and three additional counters for the lower than, higher than and total count.
 
-### Signal Meta Information
+#### Signal Meta Information
 
 Above we described two alternatives describing the histrogram within the signal meta information:
 
@@ -794,7 +840,7 @@ Everything will be in 1 data block:
 - 1 uint64 for the total counter
 
 
-## Spectral Statistics
+### Spectral Statistics
 
 Spectral statistics is a swarm of statistics over an additional axis.
 This axis could for instance be a CPB axis, for each CPB band there is a statistic.
@@ -872,7 +918,7 @@ Data block will contain a absolute time stamp followed by:
   * 1 uint64 for the lower than counter
 
 
-## Run up
+### Run up
 
 This is an array of 15 structs containing a fft and a frequency.
 Fft amplitudes and frenqeuncy are explicit.
@@ -941,7 +987,7 @@ Data block will contain an absolute time stamp followed by 15
 frequencies with the corresponding spectra containing 100 amplitude values each.
 
 
-## Point in Cartesian Space
+### Point in Cartesian Space
 
 Depending on the the number of dimensions n, 
 The value is a struct of n double values. In this example we choose 3 dimensions x, y, and z.
@@ -997,7 +1043,7 @@ We receive 1 data block with one abolute time stamp and a struct with three doub
 
 
 
-## Harmonic Analysis
+### Harmonic Analysis
 
 The result delivered from harmonic analysis done by HBK Genesis/Perception is fairly complex.
 One combined value consists of the following:
@@ -1096,3 +1142,16 @@ Here we get the following values in 1 data block:
 - array with 50 harmonic structs each containing:
   * a double value with the amplitude of the harmonic
   * a double value with the phase of the harmonic
+  
+  
+# Measured Data
+
+After the meta information describing the signal has been received, delivered measured data blocks are to be interpreted as follows:
+
+- See whether this is more meta information or measured data from a signal.
+- Each data block contains all explicit values of a signal.
+- Non explicit Values are calculated according their rule (i.e. constant, linear).
+- Theoretically, a signal might contain no explicit value at all. There won't be any component value to be transferred. All component values are to calculated using their rules.
+- A block may contain many values of this signal. They are arranged value by value.
+
+  
