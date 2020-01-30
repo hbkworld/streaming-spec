@@ -8,7 +8,59 @@ abstract: This is a proposal how we might describe signals of any complexity.
 ---
 
 
-# Data Types
+
+# Transport Layer
+
+The transport layer consists of a header and a variable length
+block of data. The structure of the header is depicted below.
+
+![A single block on transport layer](images/transport.png)
+
+## Signal Info Field
+
+![The Signal Info Field](images/sig_info.png)
+
+### Type
+
+The `Type` sub-field allows to distinguish the type of payload, which can be either
+[Signal Data](#signal-data) or [Meta Information](#meta-information):
+
+Signal Data: 0x01
+
+Meta Information: 0x02
+
+### Reserved
+
+This field is reserved for future use and must be set to `00b`.
+
+### Size
+
+Indicates the length in bytes of the data block that follows.
+
+If `Size` equals 0x00, the length of the following data block is
+determined by the (optional) `Data Byte Count` field.
+
+## Signal Number
+
+The `Signal Number` field indicates to which signal the following data
+block belongs to. It MUST within a single device. Different
+devices MAY use the same signal numbers. The `Signal Number` is required
+to carry more than one single signal over a single socket connection.
+
+`0` is the `Signal Number` reserved for [Stream Related Meta Information](#stream-related-meta-information).
+
+## Data Byte Count
+
+This field is only present if `Size` equals 0x00. If
+so, `Data Byte Count` represents the length in byte of the data block that
+follows. This 32 bit word is always transmitted in network byte order
+(big endian).
+
+# Presentation Layer
+
+
+
+## Data Types
 
 We support the following base data types:
 
@@ -27,7 +79,7 @@ We support the following base data types:
 * time (a 64 bit quantity that contains an absolute time given a specific time family)
 
 
-## Array
+### Array
 
 An array of members of the same type. The number of elements is fixed.
 
@@ -44,7 +96,7 @@ An array of members of the same type. The number of elements is fixed.
 - `<member description>`: Might be a base type, another array or a struct
 
 
-## Struct
+### Struct
 
 A combination of named members which may be of different types.
 
@@ -69,7 +121,7 @@ A combination of named members which may be of different types.
 
 
 
-# Rules
+## Rules
 
 A value might follow a specific rule. We do not need to transfer each value, just some start information and the rule to calculate any other value that follows.
 Using rules can greatly reduce the amount of data to be transferred, stored and processed.
@@ -81,7 +133,7 @@ All rules are described by a signal specific meta information.
 
 There are different kinds of rules.
 
-## Linear Rule {#Linear_Rule}
+### Linear Rule {#Linear_Rule}
 For equidistant value we use the linear rule.
 
 It is described by an absolute start value and a relative delta between two neighboring values.
@@ -109,7 +161,7 @@ A linear axis is described as follows:
 - `linear/count`: The number of values until a rollover to the start value occurs
 
 
-## constant Rule
+### constant Rule
 The rule is simple: There is a start value. The value equals the start value until a new start value is posted.
 
 ~~~~ {.javascript}
@@ -123,7 +175,7 @@ The rule is simple: There is a start value. The value equals the start value unt
 
 \pagebreak
 
-## cpb Rule
+### cpb Rule
 Octave-band and fractional-octave band spectrum (CPB comes from Constant Percentage Bandwidth).
 Definitions come from CEI IEC 1260-1: Electroacoustics - Octave-band and fractonal-octave-band filters.
 
@@ -150,7 +202,7 @@ Definitions come from CEI IEC 1260-1: Electroacoustics - Octave-band and fracton
 
 \pagebreak
 
-## logarithmic Rule
+### logarithmic Rule
 Logarithmic scale based on a specified factor
 
 
@@ -173,7 +225,7 @@ Logarithmic scale based on a specified factor
 
 \pagebreak
 
-## logiso Rule
+### logiso Rule
 Logarithmic scale based on the "ISO 3" preferred numbers.
 
 
@@ -194,7 +246,7 @@ Logarithmic scale based on the "ISO 3" preferred numbers.
 
 
 
-## Explicit Rule
+### Explicit Rule
 ![2 dimensional points](images/non_equidistant_points.png)
 
 When there is no rule to calculate values depending on a start value the explicit rule is being used: Each value is transferred.
@@ -210,12 +262,12 @@ Explicit rule does not have any parameters.
 \pagebreak
 
 
-# Time
+## Time
 
 The time is mandatory for each signal. It is not part of the signal value.
 It can follow an implicit rule (most likely equidistant or linear) or may be explicit.
 
-## Time Stamp format
+### Time Stamp format
 
 We are going to use the B&K time stamping format. 
 
@@ -227,7 +279,7 @@ The family time base frequency is determined as follows:
 Where k, l, m and n range from 0 to 255.
 
 
-## Linear Time
+### Linear Time
 Equidistant time is described as a [linear implicit rule](#Linear_Rule).
 To calculate the absolute time for linear time, there needs to
 be an absolute start time and a delta time.
@@ -261,7 +313,7 @@ Both can be delivered by a separate, signal specific, meta information.
 - `linear/start`: The absolute timestamp for the next value point.
 - `linear/delta`: The time difference between two value points
 
-## Explicit Time
+### Explicit Time
 Time is delivered as absolute time stamp for each value.
 
 ~~~~ {.javascript}
@@ -280,7 +332,7 @@ Time is delivered as absolute time stamp for each value.
 \pagebreak
 
 
-# Measured Data and Meta Information
+## Measured Data and Meta Information
 
 HBK Streaming Protocol differentiates between meta information and measured data.
 The meta information describes a device, stream or signal and tells how to interprete the measured data of a signal.
@@ -292,11 +344,11 @@ In addition, this header contains length information. If content is not understo
 the parser can read over to the next header and proceed with processing. This is useful if the stream contains information the client is not aware of.
 
 
-# Device Specific Meta Information
+## Device Specific Meta Information
 
 Everything concerning the whole device.
 
-## Available signals
+### Available signals
 
 If connecting to the streaming server, the names of all signals that are currently available will be delivered.
 If new signals appear afterwards, those new signals will be introduced by sending an `available` with the new signal names.
@@ -308,7 +360,7 @@ If new signals appear afterwards, those new signals will be introduced by sendin
 }
 ~~~~
 
-## Unavailable signals
+### Unavailable signals
 
 If signals disappear while being connected, there will be an `unavailable` with the names of all signals that disappeared.
 
@@ -320,11 +372,11 @@ If signals disappear while being connected, there will be an `unavailable` with 
 ~~~~
 
 
-# Stream Specific Meta Information
+## Stream Specific Meta Information
 
 Everything concerning the stream.
 
-## Subscribe Meta Information
+### Subscribe Meta Information
 
 The string value of the subscribe key always carries the unique signal name of the signal.
 It constitutes the link between the subsrcibed signal name and the signal id used on the transport layer.
@@ -340,7 +392,7 @@ It constitutes the link between the subsrcibed signal name and the signal id use
 
 
 
-## Unsubscribe Meta Information
+### Unsubscribe Meta Information
 
 The unsubscribe Meta information indicates that there will be send no more data with the same signal id upon next subscribe.
 This Meta information is emitted after a signal got unsubscribed.
@@ -354,9 +406,9 @@ No more data with the same signal id MUST be sent after the unsubscribe acknowle
 ~~~~
 
 
-# Signal Specific Meta Information
+## Signal Specific Meta Information
 
-## Signal and Time description
+### Signal and Time description
 
 A measured value of a signal consist of one or more members. 
 All members and there properties are described in a signal related meta information `signal`.
@@ -364,7 +416,7 @@ In addition, each signal has time information which is described in a separate `
 
 Here are some examples:
 
-### A Voltage Sensor
+#### A Voltage Sensor
 
 The signal has 1 scalar value. Synchronous output rate is 100 Hz
 
@@ -404,7 +456,7 @@ The device sends the following signal-specific meta information.
 
 Data block contains the value of this signal encoded float. No time stamps.
 
-### A CAN Decoder
+#### A CAN Decoder
 
 The signal has a simple scalar member.
 
@@ -438,7 +490,7 @@ The device sends the following signal-specific meta information:
 
 Each value point has an absolute time stamp and one u32 member.
 
-### A Simple Counter
+#### A Simple Counter
 
 This is for counting events that happens at any time (explicit rule).
 
@@ -475,7 +527,7 @@ This is for counting events that happens at any time (explicit rule).
 
 
 
-### An Absolute Rotary Encoder
+#### An Absolute Rotary Encoder
 
 - The measured value is expressed as a base data type
 - `angle` is explicit, it can go back and forth
@@ -505,7 +557,7 @@ Data block will contain a tuple of `angle` and an absolute time stamp. There wil
 
 
 
-### An Incremental Rotary Encoder with start Position
+#### An Incremental Rotary Encoder with start Position
 
 - The measured value is expressed as a base data type
 - The counter representing the angle follows a linear rule, it can go back and forth
@@ -571,7 +623,7 @@ This type of counter is usefull when having a high counting rate with only few c
 
 
 
-### A Spectrum
+#### A Spectrum
 
 The signal consists of a spectum
 
@@ -625,7 +677,6 @@ In addition we introduce the `function` object which helps the client to intepre
 Only struct member `amplitude` is explicit, hence this is the data to be transferred.
 
 
-### Time Meta Information
 
 ~~~~ {.javascript}
 {
@@ -637,11 +688,10 @@ Only struct member `amplitude` is explicit, hence this is the data to be transfe
 }
 ~~~~
 
-#### Transferred Measured Data
 
 Data block will contain an absolute time stamp followed by 1024 amplitude double values. There will be no frequency values because they are implicit.
 
-### An Optical Spectrum with Peak Values
+#### An Optical Spectrum with Peak Values
 
 The signal consists of a spectum and an array of peak values. Number of peaks is fixed 16.
 If the number of peaks does change, there will be a meta information telling about the new amount (`count`) of peaks!
@@ -724,7 +774,7 @@ Data block will contain:
 
 
 
-### Statistics {#Statistics}
+#### Statistics {#Statistics}
 
 Statistics consists of N "counters" each covering a value interval. If the measured value is within a counter interval, then that counter is incremented.
 For instance the interval from 50 to 99 dB might be covered by 50 counters. Each of these counters then would cover 1 dB.
@@ -735,7 +785,6 @@ Often there also is a lower than lowest and higher than highest counter, and for
 Example: 50 - 99 dB statistics:
 It is made up of a struct containing an histogram with 50 classes (bins) and three additional counters for the lower than, higher than and total count.
 
-#### Signal Meta Information
 
 Above we described two alternatives describing the histrogram within the signal meta information:
 
@@ -802,13 +851,6 @@ It has its own function description.
 
 
 
-
-
-
-
-
-#### Time Meta Information
-
 ~~~~ {.javascript}
 {
   "method": "time",
@@ -819,7 +861,6 @@ It has its own function description.
 }
 ~~~~
 
-#### Transferred Measured Data
 
 Everything will be in 1 data block:
 
@@ -830,7 +871,7 @@ Everything will be in 1 data block:
 - 1 uint64 for the total counter
 
 
-### Spectral Statistics
+#### Spectral Statistics
 
 Spectral statistics is a swarm of statistics over an additional axis.
 This axis could for instance be a CPB axis, for each CPB band there is a statistic.
@@ -908,7 +949,7 @@ Data block will contain a absolute time stamp followed by:
   * 1 uint64 for the lower than counter
 
 
-### Run up
+#### Run up
 
 This is an array of 15 structs containing a fft and a frequency.
 Fft amplitudes and frenqeuncy are explicit.
@@ -977,7 +1018,7 @@ Data block will contain an absolute time stamp followed by 15
 frequencies with the corresponding spectra containing 100 amplitude values each.
 
 
-### Point in Cartesian Space
+#### Point in Cartesian Space
 
 Depending on the the number of dimensions n, 
 The value is a struct of n double values. In this example we choose 3 dimensions x, y, and z.
@@ -1033,7 +1074,7 @@ We receive 1 data block with one abolute time stamp and a struct with three doub
 
 
 
-### Harmonic Analysis
+#### Harmonic Analysis
 
 The result delivered from harmonic analysis done by HBK Genesis/Perception is fairly complex.
 One combined value consists of the following:
@@ -1134,7 +1175,7 @@ Here we get the following values in 1 data block:
   * a double value with the phase of the harmonic
   
   
-# Measured Data
+## Measured Data
 
 After the meta information describing the signal has been received, delivered measured data blocks are to be interpreted as follows:
 
