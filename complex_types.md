@@ -1,13 +1,36 @@
 ---
 title: "How to Model Complex Signals"
-author: Draft
-abstract: This is a proposal how we might describe signals of any complexity.
-  Some techniques mentioned here are based on the HBM Streaming Protocol
-  Until we have a complete specification of the new streaming protocol,
-  [please refer here](https://github.com/HBM/streaming-spec/blob/master/streaming.md).
+author: Matthias Loy
 ---
 
-# Transport Layer
+
+# Overview
+
+The data streaming mechanism is intended to enable client programs to receive
+(measurement) data from (measurement) data acquisition devices, further called devices.
+The protocol was designed with the following constraints in mind:
+
+-   Use only one socket connection per instance of data acquisition to
+    limit the number of open sockets. Multiple data acquisition instances are possible but
+    devices may prevent this for performance reasons.
+
+-   Minimize network traffic.
+
+-   Extensible signal description and spurious event notification.
+
+-   Transmit Meta information about the acquired signals to make the
+    data acquisition self-contained. This means that it is not necessary to
+    gather information via the setup interface to interpret the acquired
+    signals.
+
+# Architecture
+
+There are three main components involved. A [transport layer](#transport-layer) and a
+[presentation layer](#presentation-layer) allow the interpretation of
+data send over the Stream socket by the device. [Command Interface(s)](#command-interfaces)
+allow to subscribe or unsubscribe signals to a streaming instance.
+
+# Transport Layer 
 
 The transport layer consists of a header and a variable length
 block of data. The structure of the header is depicted below.
@@ -1186,3 +1209,4 @@ After the meta information describing the signal has been received, delivered me
 - Non explicit members are calculated according their rule (i.e. constant, linear). They take no room within the transferred measured data blocks.
 
   
+# Command Interfaces
