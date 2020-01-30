@@ -9,7 +9,7 @@ all: streaming.pdf streaming.html complex_types.pdf complex_types.html
 #	-R -f org $< -o $@
 
 %.pdf: %.md
-	pandoc -s -N --toc --toc-depth=2 \
+	pandoc -s -N --toc --toc-depth=3 \
 	--pdf-engine=xelatex \
 	--variable=papersize:a4paper \
 	--variable=fontsize:9pt \
@@ -24,7 +24,7 @@ all: streaming.pdf streaming.html complex_types.pdf complex_types.html
 #	-R -f markdown $< -o $@
 
 %.html: %.md
-	pandoc -s --css=hbm.css --toc --toc-depth=1 \
+	pandoc -s --css=hbm.css --toc --toc-depth=3 \
 	--mathjax \
 	-N -f markdown $< -o $@
 
