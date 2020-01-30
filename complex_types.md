@@ -81,7 +81,6 @@ follows. This 32 bit word is always transmitted in network byte order
 
 ## Terminology
 
-- Measured data block: Contains one or more complete measured value of a signal.
 - Measured value: A measured value consists at least of one member. Arrays and structs can be used to combine several members to a compound measured value.
 - Member: A member is a base data type carrying some measured information.
 
