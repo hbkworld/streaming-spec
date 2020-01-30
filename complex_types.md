@@ -7,8 +7,6 @@ abstract: This is a proposal how we might describe signals of any complexity.
   [please refer here](https://github.com/HBM/streaming-spec/blob/master/streaming.md).
 ---
 
-
-
 # Transport Layer
 
 The transport layer consists of a header and a variable length
@@ -58,7 +56,11 @@ follows. This 32 bit word is always transmitted in network byte order
 
 # Presentation Layer
 
+## Terminology
 
+- Measured data block: Contains one or more complete measured value of a signal.
+- Measured value: A measured value consists at least of one member. Arrays and structs can be used to combine several members to a compound measured value.
+- Member: A member is a base data type carrying some measured information.
 
 ## Data Types
 
@@ -1179,10 +1181,8 @@ Here we get the following values in 1 data block:
 
 After the meta information describing the signal has been received, delivered measured data blocks are to be interpreted as follows:
 
-- Measured data blocks contain complete measured values with all their members as described in the signal description for the signals.
 - Only members with an explicit rule are transferred.
 - The size of a complete measured value within the measured value data block derives from the sum of the sizes of all explicit members
 - Non explicit members are calculated according their rule (i.e. constant, linear). They take no room within the transferred measured data blocks.
-- A measured data block may contain many complete measured values of a signal.
 
   
