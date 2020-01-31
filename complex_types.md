@@ -1331,4 +1331,4 @@ If this feature is supported, the [Init Meta information`s](#init-meta)
 
 ~~~~ {.javascript}
 true
-~~~
+~~~~
