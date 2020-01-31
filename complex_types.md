@@ -69,7 +69,7 @@ block belongs to. It MUST within a single device. Different
 devices MAY use the same signal numbers. The `Signal Number` is required
 to carry more than one single signal over a single socket connection.
 
-`0` is the `Signal Number` reserved for [Stream Related Meta Information](#stream-related-meta-information) and [Device Related Meta Information](#device-related-meta-information).
+`0` is the `Signal Number` reserved for [Stream Related Meta Information](#stream-related-meta-information).
 
 ## Data Byte Count
 
@@ -381,11 +381,9 @@ Time is delivered as absolute time stamp for each value.
 
 
 
-## Device Related Meta Information
+## Stream Related Meta Information
 
-Everything concerning the whole device.
-Device related Meta information is always sent with [Signal Number](#signal-number) `= 0`
-on the transport layer.
+Everything concerning the stream ([Signal Number](#signal-number) `= 0` on the transport layer)
 
 ### API Version
 
@@ -401,6 +399,73 @@ The version follows the [semver scheme](https://semver.org/).
 This Meta information is always sent directly after connecting to the
 stream socket.
 
+
+### Init Meta
+
+The Init Meta information provides the Stream ID (required for
+[subscribing signals](#command-interfaces)) and a set of
+[optional features](#optional-features--meta-information) supported by the device.
+This Meta information MUST be send directly after the [Version Meta Information](#api-version).
+
+~~~~ {.javascript}
+{
+  "method": "init",
+  "params": {
+    "streamId": <string>,
+    "supported": {
+      "<feature_name>": <feature_description>
+      ...
+    },
+    "commandInterfaces": {
+      "<command_interface_a>": {
+        ... // service details
+      },
+      "<command_interface_b>": {
+        ... // service details
+      }
+	}
+  }
+}
+~~~~
+
+`"streamId"`: A unique ID identifying the stream instance. It is required for
+     using the [Command Interface](#command-interfaces).
+
+`"supported"`: An Object which holds all [optional features](#optional-features--meta-information)
+     supported by the device. If no optional features are supported, this object MAY be empty.
+     The "supported" field's keys always refer to the respective optional feature name.
+     E.g. the key "alive" refers to the
+     [Alive Meta Information](#alive-meta-information). The field's value MUST
+     comply to the respective Feature Value description.
+
+`"commandInterfaces"`: An Object which MUST hold at least one command interface (descriptions)
+     provided by the device. A command interface is required to
+     [subscribe](#subscribe-signal) or [unsubscribe](#unsubscribe-signal) a signal.
+     The key `<command_interface>` MUST be a String which specifies the name of
+     the [command interface](#command-interfaces). The associated Object value
+     describes the command interface in further detail.
+
+### Error
+
+~~~~ {.javascript}
+{
+  "method": "error",
+  "params": {
+      "code": <number>,
+      "message": <string>,
+      "data": <anything>
+    }
+}
+~~~~
+
+This Meta information is always sent on errors.
+
+
+`"code"`: A Number that indicates the error type that occurred. This MUST be an integer.
+
+`"message"`: A String providing a short description of the error.
+
+`"data"`: A Primitive or Structured value that contains additional information about the error. This may be omitted.
 
 
 ### Available signals
@@ -426,10 +491,6 @@ If signals disappear while being connected, there will be an `unavailable` with 
 }
 ~~~~
 
-
-## Stream Specific Meta Information
-
-Everything concerning the stream.
 
 ### Subscribe Related Information
 
@@ -1240,3 +1301,34 @@ After the meta information describing the signal has been received, delivered me
 
   
 # Command Interfaces
+
+
+# Optional Features / Meta Information
+
+## Ringbuffer Fill Level
+
+Is send at will. The value of `fill` is a number
+between 0 and 100 which indicates the stream`s associated data buffer
+fill level. A fill value of 0 means the buffer is empty. A fill value of 100
+means the buffer is full and the associated stream (and the associated
+socket) will be closed as soon as all previously acquired data has been
+send. This meta information is for monitoring purposes only and it is
+not guaranteed to get a fill = 100 before buffer overrun.
+
+### Fill Meta Information
+
+~~~~ {.javascript}
+{
+  "method": "fill",
+  "params": [38]
+}
+~~~~
+
+### Fill Feature Object
+
+If this feature is supported, the [Init Meta information`s](#init-meta)
+"supported" field must have an entry named "fill" with this value:
+
+~~~~ {.javascript}
+true
+~~~
