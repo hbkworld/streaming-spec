@@ -1,6 +1,6 @@
 ---
-title: "How to Model Complex Signals"
-author: Matthias Loy
+title:  HBK Stream Protocol Specification
+author: Version 0.0
 ---
 
 
@@ -33,7 +33,7 @@ allow to subscribe or unsubscribe signals to a streaming instance.
 # Transport Layer 
 
 The transport layer consists of a header and a variable length
-block of data. The structure of the header is depicted below.
+block of data. The header has 32 bit in little endian. The structure of the header is depicted below.
 
 ![A single block on transport layer](images/transport.png)
 
@@ -59,7 +59,8 @@ This field is reserved for future use and must be set to `00b`.
 Indicates the length in bytes of the data block that follows.
 
 If `Size` equals 0x00, the length of the following data block is
-determined by the (optional) `Data Byte Count` field.
+determined by the (optional) `Data Byte Count` field. If content is not understood,
+the parser can read over to the next header and proceed with processing. This is useful if the stream contains information the client is not aware of.
 
 ## Signal Number
 
@@ -68,14 +69,13 @@ block belongs to. It MUST within a single device. Different
 devices MAY use the same signal numbers. The `Signal Number` is required
 to carry more than one single signal over a single socket connection.
 
-`0` is the `Signal Number` reserved for [Stream Related Meta Information](#stream-related-meta-information).
+`0` is the `Signal Number` reserved for [Stream Related Meta Information](#stream-related-meta-information) and [Device Related Meta Information](#device-related-meta-information).
 
 ## Data Byte Count
 
 This field is only present if `Size` equals 0x00. If
 so, `Data Byte Count` represents the length in byte of the data block that
-follows. This 32 bit word is always transmitted in network byte order
-(big endian).
+follows. This 32 bit word is always transmitted in little endian.
 
 # Presentation Layer
 
@@ -83,6 +83,30 @@ follows. This 32 bit word is always transmitted in network byte order
 
 - Measured value: A measured value consists at least of one member. Arrays and structs can be used to combine several members to a compound measured value.
 - Member: A member is a base data type carrying some measured information.
+
+## Signal Data
+
+The `Data` section contains signal data (measurement data acquired by the device) related to the
+respective `Signal_Number`. [Meta Information](#meta-information) MAY be necessary to interpret Signal Data.
+
+## Meta Information
+
+The `Data` section contains additional ("Meta") information related to
+the respective `Signal_Number`. Some [Signal Related
+Metainformation](#signal-related-meta-information) is REQUIRED to correctly
+interpret the respective [Signal Data](#signal-data). Meta Information
+may also carry information about certain events which MAY happen on a
+device like changes of the output rate or time resynchronization.
+
+A Meta information block always consists of a Metainfo_Type and a Metainfo_Data block.
+
+![A Meta Information block](images/meta_block.png)
+
+### Metainfo_Type
+
+The Metainfo_Type indicates how data in the Metainfo_Data block is
+encoded. This 32 bit word is always transmitted in little endian.
+
 
 ## Data Types
 
@@ -356,21 +380,28 @@ Time is delivered as absolute time stamp for each value.
 \pagebreak
 
 
-## Measured Data and Meta Information
 
-HBK Streaming Protocol differentiates between meta information and measured data.
-The meta information describes a device, stream or signal and tells how to interprete the measured data of a signal.
-
-For both meta information and measured data there is a header which includes a signal id telling to which signal they belong to.
-If the data is related to the device, stream the signal id is 0. 
-
-In addition, this header contains length information. If content is not understood,
-the parser can read over to the next header and proceed with processing. This is useful if the stream contains information the client is not aware of.
-
-
-## Device Specific Meta Information
+## Device Related Meta Information
 
 Everything concerning the whole device.
+Device related Meta information is always sent with [Signal Number](#signal-number) `= 0`
+on the transport layer.
+
+### API Version
+
+~~~~ {.javascript}
+{
+  "method": "apiVersion",
+  "params": ["1.0.0"]
+}
+~~~~
+
+The version follows the [semver scheme](https://semver.org/).
+
+This Meta information is always sent directly after connecting to the
+stream socket.
+
+
 
 ### Available signals
 
@@ -400,10 +431,10 @@ If signals disappear while being connected, there will be an `unavailable` with 
 
 Everything concerning the stream.
 
-### Subscribe Meta Information
+### Subscribe Related Information
 
 The string value of the subscribe key always carries the unique signal name of the signal.
-It constitutes the link between the subsrcibed signal name and the signal id used on the transport layer.
+It constitutes the link between the subsrcibed signal name and the `Signal_Number` used on the transport layer.
 
 ~~~~ {.javascript}
 {
@@ -418,9 +449,9 @@ It constitutes the link between the subsrcibed signal name and the signal id use
 
 ### Unsubscribe Meta Information
 
-The unsubscribe Meta information indicates that there will be send no more data with the same signal id upon next subscribe.
+The unsubscribe Meta information indicates that there will be send no more data with the same `Signal_Number` upon next subscribe.
 This Meta information is emitted after a signal got unsubscribed.
-No more data with the same signal id MUST be sent after the unsubscribe acknowledgement.
+No more data with the same `Signal_Number` MUST be sent after the unsubscribe acknowledgement.
 
 
 ~~~~ {.javascript}
