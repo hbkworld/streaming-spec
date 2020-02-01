@@ -110,6 +110,8 @@ encoded. This 32 bit word is always transmitted in little endian.
 
 ## Data Types
 
+### Base Data Types
+
 We support the following base data types:
 
 * int8
@@ -312,7 +314,7 @@ Explicit rule does not have any parameters.
 
 ## Time
 
-The time is mandatory for each signal. It is not part of the signal value.
+The time is mandatory for each signal. It is not part of the measured value.
 It can follow an implicit rule (most likely equidistant or linear) or may be explicit.
 
 ### Time Stamp format
@@ -526,13 +528,70 @@ No more data with the same `Signal_Number` MUST be sent after the unsubscribe ac
 
 ### Signal and Time description
 
-A measured value of a signal consist of one or more members. 
+A measured value of a signal consist of one or more members.
+Each member... 
+
+- MUST have a property `name`
+- MUST have a property `rule`
+- MUST have a property `dataType`
+- MAY have a property `unit`
+
+A signal with just one member has just one [base type](#base-types) value. When there are more than one members, [struct](#struct) and [array](#array) are used to describe the structure.
+
 All members and there properties are described in a signal related meta information `signal`.
-In addition, each signal has time information which is described in a separate `time` meta information.
+[There are some example of signal descriptions in a separate chapter](#Examples-for-Signal-Descriptions).
 
-Here are some examples:
+In addition, each signal has a [time](#time) information which is described in a separate `time` meta information.
 
-#### A Voltage Sensor
+
+  
+## Measured Data
+
+After the meta information describing the signal has been received, measured values are to be interpreted as follows:
+
+- The size of a complete measured value derives from the sum of the sizes of all explicit members
+- Members are send in the same sequence as in the meta information describing the signal
+- Only members with an explicit rule are transferred.
+- Non explicit members are calculated according their rule (i.e. constant, linear). They take no room within the transferred measured data blocks.
+
+  
+# Command Interfaces
+
+
+# Optional Features / Meta Information
+
+## Ringbuffer Fill Level
+
+Is send at will. The value of `fill` is a number
+between 0 and 100 which indicates the stream`s associated data buffer
+fill level. A fill value of 0 means the buffer is empty. A fill value of 100
+means the buffer is full and the associated stream (and the associated
+socket) will be closed as soon as all previously acquired data has been
+send. This meta information is for monitoring purposes only and it is
+not guaranteed to get a fill = 100 before buffer overrun.
+
+### Fill Meta Information
+
+~~~~ {.javascript}
+{
+  "method": "fill",
+  "params": [38]
+}
+~~~~
+
+### Fill Feature Object
+
+If this feature is supported, the [Init Meta information`s](#init-meta)
+"supported" field must have an entry named "fill" with this value:
+
+~~~~ {.javascript}
+true
+~~~~
+
+
+# Examples for Signal Descriptions
+
+## A Voltage Sensor
 
 The signal has 1 scalar value. Synchronous output rate is 100 Hz
 
@@ -570,7 +629,9 @@ The device sends the following signal-specific meta information.
 }
 ~~~~
 
-Each Measured value contains a single float value which is the value of this signal. No time stamps.
+Transferred signal data for one measured value:
+
+A single float value which is the value of this signal. No time stamps.
 
 ~~~~
 float
@@ -579,7 +640,7 @@ float
 
 
 
-#### A CAN Decoder
+## A CAN Decoder
 
 The signal has a simple scalar member.
 
@@ -611,7 +672,7 @@ The device sends the following signal-specific meta information:
 }
 ~~~~
 
-Each Measured value has an absolute time stamp and one uint32 member.
+Transferred signal data for one measured value:
 
 ~~~~
 time stamp (uint64)
@@ -619,7 +680,7 @@ uint32
 ~~~~
 
 
-#### A Simple Counter
+## A Simple Counter
 
 This is for counting events that happens at any time (explicit rule).
 
@@ -654,14 +715,14 @@ This is for counting events that happens at any time (explicit rule).
 
 `counter` has a linear rule with a step width of 2, hence `counter` won't be transferred.
 
-A measured value is transferred as:
+Transferred signal data for one measured value:
 
 ~~~~
 time stamp (uint64)
 ~~~~
 
 
-#### An Absolute Rotary Encoder
+## An Absolute Rotary Encoder
 
 - The measured value is expressed as a base data type
 - `angle` is explicit, it can go back and forth
@@ -687,7 +748,8 @@ time stamp (uint64)
 }
 ~~~~
 
-A measured value is transferred as: One absolute time stamp the angle.
+Transferred signal data for one measured value:
+One absolute time stamp the angle.
 
 ~~~~
 time stamp (uint64)
@@ -696,7 +758,7 @@ angle (double)
 
 
 
-#### An Incremental Rotary Encoder with start Position
+## An Incremental Rotary Encoder with start Position
 
 - The measured value is expressed as a base data type
 - The counter representing the angle follows a linear rule, it can go back and forth
@@ -732,7 +794,7 @@ angle (double)
 This is similar to the simple counter. 
 `angle` changes by a known amount of 1. Only time stamps are being reansferred.
 
-A measured value is transferred as:
+Transferred signal data for one measured value:
 
 ~~~~
 time stamp (uint64)
@@ -770,7 +832,7 @@ This type of counter is usefull when having a high counting rate with only few c
 
 
 
-#### A Spectrum
+## A Spectrum
 
 The signal consists of a spectum
 
@@ -836,7 +898,8 @@ Only struct member `amplitude` is explicit, hence this is the data to be transfe
 }
 ~~~~
 
-A measured value is transferred as: One absolute time stamp followed by 1024 amplitude double values. There will be no frequency values because they are implicit.
+Transferred signal data for one measured value:
+One absolute time stamp followed by 1024 amplitude double values. There will be no frequency values because they are implicit.
 
 
 ~~~~
@@ -849,7 +912,7 @@ spectrum amplitude 1024 (double)
 
 
 
-#### An Optical Spectrum with Peak Values
+## An Optical Spectrum with Peak Values
 
 The signal consists of a spectum and an array of peak values. Number of peaks is fixed 16.
 If the number of peaks does change, there will be a meta information telling about the new amount (`count`) of peaks!
@@ -922,7 +985,7 @@ Meta information describing the signal:
 }
 ~~~~
 
-A measured value is transferred as:
+Transferred signal data for one measured value:
 
 - 1 absolute time stamp
 - 1024 spectrum amplitude double values. No spectrum frequncy values because those are implicit.
@@ -948,7 +1011,7 @@ amplitude point 16 (double)
 
 
 
-#### Statistics {#Statistics}
+## Statistics {#Statistics}
 
 Statistics consists of N "counters" each covering a value interval. If the measured value is within a counter interval, then that counter is incremented.
 For instance the interval from 50 to 99 dB might be covered by 50 counters. Each of these counters then would cover 1 dB.
@@ -1035,7 +1098,7 @@ It has its own function description.
 }
 ~~~~
 
-A measured value is transferred as:
+Transferred signal data for one measured value:
 
 - 1 absolute time stamp.
 - 50 uint64 for the 50 counters,
@@ -1054,7 +1117,7 @@ lower than counter (uint64)
 total counter (uint64)
 ~~~~
 
-#### Run up
+## Run up
 
 This is an array of 15 structs containing a fft and a frequency.
 Fft amplitudes and frenqeuncy are explicit.
@@ -1118,8 +1181,8 @@ We'll get the following signal specific meta information:
 ~~~~
 
 
-A measured value is transferred as: One absolute time stamp followed by 15
-frequencies with the corresponding spectra containing 100 amplitude values each.
+Transferred signal data for one measured value:
+One absolute time stamp followed by 15 frequencies with the corresponding spectra containing 100 amplitude values each.
 
 ~~~~
 time stamp (uint64)
@@ -1145,7 +1208,7 @@ amplitude 2 belonging to frequency 15 (double)
 amplitude 100 belonging to frequency 15 (double)
 ~~~~
 
-#### Point in Cartesian Space
+## Point in Cartesian Space
 
 Depending on the the number of dimensions n, 
 The value is a struct of n double values. In this example we choose 3 dimensions x, y, and z.
@@ -1195,7 +1258,7 @@ We'll get the following signal specific meta information:
 }
 ~~~~
 
-A measured value is transferred as: One abolute time stamp and three double values.
+Transferred signal data for one measured value: One abolute time stamp and three double values.
 
 ~~~~
 time stamp (uint64)
@@ -1206,7 +1269,7 @@ z (double)
 
 
 
-#### Harmonic Analysis
+## Harmonic Analysis
 
 The result delivered from harmonic analysis done by HBK Genesis/Perception is fairly complex.
 One combined value consists of the following:
@@ -1295,7 +1358,7 @@ We'll get the following signal specific meta information:
 }
 ~~~~
 
-A measured value is transferred as:
+Transferred signal data for one measured value:
 
 - 1 time stamp as uint64
 - a double value distortion
@@ -1328,46 +1391,4 @@ amplitude of harmonic 50 (double)
 phase of harmonic 50 (double)
 ~~~~
   
-  
-## Measured Data
 
-After the meta information describing the signal has been received, measured values are to be interpreted as follows:
-
-- The size of a complete measured value derives from the sum of the sizes of all explicit members
-- Members are send in the same sequence as in the meta information describing the signal
-- Only members with an explicit rule are transferred.
-- Non explicit members are calculated according their rule (i.e. constant, linear). They take no room within the transferred measured data blocks.
-
-  
-# Command Interfaces
-
-
-# Optional Features / Meta Information
-
-## Ringbuffer Fill Level
-
-Is send at will. The value of `fill` is a number
-between 0 and 100 which indicates the stream`s associated data buffer
-fill level. A fill value of 0 means the buffer is empty. A fill value of 100
-means the buffer is full and the associated stream (and the associated
-socket) will be closed as soon as all previously acquired data has been
-send. This meta information is for monitoring purposes only and it is
-not guaranteed to get a fill = 100 before buffer overrun.
-
-### Fill Meta Information
-
-~~~~ {.javascript}
-{
-  "method": "fill",
-  "params": [38]
-}
-~~~~
-
-### Fill Feature Object
-
-If this feature is supported, the [Init Meta information`s](#init-meta)
-"supported" field must have an entry named "fill" with this value:
-
-~~~~ {.javascript}
-true
-~~~~
