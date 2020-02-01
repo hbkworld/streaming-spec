@@ -570,7 +570,14 @@ The device sends the following signal-specific meta information.
 }
 ~~~~
 
-Data block contains the value of this signal encoded float. No time stamps.
+Each Measured value contains a single float value which is the value of this signal. No time stamps.
+
+~~~~
+float
+~~~~
+
+
+
 
 #### A CAN Decoder
 
@@ -588,7 +595,7 @@ The device sends the following signal-specific meta information:
   "params" : {
     "name": "decoder 6",
     "rule": "explicit",
-    "dataType": "u32",
+    "dataType": "uint32",
     "unit": "decoder unit"
   }
 }
@@ -604,7 +611,13 @@ The device sends the following signal-specific meta information:
 }
 ~~~~
 
-Each value point has an absolute time stamp and one u32 member.
+Each Measured value has an absolute time stamp and one uint32 member.
+
+~~~~
+time stamp (uint64)
+uint32
+~~~~
+
 
 #### A Simple Counter
 
@@ -620,7 +633,7 @@ This is for counting events that happens at any time (explicit rule).
   "method": "signal",
   "params" : {
     "name": "counter",
-    "dataType": "u32",
+    "dataType": "uint32",
     "rule" : "linear",
     "linear": {
       "start" : 0,
@@ -639,8 +652,13 @@ This is for counting events that happens at any time (explicit rule).
 }
 ~~~~
 
-`counter` has a linear rule with a step width of 2, hence `counter` won't be transferred. Data blocks will contain timestamps only.
+`counter` has a linear rule with a step width of 2, hence `counter` won't be transferred.
 
+A measured value is transferred as:
+
+~~~~
+time stamp (uint64)
+~~~~
 
 
 #### An Absolute Rotary Encoder
@@ -653,9 +671,9 @@ This is for counting events that happens at any time (explicit rule).
 {
   "method": "signal",
   "params" : {
-    "rule": "explicit",
     "name": "angle",
-    "dataType": "i32",
+    "rule": "explicit",
+    "dataType": "double",
   }
 }
 ~~~~
@@ -669,7 +687,12 @@ This is for counting events that happens at any time (explicit rule).
 }
 ~~~~
 
-Data block will contain a tuple of `angle` and an absolute time stamp. There will be no meta ionformation when direction changes.
+A measured value is transferred as: One absolute time stamp the angle.
+
+~~~~
+time stamp (uint64)
+angle (double)
+~~~~
 
 
 
@@ -686,11 +709,11 @@ Data block will contain a tuple of `angle` and an absolute time stamp. There wil
 {
   "method": "signal",
   "params" : {
+    "name": "angle",
     "rule": "linear",
     "linear": {
       "delta": 1,
     },
-    "name": "angle",
     "dataType": "i32",
   }
 }
@@ -706,8 +729,16 @@ Data block will contain a tuple of `angle` and an absolute time stamp. There wil
 ~~~~
 
 
-This is similar to the simple counter. Data blocks will contain timestamps only.
+This is similar to the simple counter. 
 `angle` changes by a known amount of 1. Only time stamps are being reansferred.
+
+A measured value is transferred as:
+
+~~~~
+time stamp (uint64)
+~~~~
+
+
 
 We get a (partial) meta information with a `start` value of the counter every time the zero index is being crossed:
 
@@ -758,6 +789,7 @@ In addition we introduce the `function` object which helps the client to intepre
 
 ~~~~ {.javascript}
 {
+  "name": "Spectrum",
   "function" : {
     "type": "spectrum"
   },
@@ -804,8 +836,18 @@ Only struct member `amplitude` is explicit, hence this is the data to be transfe
 }
 ~~~~
 
+A measured value is transferred as: One absolute time stamp followed by 1024 amplitude double values. There will be no frequency values because they are implicit.
 
-Data block will contain an absolute time stamp followed by 1024 amplitude double values. There will be no frequency values because they are implicit.
+
+~~~~
+time stamp (uint64)
+spectrum amplitude 1 (double)
+spectrum amplitude 2 (double)
+...
+spectrum amplitude 1024 (double)
+~~~~
+
+
 
 #### An Optical Spectrum with Peak Values
 
@@ -880,12 +922,28 @@ Meta information describing the signal:
 }
 ~~~~
 
-Data block will contain:
+A measured value is transferred as:
 
 - 1 absolute time stamp
 - 1024 spectrum amplitude double values. No spectrum frequncy values because those are implicit.
 - 16 amplitude, frequency pairs.
 
+
+~~~~
+time stamp (uint64)
+spectrum amplitude 1 (double)
+spectrum amplitude 2 (double)
+...
+spectrum amplitude 1024 (double)
+
+frequency point 1 (double)
+amplitude point 1 (double)
+frequency point 2 (double)
+amplitude point 2 (double)
+...
+frequency point 16 (double)
+amplitude point 16 (double)
+~~~~
 
 
 
@@ -906,7 +964,7 @@ Above we described two alternatives describing the histrogram within the signal 
 
 ~~~~ {.javascript}
 {
-  "name": "statistic",
+  "name": "Statistic",
   "function" : { 
     "type": "statistic"
   },
@@ -977,8 +1035,7 @@ It has its own function description.
 }
 ~~~~
 
-
-Everything will be in 1 data block:
+A measured value is transferred as:
 
 - 1 absolute time stamp.
 - 50 uint64 for the 50 counters,
@@ -986,84 +1043,16 @@ Everything will be in 1 data block:
 - 1 uint64 for the lower than counter
 - 1 uint64 for the total counter
 
-
-#### Spectral Statistics
-
-Spectral statistics is a swarm of statistics over an additional axis.
-This axis could for instance be a CPB axis, for each CPB band there is a statistic.
-
-Example: 50 - 99 dB spectral statistics on a 1/3 octave CPB:
-
-
-This is made up from an array of structs containing a histogram, lower than counter, higher than counter and a frequency
-
-We'll get the following signal specific meta information:
-
-~~~~ {.javascript}
-{
-  "method": "signal",
-  "params": {
-    "function": {
-      "type": "spectralStatistics"
-    },
-    "array": {
-      "count": 15,
-      "struct": [
-        {
-          "name": "frequency",
-          "dataType": "double",
-          "rule": "explicit"
-        },
-        {
-          "name": "fft",
-          "function": {
-            "type": "spectrum"
-          },
-          "array": {
-            "count": 100,
-            "struct": [
-              {
-                "name": "amplitude",
-                "dataType": "double",
-                "unit": "dB",
-                "rule": "explicit"
-              },
-              {
-                "name": "frequency",
-                "dataType": "double",
-                "unit": "Hz",
-                "rule": "linear",
-                "linear": {
-                  "delta": 10,
-                  "start": 1000
-                }
-              }
-            ]
-          }
-        }
-      ]
-    }
-  }
-}
 ~~~~
-
-~~~~ {.javascript}
-{
-  "method": "time",
-  "params" : {
-    "rule": "explicit",
-    "dataType": "time"
-  }
-}
+time stamp (uint64)
+counter 1 (uint64)
+counter 2 (uint64)
+...
+counter 50 (uint64)
+higher than counter (uint64)
+lower than counter (uint64)
+total counter (uint64)
 ~~~~
-
-
-Data block will contain a absolute time stamp followed by:
-- 15 statistics, each containing:
-  * 50 uint64 for the 50 histogram classes,
-  * 1 uint64 for the higher than counter
-  * 1 uint64 for the lower than counter
-
 
 #### Run up
 
@@ -1129,10 +1118,32 @@ We'll get the following signal specific meta information:
 ~~~~
 
 
-
-Data block will contain an absolute time stamp followed by 15
+A measured value is transferred as: One absolute time stamp followed by 15
 frequencies with the corresponding spectra containing 100 amplitude values each.
 
+~~~~
+time stamp (uint64)
+
+frequency 1 (double)
+amplitude 1 belonging to frequency 1 (double)
+amplitude 2 belonging to frequency 1 (double)
+...
+amplitude 100 belonging to frequency 1 (double)
+
+frequency 2 (double)
+amplitude 1 belonging to frequency 2 (double)
+amplitude 2 belonging to frequency 2 (double)
+...
+amplitude 100 belonging to frequency 2 (double)
+
+...
+
+frequency 15 (double)
+amplitude 1 belonging to frequency 15 (double)
+amplitude 2 belonging to frequency 15 (double)
+...
+amplitude 100 belonging to frequency 15 (double)
+~~~~
 
 #### Point in Cartesian Space
 
@@ -1145,6 +1156,7 @@ We'll get the following signal specific meta information:
 {
   "method": "signal",
   "params": {
+    "name": "coordinate",
     "function" : {
       "type": "cartesianCoordinate"
     },
@@ -1183,10 +1195,14 @@ We'll get the following signal specific meta information:
 }
 ~~~~
 
-We receive 1 data block with one abolute time stamp and a struct with three double values.
+A measured value is transferred as: One abolute time stamp and three double values.
 
-
-
+~~~~
+time stamp (uint64)
+x (double)
+y (double)
+z (double)
+~~~~
 
 
 
@@ -1215,8 +1231,9 @@ We'll get the following signal specific meta information:
 {
   "method": "signal",
   "params": {
-    "function" : {
-      "type": "spectralAnalysis"
+    "name": "Harmonic analysis",
+    "function": {
+      "type": "harmonicAnalysis"
     },
     "struct": [
       {
@@ -1238,12 +1255,12 @@ We'll get the following signal specific meta information:
       },
       {
         "name": "cycleCount",
-        "dataType": "double",
+        "dataType": "uint32",
         "rule": "explicit"
       },
       {
         "name": "harmonicCount",
-        "dataType": "double",
+        "dataType": "unit32",
         "rule": "explicit"
       },
       {
@@ -1278,7 +1295,7 @@ We'll get the following signal specific meta information:
 }
 ~~~~
 
-Here we get the following values in 1 data block:
+A measured value is transferred as:
 
 - 1 time stamp as uint64
 - a double value distortion
@@ -1291,12 +1308,34 @@ Here we get the following values in 1 data block:
   * a double value with the phase of the harmonic
   
   
+~~~~
+time stamp (uint64)
+distortion (double)
+fundemantal frequency (double)
+dc amplitude (double)
+cycle count (unit32)
+harmonics count (uint32)
+  
+harmonic 1
+amplitude of harmonic 1 (double)
+phase of harmonic 1 (double)
+harmonic 2
+amplitude of harmonic 2 (double)
+phase of harmonic 2 (double)
+...
+harmonic 50
+amplitude of harmonic 50 (double)
+phase of harmonic 50 (double)
+~~~~
+  
+  
 ## Measured Data
 
-After the meta information describing the signal has been received, delivered measured data blocks are to be interpreted as follows:
+After the meta information describing the signal has been received, measured values are to be interpreted as follows:
 
+- The size of a complete measured value derives from the sum of the sizes of all explicit members
+- Members are send in the same sequence as in the meta information describing the signal
 - Only members with an explicit rule are transferred.
-- The size of a complete measured value within the measured value data block derives from the sum of the sizes of all explicit members
 - Non explicit members are calculated according their rule (i.e. constant, linear). They take no room within the transferred measured data blocks.
 
   
