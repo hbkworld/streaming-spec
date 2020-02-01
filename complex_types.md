@@ -312,74 +312,7 @@ Explicit rule does not have any parameters.
 \pagebreak
 
 
-## Time
 
-The time is mandatory for each signal. It is not part of the measured value.
-It can follow an implicit rule (most likely equidistant or linear) or may be explicit.
-
-### Time Stamp format
-
-We are going to use the B&K time stamping format. 
-
-It uses a so called family time base, which is the base frequency of the time stamp counter. Absolute time stamps are 64 bits ticks since 1970 (unix epoch).
-
-The family time base frequency is determined as follows: 
-2^k * 3^l * 5^m * 7^n Hz
-
-Where k, l, m and n range from 0 to 255.
-
-
-### Linear Time
-Equidistant time is described as a [linear implicit rule](#Linear_Rule).
-To calculate the absolute time for linear time, there needs to
-be an absolute start time and a delta time.
-Both can be delivered by a separate, signal specific, meta information.
-
-- The delta is mandatory.
-- The absolute time always belongs to the next following value
-- The device might deliver the absolute time before delivering the first value point.
-- If the device does not possess a clock, there might be no absolute time at all.
-- The device might deliver the absolute time whenever its clock is being set (resynchronization).
-- It might deliver a new absolute time after a pause or any other abberation in the equidistant time
-
-
-~~~~ {.javascript}
-{
-  "method": "time",
-  "params": {
-    "rule": "linear",
-    "linear": {
-      "start": <value>, // Always in ISO8601 format
-      "delta": <value>,
-    },
-    "unit": <unit object>,
-    "dataType": "time",
-}
-~~~~
-
-- `method`: Type of meta information
-- `rule`: type of rule
-- `unit`: Unit. Could be s, ms, Hz, mHz etc.
-- `linear/start`: The absolute timestamp for the next value point.
-- `linear/delta`: The time difference between two value points
-
-### Explicit Time
-Time is delivered as absolute time stamp for each value.
-
-~~~~ {.javascript}
-{
-  "method": "time",
-  "params": {
-    "rule": "explicit",
-    "unit": <unit object>,
-    "dataType": "time"
-  }
-}
-~~~~
-
-- `method`: Type of meta information
-
-\pagebreak
 
 
 
@@ -472,8 +405,8 @@ This Meta information is always sent on errors.
 
 ### Available signals
 
-If connecting to the streaming server, the names of all signals that are currently available will be delivered.
-If new signals appear afterwards, those new signals will be introduced by sending an `available` with the new signal names.
+If connecting to the streaming server, the names of all signals that are currently available MUST be delivered.
+If new signals appear afterwards, those new signals MUST be introduced by sending an `available` with the new signal names.
 
 ~~~~ {.javascript}
 {
@@ -484,7 +417,7 @@ If new signals appear afterwards, those new signals will be introduced by sendin
 
 ### Unavailable signals
 
-If signals disappear while being connected, there will be an `unavailable` with the names of all signals that disappeared.
+If signals disappear while being connected, there MUST be an `unavailable` with the names of all signals that disappeared.
 
 ~~~~ {.javascript}
 {
@@ -512,7 +445,7 @@ It constitutes the link between the subsrcibed signal name and the `Signal_Numbe
 
 ### Unsubscribe Meta Information
 
-The unsubscribe Meta information indicates that there will be send no more data with the same `Signal_Number` upon next subscribe.
+The unsubscribe Meta information indicates that there MUST NOT be send any data with the same `Signal_Number` upon next subscribe.
 This Meta information is emitted after a signal got unsubscribed.
 No more data with the same `Signal_Number` MUST be sent after the unsubscribe acknowledgement.
 
@@ -526,7 +459,7 @@ No more data with the same `Signal_Number` MUST be sent after the unsubscribe ac
 
 ## Signal Specific Meta Information
 
-### Signal and Time description
+### Signal Description
 
 A measured value of a signal consist of one or more members.
 Each member... 
@@ -534,16 +467,89 @@ Each member...
 - MUST have a property `name`
 - MUST have a property `rule`
 - MUST have a property `dataType`
-- MAY have a property `unit`
+- MAY have a [`unit` object`](#unit-object)
 
 A signal with just one member has just one [base type](#base-types) value. When there are more than one members, [struct](#struct) and [array](#array) are used to describe the structure.
 
 All members and there properties are described in a signal related meta information `signal`.
 [There are some example of signal descriptions in a separate chapter](#Examples-for-Signal-Descriptions).
 
-In addition, each signal has a [time](#time) information which is described in a separate `time` meta information.
+### Time Meta Information
+
+Each signal has a time information which is described in a separate `time` meta information.
+
+The time is mandatory for each signal. It is not part of the measured value.
+It can follow an implicit rule (most likely equidistant or linear) or may be explicit.
+
+#### Time Format
+
+We are going to use the B&K time stamping format. 
+
+It uses a so called family time base, which is the base frequency of the time stamp counter. Absolute time stamps are 64 bits ticks since 1970 (unix epoch).
+This format is very suitable to express and calculate time differences.
+
+The family time base frequency is determined as follows:
+2^k * 3^l * 5^m * 7^n Hz
+
+Where k, l, m and n range from 0 to 255.
+
+#### Linear Time
+Equidistant time is described as a [linear implicit rule](#Linear_Rule).
+To calculate the absolute time for linear time, there needs to
+be an absolute start time and a delta time.
+Both can be delivered by a separate, signal specific, meta information.
+
+- The delta is mandatory.
+- The absolute time always belongs to the next following value
+- The device might deliver the absolute time before delivering the first value point.
+- If the device does not possess a clock, there might be no absolute time at all.
+- The device might deliver the absolute time whenever its clock is being set (resynchronization).
+- It might deliver a new absolute time after a pause or any other abberation in the equidistant time
 
 
+~~~~ {.javascript}
+{
+  "method": "time",
+  "params": {
+    "rule": "linear",
+    "linear": {
+      "start": <value>, // Always in ISO8601 format
+      "delta": <value>,
+    },
+    "unit": <unit object>,
+    "dataType": "time",
+}
+~~~~
+
+- `method`: Type of meta information
+- `rule`: type of rule
+- `unit`: Unit. Could be s, ms, Hz, mHz etc.
+- `linear/start`: The absolute timestamp for the next value point.
+- `linear/delta`: The time difference between two value points
+
+#### Explicit Time
+Time is delivered as absolute time stamp for each value.
+
+~~~~ {.javascript}
+{
+  "method": "time",
+  "params": {
+    "rule": "explicit",
+    "unit": <unit object>,
+    "dataType": "time"
+  }
+}
+~~~~
+
+- `method`: Type of meta information
+
+### Unit Object
+
+to be done:
+
+- Units can be fairly complex ("V" "kg*m/s^2=N" "Nm") they need to be described. 
+- Do we use SI units only? (cd, kg, m, s, A, K, mol) (everything is mertic)
+- Should the units be understood to make calcultations using them (2500 g = 2.5 kg)
   
 ## Measured Data
 
@@ -557,6 +563,7 @@ After the meta information describing the signal has been received, measured val
   
 # Command Interfaces
 
+to be done
 
 # Optional Features / Meta Information
 
