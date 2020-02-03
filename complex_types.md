@@ -84,6 +84,9 @@ follows. This 32 bit word is always transmitted in little endian.
 ## Terminology
 
 - Signal: A signal is a data source delivering signal values. On the transport layer, each signal has a unique `Signal Number`. On the representation layer, each signal has a unique `Signal name`.
+
+- Unique signal id: Each signal has an id that is unique on the device. It is used to deteremine the signal on the presentation layer.
+
 - Signal value: A signal value consists at least of one member. Arrays and structs can be used to combine several members to a compound signal value.
 - Member: A member is a base data type carrying some measured information.
 - Time Family: Describes how time stamps are to be interpreted.
@@ -445,7 +448,7 @@ It constitutes the link between the subsrcibed signal name and the `Signal_Numbe
 ~~~~ {.javascript}
 {
   "method": "subscribe",
-  "params": <signal name>
+  "params": <unique signal id>
 }
 ~~~~
 
@@ -773,12 +776,15 @@ This is for counting events that happens at any time (explicit rule).
 {
   "method": "signal",
   "params" : {
-    "name": "counter",
-    "dataType": "uint32",
-    "rule" : "linear",
-    "linear": {
-      "start" : 0,
-      "delta" : 2
+    "id": <string>
+    "typeDefinition" : {
+      "name": "counter",
+      "dataType": "uint32",
+      "rule" : "linear",
+      "linear": {
+        "start" : 0,
+        "delta" : 2
+      }
     }
   }
 }
@@ -929,7 +935,7 @@ In addition we introduce the `function` object which helps the client to intepre
 
 ~~~~ {.javascript}
 {
-  "name": "Spectrum",
+  "name": "spectrum",
   "function" : {
     "type": "spectrum"
   },
@@ -1105,53 +1111,56 @@ Above we described two alternatives describing the histrogram within the signal 
 
 ~~~~ {.javascript}
 {
-  "name": "Statistic",
-  "function" : { 
-    "type": "statistic"
-  },
-  "struct": [
-    {
-      "name": "histogram",
-      "function" : { 
-        "type": "histogram"
-      },
-      "array": {
-        "count": 50,
-        "struct": [
-          {
-            "name": "count",
-            "dataType": "uint64",
-            "rule": "explicit"
-          },
-          {
-            "name": "class",
-            "dataType": "double",
-            "unit": "Hz",
-            "rule": "linear",
-            "linear": {
-              "delta": 1,
-              "start": 50
+  "method": "signal",
+  "params": {
+    "name": "Statistic",
+    "function" : { 
+      "type": "statistic"
+    },
+    "struct": [
+      {
+        "name": "histogram",
+        "function" : { 
+          "type": "histogram"
+        },
+        "array": {
+          "count": 50,
+          "struct": [
+            {
+              "name": "count",
+              "dataType": "uint64",
+              "rule": "explicit"
+            },
+            {
+              "name": "class",
+              "dataType": "double",
+              "unit": "Hz",
+              "rule": "linear",
+              "linear": {
+                "delta": 1,
+                "start": 50
+              }
             }
-          }
-        ]
+          ]
+        }
+      },
+      {
+        "name": "lowerThanCounter",
+        "dataType": "uint64",
+        "rule": "explicit"
+      },
+      {
+        "name": "higherThanCounter",
+        "dataType": "uint64",
+        "rule": "explicit"
+      },
+      {
+        "name": "totalCounter",
+        "dataType": "uint64",
+        "rule": "explicit"
       }
-    },
-    {
-      "name": "lowerThanCounter",
-      "dataType": "uint64",
-      "rule": "explicit"
-    },
-    {
-      "name": "higherThanCounter",
-      "dataType": "uint64",
-      "rule": "explicit"
-    },
-    {
-      "name": "totalCounter",
-      "dataType": "uint64",
-      "rule": "explicit"
-    }
-  ]
+    ]
+  }
 }
 ~~~~
 
@@ -1372,56 +1381,61 @@ We'll get the following signal specific meta information:
 {
   "method": "signal",
   "params": {
-    "name": "Harmonic analysis",
-    "function": {
-      "type": "harmonicAnalysis"
-    },
-    "struct": [
-      {
-        "name": "distortion",
-        "dataType": "double",
-        "rule": "explicit"
+    "id" : <unique signal id>,
+    "typeDefinition": {
+      "name": "harmonicAnalysis",
+      "function": {
+        "type": "harmonicAnalysis"
       },
-      {
-        "name": "fundamentalFrequency",
-        "dataType": "double",
-        "rule": "explicit"
-        "unit": "Hz"
-      },
-      {
-        "name": "dcAmplitude",
-        "dataType": "double",
-        "rule": "explicit",
-        "unit": "V"
-      },
-      {
-        "name": "cycleCount",
-        "dataType": "uint32",
-        "rule": "explicit"
-      },
-      {
-        "name": "harmonicCount",
-        "dataType": "unit32",
-        "rule": "explicit"
-      },
-      {
-        "name": "harmonics",
-        "array": {
-          "count": 50,
-          "struct": [
-            {
-              "name": "amplitude",
-              "rule": "explicit"
-            },
-            {
-              "name": "phase",
-              "unit": "rad",
-              "rule": "explicit"
-            }
-          ]
+      "dataType": "struct",
+      "struct": [
+        {
+          "name": "distortion",
+          "dataType": "double",
+          "rule": "explicit"
+        },
+        {
+          "name": "fundamentalFrequency",
+          "dataType": "double",
+          "rule": "explicit",
+          "unit": "Hz"
+        },
+        {
+          "name": "dcAmplitude",
+          "dataType": "double",
+          "rule": "explicit",
+          "unit": "V"
+        },
+        {
+          "name": "cycleCount",
+          "dataType": "uint32",
+          "rule": "explicit"
+        },
+        {
+          "name": "harmonicCount",
+          "dataType": "unit32",
+          "rule": "explicit"
+        },
+        {
+          "name": "harmonics",
+          "dataType": "array",
+          "array": {
+            "count": 50,
+            "struct": [
+              {
+                "name": "amplitude",
+                "rule": "explicit"
+              },
+              {
+                "name": "phase",
+                "unit": "rad",
+                "rule": "explicit"
+              }
+            ]
+          }
         }
-      }
-    ]
+      ]
+    }
   }
 }
 ~~~~
