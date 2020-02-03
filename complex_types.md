@@ -1035,7 +1035,10 @@ Meta information describing the signal:
   "params": {
     "id" : <unique signal id>,
     "typeDefinition" : {
-      "name": "opticalSpectrumWithPeakValues",
+      "name": "spectrumWithPeakValues",
+      "function" : {
+        "type": "spectrumWithPeakValues"
+      },
       "struct": [
         {
           "name": "spectrum",
