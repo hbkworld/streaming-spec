@@ -150,6 +150,7 @@ An array of members of the same type. The number of elements is fixed.
 
 ~~~~ {.javascript}
 {
+  "dataType" : "array",
   "array": {
     "count": 50,
     <member description>
@@ -167,6 +168,7 @@ A combination of named members which may be of different types.
 
 ~~~~ {.javascript}
 {
+  "dataType" : "struct",
   "struct": [
     {
       "name" : <member name>
@@ -472,28 +474,17 @@ No more data with the same `Signal_Number` MUST be sent after the unsubscribe ac
 
 ## Signal Specific Meta Information
 
+Each signal is described in a signal related meta information `signal`.
+[There are some example of signal descriptions in a separate chapter](#Examples-for-Signal-Descriptions).
 
-### Data Formats
-
-~~~~ {.javascript}
-{
-  "method": "data",
-  "params" : {
-    "endian": "little" | "big",    
-    }
-  }
-}
-~~~~
-         
-`"endian"`: Describes the byte endianess of the [Signal Data](#signal-data) and timestamps, either
-
-  - "big"; Big endian byte order (network byte order).
-  - "little"; Little endian byte order.
-
-
-### Signal Description
+### Signal Type Definition
 
 A signal value of a signal consist of one or more members.
+All members and their properties are described in the `typeDefinition` object in the `signal` meta information.
+[There are some example of signal descriptions in a separate chapter](#Examples-for-Signal-Descriptions).
+
+#### Signal Members
+
 Each member... 
 
 - MUST have a property `name`
@@ -504,18 +495,13 @@ Each member...
 
 A signal with just one member has just one [base type](#base-types) value. When there are more than one members, [struct](#struct) and [array](#array) are used to describe the structure.
 
-All members and there properties are described in a signal related meta information `signal`.
-[There are some example of signal descriptions in a separate chapter](#Examples-for-Signal-Descriptions).
 
 ~~~~ {.javascript}
 {
-  "method": "signal",
-  "params" : {
-    "name": <string>,
-    "rule": <type of rule as string>,
-    "dataType": <data type as string>,
-    "unit": <optional unit of the member>
-  }
+  "name": <string>,
+  "rule": <type of rule as string>,
+  "dataType": <data type as string>,
+  "unit": <optional unit of the member>
 }
 ~~~~
 
@@ -591,9 +577,8 @@ Both can be delivered by a separate, signal specific, meta information.
     "rule": "linear",
     "linear": {      
       "start": uint64,
-      "delta": uint64,
-    },
-    "dataType": "time",
+      "delta": uint64
+    }
 }
 ~~~~
 
@@ -611,8 +596,7 @@ Time is delivered as absolute time stamp for each value.
 {
   "method": "time",
   "params": {
-    "rule": "explicit",
-    "dataType": "time"
+    "rule": "explicit"
   }
 }
 ~~~~
@@ -689,10 +673,13 @@ The device sends the following signal-specific meta information.
 {
   "method": "signal",
   "params" : {
-    "name": "voltage 1",
-    "rule": "explicit",
-    "dataType": "float",
-    "unit": "V",
+    "id": <unique signal id>,
+    "typeDefinition" : {
+      "name": "voltage",
+      "rule": "explicit",
+      "dataType": "float",
+      "unit": "V"
+    }
   }
 }
 ~~~~
@@ -703,11 +690,9 @@ The device sends the following signal-specific meta information.
   "params" : {
     "rule": "linear",
     "linear": {
-      "start": "2007-12-24T18:21:16,3Z"
+      "start": "2007-12-24T18:21:16,3Z",
       "delta": "10 ms"
-    },
-    "dataType": "time"
-    "unit": "???"
+    }
   ]
 }
 ~~~~
@@ -737,10 +722,13 @@ The device sends the following signal-specific meta information:
 {
   "method": "signal",
   "params" : {
-    "name": "decoder 6",
-    "rule": "explicit",
-    "dataType": "uint32",
-    "unit": "decoder unit"
+    "id" : <unique signal id>,
+    "typeDefinition" : {
+		"name": "decoder",
+		"rule": "explicit",
+		"dataType": "uint32",
+		"unit": "decoder unit"
+	}
   }
 }
 ~~~~
@@ -749,8 +737,7 @@ The device sends the following signal-specific meta information:
 {
   "method": "time",
   "params" : {
-    "rule": "explicit",
-    "dataType": "time"
+    "rule": "explicit"
   }
 }
 ~~~~
@@ -776,7 +763,7 @@ This is for counting events that happens at any time (explicit rule).
 {
   "method": "signal",
   "params" : {
-    "id": <string>
+    "id": <unique signal id>,
     "typeDefinition" : {
       "name": "counter",
       "dataType": "uint32",
@@ -794,7 +781,7 @@ This is for counting events that happens at any time (explicit rule).
 {
   "method": "time",
   "params" : {
-    "rule": "explicit",
+    "rule": "explicit"
   }
 }
 ~~~~
@@ -818,9 +805,12 @@ time stamp (uint64)
 {
   "method": "signal",
   "params" : {
-    "name": "angle",
-    "rule": "explicit",
-    "dataType": "double",
+    "id" : <unique signal id>,
+    "typeDefinition" : {
+      "name": "angle",
+      "rule": "explicit",
+      "dataType": "double"
+    }
   }
 }
 ~~~~
@@ -857,12 +847,15 @@ angle (double)
 {
   "method": "signal",
   "params" : {
-    "name": "angle",
-    "rule": "linear",
-    "linear": {
-      "delta": 1,
-    },
-    "dataType": "i32",
+    "id" : <unique signal id>,
+    "typeDefinition" : {
+      "name": "angle",
+      "rule": "linear",
+      "linear": {
+        "delta": 1,
+      },
+      "dataType": "i32"
+    }
   }
 }
 ~~~~
@@ -894,8 +887,10 @@ We get a (partial) meta information with a `start` value of the counter every ti
 {
   "method": "signal",
   "params" : {
-    "linear" : {
-      "start" : 0
+    "typeDefinition" : {
+      "linear" : {
+        "start" : 0
+      }
     }
   }
 }
@@ -935,30 +930,35 @@ In addition we introduce the `function` object which helps the client to intepre
 
 ~~~~ {.javascript}
 {
-  "name": "spectrum",
-  "function" : {
-    "type": "spectrum"
-  },
-  "array": {
-    "count": 1024,
-    "struct": [
-      {
-        "name": "amplitude",
-        "dataType": "double",
-        "unit": "dB",
-        "rule": "explicit"
-      },
-      {
-        "name": "frequency",
-        "dataType": "double",
-        "unit": "Hz",
-        "rule": "linear",
-        "linear": {
-          "delta": 10.0,
-          "start": 1000.0
+  "id" : <unique signal id>,
+  "typeDefinition" : {
+    "name": "spectrum",
+    "function" : {
+      "type": "spectrum"
+    },
+    "dataType" : "array",
+    "array": {
+      "count": 1024,
+      "dataType" : "struct",
+      "struct": [
+        {
+          "name": "amplitude",
+          "dataType": "double",
+          "unit": "dB",
+          "rule": "explicit"
+        },
+        {
+          "name": "frequency",
+          "dataType": "double",
+          "unit": "Hz",
+          "rule": "linear",
+          "linear": {
+            "delta": 10.0,
+            "start": 1000.0
+          }
         }
-      }
-    ]
+      ]
+    }
   }
 }
 ~~~~
@@ -976,8 +976,7 @@ Only struct member `amplitude` is explicit, hence this is the data to be transfe
 {
   "method": "time",
   "params" : {
-    "rule": "explicit",
-    "dataType": "time"
+    "rule": "explicit"
   ]
 }
 ~~~~
@@ -1007,54 +1006,61 @@ Meta information describing the signal:
 {
   "method": "signal",
   "params": {
-    "name": "Optical Spectrum with Peak Values",
-    "struct": [
-      {
-        "name": "spectrum",
-        "function" : { 
-          "type": "spectrum"
-        },
-        "array": {
-          "count": 100,
-          "struct": [
-            {
-              "name": "amplitude",
-              "dataType": "double",
-              "unit": "dB",
-              "rule": "explicit"
-            },
-            {
-              "name": "frequency",
-              "dataType": "double",
-              "unit": "Hz",
-              "rule": "linear",
-              "linear": {
-                "delta": 10,
-                "start": 1000
+    "id" : <unique signal id>,
+    "typeDefinition" : {
+      "name": "opticalSpectrumWithPeakValues",
+      "struct": [
+        {
+          "name": "spectrum",
+          "function" : { 
+            "type": "spectrum"
+          },
+          "dataType": "array",
+          "array": {
+            "count": 100,
+            "dataType": "struct",
+            "struct": [
+              {
+                "name": "amplitude",
+                "dataType": "double",
+                "unit": "dB",
+                "rule": "explicit"
+              },
+              {
+                "name": "frequency",
+                "dataType": "double",
+                "unit": "Hz",
+                "rule": "linear",
+                "linear": {
+                  "delta": 10,
+                  "start": 1000
+                }
               }
-            }
-          ]
+            ]
+          }
+        },
+        {
+          "name": "the peak values",
+          "dataType": "array",
+          "array": {
+            "count": 16,
+            "dataType": "struct",
+            "struct": [
+              {
+                "name": "frequency",
+                "dataType": "double",
+                "unit": "Hz"
+              },
+              {
+                "name": "amplitude",
+                "dataType": "double",
+                "unit": "dB"
+              }
+            ]
+          }
         }
-      },
-      {
-        "name": "the peak values",
-        "array": {
-          "count": 16,
-          "struct": [
-            {
-              "name": "frequency",
-              "dataType": "double",
-              "unit": "Hz"
-            },
-            {
-              "name": "amplitude",
-              "dataType": "double",
-              "unit": "dB"
-            }
-          ]
-        }
-      }
-    ]
+      ]
+    }
   }
 }
 ~~~~
@@ -1063,8 +1069,7 @@ Meta information describing the signal:
 {
   "method": "time",
   "params" : {
-    "rule": "explicit",
-    "dataType": "time"
+    "rule": "explicit"
   }
 }
 ~~~~
@@ -1113,53 +1118,59 @@ Above we described two alternatives describing the histrogram within the signal 
 {
   "method": "signal",
   "params": {
-    "name": "Statistic",
-    "function" : { 
-      "type": "statistic"
-    },
-    "struct": [
-      {
-        "name": "histogram",
-        "function" : { 
-          "type": "histogram"
-        },
-        "array": {
-          "count": 50,
-          "struct": [
-            {
-              "name": "count",
-              "dataType": "uint64",
-              "rule": "explicit"
-            },
-            {
-              "name": "class",
-              "dataType": "double",
-              "unit": "Hz",
-              "rule": "linear",
-              "linear": {
-                "delta": 1,
-                "start": 50
+    "id" : <unique signal id>,
+    "typeDefinition" : {
+      "name": "Statistic",
+      "function" : { 
+        "type": "statistic"
+      },
+      "dataType": "struct",
+      "struct": [
+        {
+          "name": "histogram",
+          "function" : { 
+            "type": "histogram"
+          },
+          "dataType": "array",
+          "array": {
+            "count": 50,
+            "dataType": "struct",
+            "struct": [
+              {
+                "name": "count",
+                "dataType": "uint64",
+                "rule": "explicit"
+              },
+              {
+                "name": "class",
+                "dataType": "double",
+                "unit": "Hz",
+                "rule": "linear",
+                "linear": {
+                  "delta": 1,
+                  "start": 50
+                }
               }
-            }
-          ]
+            ]
+          }
+        },
+        {
+          "name": "lowerThanCounter",
+          "dataType": "uint64",
+          "rule": "explicit"
+        },
+        {
+          "name": "higherThanCounter",
+          "dataType": "uint64",
+          "rule": "explicit"
+        },
+        {
+          "name": "totalCounter",
+          "dataType": "uint64",
+          "rule": "explicit"
         }
-      },
-      {
-        "name": "lowerThanCounter",
-        "dataType": "uint64",
-        "rule": "explicit"
-      },
-      {
-        "name": "higherThanCounter",
-        "dataType": "uint64",
-        "rule": "explicit"
-      },
-      {
-        "name": "totalCounter",
-        "dataType": "uint64",
-        "rule": "explicit"
-      }
-    ]
+      ]
+    }
   }
 }
 ~~~~
@@ -1179,8 +1190,7 @@ It has its own function description.
 {
   "method": "time",
   "params" : {
-    "rule": "explicit",
-    "dataType": "time"
+    "rule": "explicit"
   ]
 }
 ~~~~
@@ -1215,43 +1225,50 @@ We'll get the following signal specific meta information:
 {
   "method": "signal",
   "params": {
-    "name": "run up",
-    "array": {
-      "count": 15,
-      "struct": [
-        {
-          "name": "frequency",
-          "dataType": "double",
-          "rule": "explicit"
-        },
-        {
-          "name": "fft",
-          "function": {
-            "type": "spectrum"
+    "id" : <unique signal id>,
+    "typeDefinition" : {
+      "name": "run up",
+      "dataType" : "array",
+      "array": {
+        "count": 15,
+        "dataType" : "struct",
+        "struct": [
+          {
+            "name": "frequency",
+            "dataType": "double",
+            "rule": "explicit"
           },
-          "array": {
-            "count": 100,
-            "struct": [
-              {
-                "name": "amplitude",
-                "dataType": "double",
-                "unit": "dB",
-                "rule": "explicit"
-              },
-              {
-                "name": "frequency",
-                "dataType": "double",
-                "unit": "Hz",
-                "rule": "linear",
-                "linear": {
-                  "delta": 10,
-                  "start": 1000
+          {
+            "name": "fft",
+            "function": {
+              "type": "spectrum"
+            },
+            "dataType" : "array",
+            "array": {
+              "count": 100,
+              "dataType" : "struct",
+              "struct": [
+                {
+                  "name": "amplitude",
+                  "dataType": "double",
+                  "unit": "dB",
+                  "rule": "explicit"
+                },
+                {
+                  "name": "frequency",
+                  "dataType": "double",
+                  "unit": "Hz",
+                  "rule": "linear",
+                  "linear": {
+                    "delta": 10,
+                    "start": 1000
+                  }
                 }
-              }
-            ]
+              ]
+            }
           }
-        }
-      ]
+        ]
+      }
     }
   }
 }
@@ -1261,8 +1278,7 @@ We'll get the following signal specific meta information:
 {
   "method": "time",
   "params" : {
-    "dataType": "time"
-    "rule": "explicit",
+    "rule": "explicit"
   }
 }
 ~~~~
@@ -1306,31 +1322,35 @@ We'll get the following signal specific meta information:
 {
   "method": "signal",
   "params": {
-    "name": "coordinate",
-    "function" : {
-      "type": "cartesianCoordinate"
-    },
-    "dataType": "struct",
-    "struct": [
-      {
-        "name": "x",
-        "dataType": "double",
-        "rule": "explicit",
-        "unit": "m"
+    "id" : <unique signal id>,
+    "typeDefinition": {
+      "name": "coordinate",
+      "function" : {
+        "type": "cartesianCoordinate"
       },
-      {
-        "name": "y",
-        "dataType": "double",
-        "rule": "explicit",
-        "unit": "m"
-      },
-      {
-        "name": "z",
-        "dataType": "double",
-        "rule": "explicit",
-        "unit": "m"
-      }
-    ]
+      "dataType": "struct",
+      "struct": [
+        {
+          "name": "x",
+          "dataType": "double",
+          "rule": "explicit",
+          "unit": "m"
+        },
+        {
+          "name": "y",
+          "dataType": "double",
+          "rule": "explicit",
+          "unit": "m"
+        },
+        {
+          "name": "z",
+          "dataType": "double",
+          "rule": "explicit",
+          "unit": "m"
+        }
+      ]
+    }
+    
   }
 }
 ~~~~
@@ -1339,8 +1359,7 @@ We'll get the following signal specific meta information:
 {
   "method": "time",
   "params" : {
-    "dataType": "time",
-    "rule": "explicit",
+    "rule": "explicit"
   }
 }
 ~~~~
@@ -1444,7 +1463,6 @@ We'll get the following signal specific meta information:
 {
   "method": "time",
   "params" : {
-    "dataType": "time",
     "rule": "explicit",
   }
 }
