@@ -83,12 +83,13 @@ follows. This 32 bit word is always transmitted in little endian.
 
 ## Terminology
 
-- Signal: A signal is a data source delivering signal values. On the transport layer, each signal has a unique `Signal Number`. On the representation layer, each signal has a unique `Signal name`.
+- Signal: A signal is a data source delivering signal values. On the transport layer, each signal has a unique `Signal Number`. On the representation layer, each signal has a Unique `Signal Id`.
+- Signal Number: Each signal has a number that is unique on the device. It is used to differentiate the signals efficiently.
+- Signal Id: Each signal has an id that is unique on the device. It is as string. It is used to deteremine the signal on the presentation layer.
 
-- Unique signal id: Each signal has an id that is unique on the device. It is used to deteremine the signal on the presentation layer.
-
-- Signal Definition/Signal Value: A signal value consists at least of one member. Arrays and structs can be used to combine several members to a compound signal value.
+- Signal Definition: A signal value consists at least of one member. Arrays and structs can be used to combine several members to a compound signal value. The resulting structure is the signal definition.
 - Member: A member is a base data type carrying some measured information.
+- Signal Value: The members of the signal definition define the complete signal value. It also defines what data is being transferred.
 - Time Family: Describes how time stamps are to be interpreted.
 - Meta Data
 - Function Data
@@ -129,7 +130,6 @@ Since the configuration of a signal may change at any time, updated meta informa
 hence only parts of the meta information will be transferred.
 
 
-
 ## Data Types
 
 ### Base Data Types
@@ -148,12 +148,11 @@ We support the following base data types:
 * real64
 * complex32
 * complex64
-* time (a 64 bit quantity that contains an absolute time given a specific time family)
 
 
 ### Array
 
-An array of members of the same type. The number of elements is fixed.
+An array of members of the same data type. The number of elements is fixed.
 
 ~~~~ {.javascript}
 {
@@ -194,7 +193,7 @@ A combination of named members which may be of different types.
 
 ## Rules
 
-A value might follow a specific rule. We do not need to transfer each value, just some start information and the rule to calculate any other value that follows.
+A member might follow a specific rule. We do not need to transfer each value, just some start information and the rule to calculate any other value that follows.
 Using rules can greatly reduce the amount of data to be transferred, stored and processed.
 
 There are cases, where we get an array of values with fixed length (i.e. the frequency of a spectrum).
@@ -350,13 +349,13 @@ Everything concerning the stream ([Signal Number](#signal-number) `= 0` on the t
 
 The version follows the [semver scheme](https://semver.org/).
 
-This Meta information is always sent directly after connecting to the
+This meta information is always sent directly after connecting to the
 stream socket.
 
 
 ### Init Meta
 
-The Init Meta information provides the Stream ID (required for
+The Init Meta Information provides the stream id (required for
 [subscribing signals](#command-interfaces)) and a set of
 [optional features](#optional-features--meta-information) supported by the device.
 This Meta information MUST be send directly after the [Version Meta Information](#api-version).
@@ -390,7 +389,7 @@ This Meta information MUST be send directly after the [Version Meta Information]
      The "supported" field's keys always refer to the respective optional feature name.
      E.g. the key "alive" refers to the
      [Alive Meta Information](#alive-meta-information). The field's value MUST
-     comply to the respective Feature Value description.
+     comply to the respective feature value description.
 
 `"commandInterfaces"`: An Object which MUST hold at least one command interface (descriptions)
      provided by the device. A command interface is required to
@@ -424,41 +423,41 @@ This Meta information is always sent on errors.
 
 ### Available signals
 
-If connecting to the streaming server, the names of all signals that are currently available MUST be delivered.
+If connecting to the streaming server, the ids of all signals that are currently available MUST be delivered.
 If new signals appear afterwards, those new signals MUST be introduced by sending an `available` with the new signal names.
 
 ~~~~ {.javascript}
 {
   "method": "available",
-  "params": [<signal name>,...]
+  "params": [<signal id>,...]
 }
 ~~~~
 
 ### Unavailable signals
 
-If signals disappear while being connected, there MUST be an `unavailable` with the names of all signals that disappeared.
+If signals disappear while being connected, there MUST be an `unavailable` with the ids of all signals that disappeared.
 
 ~~~~ {.javascript}
 {
   "method": "unavailable"
-  "params": [<signal name>,...]
+  "params": [<signal id>,...]
 }
 ~~~~
 
 
 ### Subscribe Related Information
 
-The string value of the subscribe key always carries the unique signal name of the signal.
-It constitutes the link between the subsrcibed signal name and the `Signal_Number` used on the transport layer.
+The string value of the subscribe key always carries the unique signal id of the signal.
+It constitutes the link between the subsrcibed signal id and the `Signal_Number` used on the transport layer.
 
 ~~~~ {.javascript}
 {
   "method": "subscribe",
-  "params": <unique signal id>
+  "params": <signal id>
 }
 ~~~~
 
-`"params"`: Signal names of the subscribed signal.
+`"params"`: Signal ids of the subscribed signal.
 
 
 
@@ -1068,7 +1067,7 @@ Meta information describing the signal:
           }
         },
         {
-          "name": "the peak values",
+          "name": "peakValues",
           "dataType": "array",
           "array": {
             "count": 16,
