@@ -33,7 +33,9 @@ allow to subscribe or unsubscribe signals to a streaming instance.
 # Transport Layer 
 
 The transport layer consists of a header and a variable length
-block of data. The header has 32 bit in little endian. The structure of the header is depicted below.
+block of data. Everything on the transport layer is send in little endian.
+
+The header has 32 bit in little endian. The structure of the header is depicted below.
 
 ![A single block on transport layer](images/transport.png)
 
@@ -81,8 +83,12 @@ follows. This 32 bit word is always transmitted in little endian.
 
 ## Terminology
 
-- Measured value: A measured value consists at least of one member. Arrays and structs can be used to combine several members to a compound measured value.
+- Signal value: A signal value consists at least of one member. Arrays and structs can be used to combine several members to a compound signal value.
 - Member: A member is a base data type carrying some measured information.
+- Time Family
+- Signal
+- Meta Data
+- Function Data
 
 ## Signal Data
 
@@ -106,6 +112,12 @@ A Meta information block always consists of a Metainfo_Type and a Metainfo_Data 
 
 The Metainfo_Type indicates how data in the Metainfo_Data block is
 encoded. This 32 bit word is always transmitted in little endian.
+
+### Notifications
+
+Since the configuration of a signal may change at any time, updated meta information may be notified at any time. Only the changed parameters will be transferred,
+hence only parts of the meta information will be transferred.
+
 
 
 ## Data Types
@@ -347,6 +359,7 @@ This Meta information MUST be send directly after the [Version Meta Information]
   "method": "init",
   "params": {
     "streamId": <string>,
+    "endian": "little" | "big",
     "supported": {
       "<feature_name>": <feature_description>
       ...
@@ -365,6 +378,11 @@ This Meta information MUST be send directly after the [Version Meta Information]
 
 `"streamId"`: A unique ID identifying the stream instance. It is required for
      using the [Command Interface](#command-interfaces).
+     
+`"endian"`: Describes the byte endianess of the [Signal Data](#signal-data) and timestamps, either
+
+  - "big"; Big endian byte order (network byte order).
+  - "little"; Little endian byte order.
 
 `"supported"`: An Object which holds all [optional features](#optional-features--meta-information)
      supported by the device. If no optional features are supported, this object MAY be empty.
@@ -461,29 +479,44 @@ No more data with the same `Signal_Number` MUST be sent after the unsubscribe ac
 
 ### Signal Description
 
-A measured value of a signal consist of one or more members.
+A signal value of a signal consist of one or more members.
 Each member... 
 
 - MUST have a property `name`
 - MUST have a property `rule`
 - MUST have a property `dataType`
 - MAY have a [`unit` object`](#unit-object)
+- MAY have a `function` object containing optional information about compound types for the client.
 
 A signal with just one member has just one [base type](#base-types) value. When there are more than one members, [struct](#struct) and [array](#array) are used to describe the structure.
 
 All members and there properties are described in a signal related meta information `signal`.
 [There are some example of signal descriptions in a separate chapter](#Examples-for-Signal-Descriptions).
 
+~~~~ {.javascript}
+{
+  "method": "signal",
+  "params" : {
+    "name": <string>,
+    "rule": <type of rule as string>,
+    "dataType": <data type as string>,
+    "unit": <optional unit of the member>
+  }
+}
+~~~~
+
 ### Time Meta Information
 
 Each signal has a time information which is described in a separate `time` meta information.
 
-The time is mandatory for each signal. It is not part of the measured value.
+The time is mandatory for each signal. It is not part of the signal value.
 It can follow an implicit rule (most likely equidistant or linear) or may be explicit.
 
 #### Time Format
 
 We are going to use the B&K time stamping format. 
+
+##### Time Family
 
 It uses a so called family time base, which is the base frequency of the time stamp counter. Absolute time stamps are 64 bits ticks since 1970 (unix epoch).
 This format is very suitable to express and calculate time differences.
@@ -492,6 +525,19 @@ The family time base frequency is determined as follows:
 2^k * 3^l * 5^m * 7^n Hz
 
 Where k, l, m and n range from 0 to 255.
+
+The time family is expressed in an object within the time meta information:
+
+~~~~ {.javascript}
+{
+  "family" : {
+    "k" : 0..255,
+    "l" : 0..255,
+    "m" : 0..255,
+    "n" : 0..255,
+  }
+}
+~~~~
 
 #### Linear Time
 Equidistant time is described as a [linear implicit rule](#Linear_Rule).
@@ -512,9 +558,9 @@ Both can be delivered by a separate, signal specific, meta information.
   "method": "time",
   "params": {
     "rule": "linear",
-    "linear": {
-      "start": <value>, // Always in ISO8601 format
-      "delta": <value>,
+    "linear": {      
+      "start": <absolute B&K time>,
+      "delta": <B&K time>,
     },
     "unit": <unit object>,
     "dataType": "time",
@@ -555,7 +601,7 @@ to be done:
 
 After the meta information describing the signal has been received, measured values are to be interpreted as follows:
 
-- The size of a complete measured value derives from the sum of the sizes of all explicit members
+- The size of a complete signal value derives from the sum of the sizes of all explicit members
 - Members are send in the same sequence as in the meta information describing the signal
 - Only members with an explicit rule are transferred.
 - Non explicit members are calculated according their rule (i.e. constant, linear). They take no room within the transferred measured data blocks.
@@ -602,7 +648,7 @@ true
 
 The signal has 1 scalar value. Synchronous output rate is 100 Hz
 
-- Each measured value consists of one member
+- Each signal value consists of one member
 - This member is a scaled 32 bit float base data type which is explicit
 - The time is linear.
 
@@ -636,7 +682,7 @@ The device sends the following signal-specific meta information.
 }
 ~~~~
 
-Transferred signal data for one measured value:
+Transferred signal data for one signal value:
 
 A single float value which is the value of this signal. No time stamps.
 
@@ -679,7 +725,7 @@ The device sends the following signal-specific meta information:
 }
 ~~~~
 
-Transferred signal data for one measured value:
+Transferred signal data for one signal value:
 
 ~~~~
 time stamp (uint64)
@@ -691,7 +737,7 @@ uint32
 
 This is for counting events that happens at any time (explicit rule).
 
-- The measured value is expressed as a base data type
+- The signal value is expressed as a base data type
 - The member `counter` is linear with an increment of 2, it runs in one direction
 - The device sends an initial absolute value of `counter` within the meta information describing the signal.
 - `time` is explicit.
@@ -722,7 +768,7 @@ This is for counting events that happens at any time (explicit rule).
 
 `counter` has a linear rule with a step width of 2, hence `counter` won't be transferred.
 
-Transferred signal data for one measured value:
+Transferred signal data for one signal value:
 
 ~~~~
 time stamp (uint64)
@@ -731,7 +777,7 @@ time stamp (uint64)
 
 ## An Absolute Rotary Encoder
 
-- The measured value is expressed as a base data type
+- The signal value is expressed as a base data type
 - `angle` is explicit, it can go back and forth
 - `time` is explicit.
 
@@ -755,7 +801,7 @@ time stamp (uint64)
 }
 ~~~~
 
-Transferred signal data for one measured value:
+Transferred signal data for one signal value:
 One absolute time stamp the angle.
 
 ~~~~
@@ -767,7 +813,7 @@ angle (double)
 
 ## An Incremental Rotary Encoder with start Position
 
-- The measured value is expressed as a base data type
+- The signal value is expressed as a base data type
 - The counter representing the angle follows a linear rule, it can go back and forth
 - Absolute start position when crossing a start position.
 - No initial absolute value.
@@ -801,7 +847,7 @@ angle (double)
 This is similar to the simple counter. 
 `angle` changes by a known amount of 1. Only time stamps are being reansferred.
 
-Transferred signal data for one measured value:
+Transferred signal data for one signal value:
 
 ~~~~
 time stamp (uint64)
@@ -905,7 +951,7 @@ Only struct member `amplitude` is explicit, hence this is the data to be transfe
 }
 ~~~~
 
-Transferred signal data for one measured value:
+Transferred signal data for one signal value:
 One absolute time stamp followed by 1024 amplitude double values. There will be no frequency values because they are implicit.
 
 
@@ -992,7 +1038,7 @@ Meta information describing the signal:
 }
 ~~~~
 
-Transferred signal data for one measured value:
+Transferred signal data for one signal value:
 
 - 1 absolute time stamp
 - 1024 spectrum amplitude double values. No spectrum frequncy values because those are implicit.
@@ -1020,7 +1066,7 @@ amplitude point 16 (double)
 
 ## Statistics {#Statistics}
 
-Statistics consists of N "counters" each covering a value interval. If the measured value is within a counter interval, then that counter is incremented.
+Statistics consists of N "counters" each covering a value interval. If the signal value is within a counter interval, then that counter is incremented.
 For instance the interval from 50 to 99 dB might be covered by 50 counters. Each of these counters then would cover 1 dB.
 
 Often there also is a lower than lowest and higher than highest counter, and for performance reasons, there might be a total counter.
@@ -1105,7 +1151,7 @@ It has its own function description.
 }
 ~~~~
 
-Transferred signal data for one measured value:
+Transferred signal data for one signal value:
 
 - 1 absolute time stamp.
 - 50 uint64 for the 50 counters,
@@ -1188,7 +1234,7 @@ We'll get the following signal specific meta information:
 ~~~~
 
 
-Transferred signal data for one measured value:
+Transferred signal data for one signal value:
 One absolute time stamp followed by 15 frequencies with the corresponding spectra containing 100 amplitude values each.
 
 ~~~~
@@ -1265,7 +1311,7 @@ We'll get the following signal specific meta information:
 }
 ~~~~
 
-Transferred signal data for one measured value: One abolute time stamp and three double values.
+Transferred signal data for one signal value: One abolute time stamp and three double values.
 
 ~~~~
 time stamp (uint64)
@@ -1365,7 +1411,7 @@ We'll get the following signal specific meta information:
 }
 ~~~~
 
-Transferred signal data for one measured value:
+Transferred signal data for one signal value:
 
 - 1 time stamp as uint64
 - a double value distortion
