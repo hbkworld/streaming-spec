@@ -83,10 +83,10 @@ follows. This 32 bit word is always transmitted in little endian.
 
 ## Terminology
 
+- Signal: A signal is a data source delivering signal values. On the transport layer, each signal has a unique `Signal Number`. On the representation layer, each signal has a unique `Signal name`.
 - Signal value: A signal value consists at least of one member. Arrays and structs can be used to combine several members to a compound signal value.
 - Member: A member is a base data type carrying some measured information.
-- Time Family
-- Signal
+- Time Family: Describes how time stamps are to be interpreted.
 - Meta Data
 - Function Data
 
@@ -211,7 +211,6 @@ A linear axis is described as follows:
   "linear": {
     "start": <value>,
     "delta": <value>,
-    "count": <value>,
   },
 }
 ~~~~
@@ -220,7 +219,6 @@ A linear axis is described as follows:
 - `linear`: Properties of the implicit linear rule
 - `linear/start`: the first value
 - `linear/delta`: The difference between two values
-- `linear/count`: The number of values until a rollover to the start value occurs
 
 
 ### constant Rule
@@ -359,7 +357,6 @@ This Meta information MUST be send directly after the [Version Meta Information]
   "method": "init",
   "params": {
     "streamId": <string>,
-    "endian": "little" | "big",
     "supported": {
       "<feature_name>": <feature_description>
       ...
@@ -378,11 +375,6 @@ This Meta information MUST be send directly after the [Version Meta Information]
 
 `"streamId"`: A unique ID identifying the stream instance. It is required for
      using the [Command Interface](#command-interfaces).
-     
-`"endian"`: Describes the byte endianess of the [Signal Data](#signal-data) and timestamps, either
-
-  - "big"; Big endian byte order (network byte order).
-  - "little"; Little endian byte order.
 
 `"supported"`: An Object which holds all [optional features](#optional-features--meta-information)
      supported by the device. If no optional features are supported, this object MAY be empty.
@@ -477,6 +469,25 @@ No more data with the same `Signal_Number` MUST be sent after the unsubscribe ac
 
 ## Signal Specific Meta Information
 
+
+### Data Formats
+
+~~~~ {.javascript}
+{
+  "method": "data",
+  "params" : {
+    "endian": "little" | "big",    
+    }
+  }
+}
+~~~~
+         
+`"endian"`: Describes the byte endianess of the [Signal Data](#signal-data) and timestamps, either
+
+  - "big"; Big endian byte order (network byte order).
+  - "little"; Little endian byte order.
+
+
 ### Signal Description
 
 A signal value of a signal consist of one or more members.
@@ -512,32 +523,49 @@ Each signal has a time information which is described in a separate `time` meta 
 The time is mandatory for each signal. It is not part of the signal value.
 It can follow an implicit rule (most likely equidistant or linear) or may be explicit.
 
+
+#### Epoch
+
+The default start epoch is january 1st 1970 00:00 (unix epoch). Another epoch might be given.
+
 #### Time Format
 
 We are going to use the B&K time stamping format. 
 
-##### Time Family
+##### B&K Time Family
 
-It uses a so called family time base, which is the base frequency of the time stamp counter. Absolute time stamps are 64 bits ticks since 1970 (unix epoch).
-This format is very suitable to express and calculate time differences.
+It uses a so called family time base, which is the base frequency of a time stamp 64 bit counter.
 
 The family time base frequency is determined as follows:
-2^k * 3^l * 5^m * 7^n Hz
+2^primeFactorExponent_0 * 3^primeFactorExponent_1 * 5^primeFactorExponent_2 * 7^primeFactorExponent_3 Hz
 
-Where k, l, m and n range from 0 to 255.
+prime factor exponents range form 0 to 255.
 
-The time family is expressed in an object within the time meta information:
+The time format is expressed within the time meta information:
 
 ~~~~ {.javascript}
 {
-  "family" : {
-    "k" : 0..255,
-    "l" : 0..255,
-    "m" : 0..255,
-    "n" : 0..255,
+  "method": "time",
+  "params": {
+    "timeFormat": "bkTime",    
+    "bkTime" : {
+      "primeFactorExponents" : [
+        0..255,
+        0..255,
+        0..255,
+        0..255,
+      ]
+    },
+    "scale": <string>, // optional, e.g. "utc", "tai", "gps"
+    "epoch": <string> // optional, always in ISO8601 format
+    "rule" : ...
   }
 }
 ~~~~
+
+- `timeFormat`: The time format being used.
+- `bkTime`: Details about the B&K time being used
+
 
 #### Linear Time
 Equidistant time is described as a [linear implicit rule](#Linear_Rule).
@@ -548,9 +576,9 @@ Both can be delivered by a separate, signal specific, meta information.
 - The delta is mandatory.
 - The absolute time always belongs to the next following value
 - The device might deliver the absolute time before delivering the first value point.
-- If the device does not possess a clock, there might be no absolute time at all.
-- The device might deliver the absolute time whenever its clock is being set (resynchronization).
-- It might deliver a new absolute time after a pause or any other abberation in the equidistant time
+- If the device does not possess a clock, there might be no absolute time at all. Time stamp will start with 0 on startup.
+- The device might deliver the absolute time whenever its clock is being set (resynchronization). A new `start` would be send.
+- It might deliver a new absolute time after a pause or any other abberation in the equidistant time. A new `start` would be send.
 
 
 ~~~~ {.javascript}
@@ -559,17 +587,17 @@ Both can be delivered by a separate, signal specific, meta information.
   "params": {
     "rule": "linear",
     "linear": {      
-      "start": <absolute B&K time>,
-      "delta": <B&K time>,
+      "start": uint64,
+      "delta": uint64,
     },
-    "unit": <unit object>,
     "dataType": "time",
 }
 ~~~~
 
+
+
 - `method`: Type of meta information
 - `rule`: type of rule
-- `unit`: Unit. Could be s, ms, Hz, mHz etc.
 - `linear/start`: The absolute timestamp for the next value point.
 - `linear/delta`: The time difference between two value points
 
@@ -581,7 +609,6 @@ Time is delivered as absolute time stamp for each value.
   "method": "time",
   "params": {
     "rule": "explicit",
-    "unit": <unit object>,
     "dataType": "time"
   }
 }
@@ -895,9 +922,7 @@ The signal consists of a spectum
 - The time is explicit. Each complete spectrum has one time stamp.
 
 
-
-
-Spectral values over a range in the spectral domain.
+Several amplitude values over the frequency.
 We combine array, struct and base types.
 
 In addition we introduce the `function` object which helps the client to inteprete the data.
