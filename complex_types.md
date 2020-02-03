@@ -67,9 +67,9 @@ the parser can read over to the next header and proceed with processing. This is
 ## Signal Number
 
 The `Signal Number` field indicates to which signal the following data
-block belongs to. It MUST within a single device. Different
+block belongs to. It MUST be unique within a single device. Different
 devices MAY use the same signal numbers. The `Signal Number` is required
-to carry more than one single signal over a single socket connection.
+to differentiate more than one single signal carried over the same stream.
 
 `0` is the `Signal Number` reserved for [Stream Related Meta Information](#stream-related-meta-information).
 
@@ -87,7 +87,7 @@ follows. This 32 bit word is always transmitted in little endian.
 
 - Unique signal id: Each signal has an id that is unique on the device. It is used to deteremine the signal on the presentation layer.
 
-- Signal value: A signal value consists at least of one member. Arrays and structs can be used to combine several members to a compound signal value.
+- Signal Definition/Signal Value: A signal value consists at least of one member. Arrays and structs can be used to combine several members to a compound signal value.
 - Member: A member is a base data type carrying some measured information.
 - Time Family: Describes how time stamps are to be interpreted.
 - Meta Data
@@ -97,17 +97,24 @@ follows. This 32 bit word is always transmitted in little endian.
 
 The `Data` section contains signal data (measurement data acquired by the device) related to the
 respective `Signal_Number`. [Meta Information](#meta-information) MAY be necessary to interpret Signal Data.
+The signal data might be delivered in big or little endian.
 
 ## Meta Information
 
 The `Data` section contains additional ("Meta") information related to
-the respective `Signal_Number`. Some [Signal Related
-Metainformation](#signal-related-meta-information) is REQUIRED to correctly
+the respective `Signal_Number`. Some [Signal Related Metainformation](#signal-related-meta-information) is REQUIRED to correctly
 interpret the respective [Signal Data](#signal-data). Meta Information
 may also carry information about certain events which MAY happen on a
 device like changes of the output rate or time resynchronization.
 
 A Meta information block always consists of a Metainfo_Type and a Metainfo_Data block.
+
+The metainfo_Type is in little endian.
+The endianness of the meta information Metainfo_Data block depends on the meta information format.
+
+- json is not a binary format, hence there is not endianness
+- msgpack uses big endian.
+
 
 ![A Meta Information block](images/meta_block.png)
 
@@ -474,16 +481,28 @@ No more data with the same `Signal_Number` MUST be sent after the unsubscribe ac
 
 ## Signal Specific Meta Information
 
+
+### Signal Description
+
 Each signal is described in a signal related meta information `signal`.
 [There are some example of signal descriptions in a separate chapter](#Examples-for-Signal-Descriptions).
 
-### Signal Type Definition
+~~~~ {.javascript}
+{
+  "typeDefinition": {
+    <contains at least one signl member description>
+  },
+  "signalData": {
+    "endian": <string>
+  }
+}
+~~~~
+
+#### Signa Type Definition
 
 A signal value of a signal consist of one or more members.
 All members and their properties are described in the `typeDefinition` object in the `signal` meta information.
 [There are some example of signal descriptions in a separate chapter](#Examples-for-Signal-Descriptions).
-
-#### Signal Members
 
 Each member... 
 
@@ -493,17 +512,29 @@ Each member...
 - MAY have a [`unit` object`](#unit-object)
 - MAY have a `function` object containing optional information about compound types for the client.
 
-A signal with just one member has just one [base type](#base-types) value. When there are more than one members, [struct](#struct) and [array](#array) are used to describe the structure.
-
+Those propertiest are described using a signal member object:
 
 ~~~~ {.javascript}
 {
   "name": <string>,
   "rule": <type of rule as string>,
   "dataType": <data type as string>,
-  "unit": <optional unit of the member>
+  "unit": <optional unit of the member>,
+  "function": { <optional> }
 }
 ~~~~
+
+A signal with just one member has just one [base type](#base-types) value. When there are more than one members, [struct](#struct) and [array](#array) are used to describe the structure.
+
+#### Signal Data
+
+The signal meta information conatins an object `signalData` describing the signal data.
+
+-`"endian"`: Describes the byte endianess of the [Signal Data](#signal-data) and timestamps, either
+
+  - "big"; Big endian byte order (network byte order).
+  - "little"; Little endian byte order.
+
 
 ### Time Meta Information
 
@@ -524,8 +555,8 @@ We are going to use the B&K time stamping format.
 ##### B&K Time Family
 
 It uses a so called family time base, which is the base frequency of a time stamp 64 bit counter.
+The family time base frequency is determined as using prime factor exponents. It works as follows:
 
-The family time base frequency is determined as follows:
 2^primeFactorExponent_0 * 3^primeFactorExponent_1 * 5^primeFactorExponent_2 * 7^primeFactorExponent_3 Hz
 
 prime factor exponents range form 0 to 255.
@@ -554,6 +585,7 @@ The time format is expressed within the time meta information:
 
 - `timeFormat`: The time format being used.
 - `bkTime`: Details about the B&K time being used
+- `epoch`: Startpoint of the time stamp counter. If the device does not have an absolute time, this is not send.
 
 
 #### Linear Time
@@ -564,10 +596,9 @@ Both can be delivered by a separate, signal specific, meta information.
 
 - The delta is mandatory.
 - The absolute time always belongs to the next following value
-- The device might deliver the absolute time before delivering the first value point.
-- If the device does not possess a clock, there might be no absolute time at all. Time stamp will start with 0 on startup.
-- The device might deliver the absolute time whenever its clock is being set (resynchronization). A new `start` would be send.
-- It might deliver a new absolute time after a pause or any other abberation in the equidistant time. A new `start` would be send.
+- The device MUST deliver the absolute time before delivering the first value point.
+- The device MUST deliver the absolute time whenever its clock is being set (resynchronization). A new `start` would be send.
+- It MAY deliver a new absolute time after a pause or any other abberation in the equidistant time. A new `start` would be send.
 
 
 ~~~~ {.javascript}
