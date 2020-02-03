@@ -109,12 +109,6 @@ device like changes of the output rate or time resynchronization.
 
 A Meta information block always consists of a Metainfo_Type and a Metainfo_Data block.
 
-The metainfo_Type is in little endian.
-The endianness of the meta information Metainfo_Data block depends on the meta information format.
-
-- json is not a binary format, hence there is not endianness
-- msgpack uses big endian.
-
 
 ![A Meta Information block](images/meta_block.png)
 
@@ -122,6 +116,12 @@ The endianness of the meta information Metainfo_Data block depends on the meta i
 
 The Metainfo_Type indicates how data in the Metainfo_Data block is
 encoded. This 32 bit word is always transmitted in little endian.
+
+The endianness of the meta information Metainfo_Data block depends on the meta information format.
+
+- json is not a binary format, hence there is not endianness
+- msgpack uses big endian.
+
 
 ### Notifications
 
@@ -166,7 +166,7 @@ An array of members of the same type. The number of elements is fixed.
 ~~~~
 
 - `array/count`: Number of elements in the array.
-- `<member description>`: Might be a base type, another array or a struct
+- `<member description>`: Might be a base data type, another array or a struct
 
 
 ### Struct
@@ -178,20 +178,17 @@ A combination of named members which may be of different types.
   "dataType" : "struct",
   "struct": [
     {
-      "name" : <member name>
       <member description>
     },
       ...
     {
-      "name" : <member name>
       <member description>
     }
   ]
 }
 ~~~~
 
-- `name`: Each struct member has a name.
-- `<member description>`: The type of each struct member. Can be a base type, array, or struct
+- `<member description>`: Description of a struct member. Can be a base data type, array, or struct
 
 
 
@@ -524,7 +521,7 @@ Those propertiest are described using a signal member object:
 }
 ~~~~
 
-A signal with just one member has just one [base type](#base-types) value. When there are more than one members, [struct](#struct) and [array](#array) are used to describe the structure.
+A signal with just one member has just one [base data type](#base-data-types) value. When there are more than one members, [struct](#struct) and [array](#array) are used to describe the structure.
 
 #### Signal Data
 
@@ -955,7 +952,7 @@ The signal consists of a spectum
 
 
 Several amplitude values over the frequency.
-We combine array, struct and base types.
+We combine array, struct and base data types.
 
 In addition we introduce the `function` object which helps the client to inteprete the data.
 
