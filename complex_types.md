@@ -540,36 +540,35 @@ The time is mandatory for each signal. It is not part of the signal value.
 It can follow an implicit rule (most likely equidistant or linear) or may be explicit.
 
 
-#### Epoch
+#### NExT Time Format
 
-The default start epoch is january 1st 1970 00:00 (unix epoch). Another epoch might be given.
+A 64 bit counter running with a base frequency is being used to express the time. It has a start time (`epoch`).
+different frequencies, so called time families, can be used to accomodate specific requirements.
 
-#### Time Format
+The base frequency is expressed using prime factor exponents. It works as follows:
 
-We are going to use the B&K time stamping format. 
+f = 2^primeFactorExponent_0 * 3^primeFactorExponent_1 * 5^primeFactorExponent_2 * 7^primeFactorExponent_3 Hz
 
-##### B&K Time Family
+This calculates a frequency. If the sign of all prime factor exponents is being inverted, the period time is calculated.
 
-It uses a so called family time base, which is the base frequency of a time stamp 64 bit counter.
-The family time base frequency is determined as using prime factor exponents. It works as follows:
-
-2^primeFactorExponent_0 * 3^primeFactorExponent_1 * 5^primeFactorExponent_2 * 7^primeFactorExponent_3 Hz
+T = 2^-primeFactorExponent_0 * 3^-primeFactorExponent_1 * 5^-primeFactorExponent_2 * 7^-primeFactorExponent_3 s
 
 prime factor exponents range form 0 to 255.
 
-The time format is expressed within the time meta information:
+
+The time format is expressed within the `time` meta information:
 
 ~~~~ {.javascript}
 {
   "method": "time",
   "params": {
-    "timeFormat": "bkTime",    
-    "bkTime" : {
+    "timeFormat": "nextTime",    
+    "nextTime" : {
       "primeFactorExponents" : [
-        0..255,
-        0..255,
-        0..255,
-        0..255,
+        0..255, // primeFactorExponent_0
+        0..255, // primeFactorExponent_1
+        0..255, // primeFactorExponent_2
+        0..255, // primeFactorExponent_3
       ]
     },
     "scale": <string>, // optional, e.g. "utc", "tai", "gps"
@@ -580,8 +579,17 @@ The time format is expressed within the time meta information:
 ~~~~
 
 - `timeFormat`: The time format being used.
-- `bkTime`: Details about the B&K time being used
+- `nextTime`: Details about the NExT time being used
 - `epoch`: Startpoint of the time stamp counter. If the device does not have an absolute time, this is not send.
+
+##### Time Family Examples
+
+44100 Hz = 2^2 * 3^2 * 5^2 * 7^2
+65536 Hz = 2^16 * 3^0 * 5^0 * 7^0
+
+#### Epoch
+
+The default start epoch is january 1st 1970 00:00 (unix epoch). Another epoch might be given.
 
 
 #### Linear Time
