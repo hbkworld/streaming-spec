@@ -586,10 +586,6 @@ The optional `unit` of the member is to be found there.
 
 The signal meta information conatins an object `data` describing the signal data.
 
-{
-    "endian": "little"|"big"
-}
-
 
 -`"endian"`: Describes the byte endianess of the including timestamps, either
 
@@ -756,6 +752,7 @@ The device sends the following `signal` meta information.
   "params" : {
     "id": <unique signal id>,
     "time" : {
+      "timeFamily" : [ < time family > ],
       "rule": "linear",
       "linear": {
         "start": <uint64>,
@@ -766,7 +763,9 @@ The device sends the following `signal` meta information.
       "name": "voltage",
       "rule": "explicit",
       "dataType": "float",
-      "unit": "V"
+      "interpretation": {
+        "unit": "V",
+      }
     }
   }
 }
@@ -799,13 +798,16 @@ The device sends the following `signal` meta information:
   "params" : {
     "id" : <unique signal id>,
 	"time" : {
+      "timeFamily" : [ < time family > ],
       "rule": "explicit",
     },
     "content" : {
-		"name": "decoder",
-		"rule": "explicit",
-		"dataType": "uint32",
-		"unit": "decoder unit"
+	  "name": "decoder",
+	  "rule": "explicit",
+	  "dataType": "uint32",
+	  "interpretation": {
+        "unit": "decoder unit",
+      }
 	}
   }
 }
@@ -835,6 +837,7 @@ This is for counting events that happens at any time (explicit rule).
   "params" : {
     "id": <unique signal id>,
 	"time" : {
+      "timeFamily" : [ < time family > ],
       "rule": "explicit",
     },
     "content" : {
@@ -871,6 +874,7 @@ time stamp (uint64)
   "params" : {
     "id" : <unique signal id>,
   	"time" : {
+      "timeFamily" : [ < time family > ],
       "rule": "explicit",
     },
     "content" : {
@@ -907,13 +911,14 @@ angle (double)
   "params" : {
     "id" : <unique signal id>,
    	"time" : {
+      "timeFamily" : [ < time family > ],
       "rule": "explicit",
     },
     "content" : {
       "name": "angle",
       "rule": "linear",
       "linear": {
-        "delta": 1,
+        "delta": 1
       },
       "dataType": "i32"
     }
@@ -984,6 +989,7 @@ In addition we introduce the `interpretation` object which helps the client to i
 {
   "id" : <unique signal id>,
   "time" : {
+    "timeFamily" : [ < time family > ],
     "rule": "explicit",
   },
   "content" : {
@@ -999,17 +1005,21 @@ In addition we introduce the `interpretation` object which helps the client to i
         {
           "name": "amplitude",
           "dataType": "double",
-          "unit": "dB",
-          "rule": "explicit"
+          "rule": "explicit",
+          "interpretation": {
+            "unit": "dB"
+          },
         },
         {
           "name": "frequency",
           "dataType": "double",
-          "unit": "Hz",
           "rule": "linear",
           "linear": {
             "delta": 10.0,
             "start": 1000.0
+          },
+          "interpretation": {
+            "unit": "Hz"
           }
         }
       ]
@@ -1053,6 +1063,7 @@ Meta information describing the signal:
   "params": {
     "id" : <unique signal id>,
     "time" : {
+      "timeFamily" : [ < time family > ],
       "rule": "explicit",
     }, 
     "content" : {
@@ -1074,17 +1085,21 @@ Meta information describing the signal:
               {
                 "name": "amplitude",
                 "dataType": "double",
-                "unit": "dB",
-                "rule": "explicit"
+                "rule": "explicit",
+                "interpretation": {
+                  "unit": "dB"
+                }
               },
               {
                 "name": "frequency",
                 "dataType": "double",
-                "unit": "Hz",
                 "rule": "linear",
                 "linear": {
                   "delta": 10,
                   "start": 1000
+                },
+                "interpretation": {
+                  "unit": "Hz"
                 }
               }
             ]
@@ -1100,12 +1115,18 @@ Meta information describing the signal:
               {
                 "name": "frequency",
                 "dataType": "double",
-                "unit": "Hz"
+                "rule": "explicit",
+                "interpretation": {
+                  "unit": "Hz"
+                }
               },
               {
                 "name": "amplitude",
                 "dataType": "double",
-                "unit": "dB"
+                "rule": "explicit",
+                "interpretation": {
+                  "unit": "dB"
+                }
               }
             ]
           }
@@ -1163,6 +1184,7 @@ Above we described two alternatives describing the histrogram within the signal 
   "params": {
     "id" : <unique signal id>,
     "time" : {
+      "timeFamily" : [ < time family > ],
       "rule": "explicit",
     },
     "content" : {
@@ -1190,11 +1212,13 @@ Above we described two alternatives describing the histrogram within the signal 
               {
                 "name": "class",
                 "dataType": "double",
-                "unit": "Hz",
                 "rule": "linear",
                 "linear": {
                   "delta": 1,
                   "start": 50
+                },
+                "interpretation": {
+                  "unit": "Hz"
                 }
               }
             ]
@@ -1262,6 +1286,7 @@ We'll get the following signal specific meta information:
   "params": {
     "id" : <unique signal id>,
     "time" : {
+      "timeFamily" : [ < time family > ],
       "rule": "explicit",
     },
     "content" : {
@@ -1289,17 +1314,21 @@ We'll get the following signal specific meta information:
                 {
                   "name": "amplitude",
                   "dataType": "double",
-                  "unit": "dB",
                   "rule": "explicit"
+                  "interpretation": {
+                    "unit": "dB"
+                  }
                 },
                 {
                   "name": "frequency",
                   "dataType": "double",
-                  "unit": "Hz",
                   "rule": "linear",
                   "linear": {
                     "delta": 10,
                     "start": 1000
+                  },
+                  "interpretation": {
+                    "unit": "Hz"
                   }
                 }
               ]
@@ -1353,6 +1382,7 @@ We'll get the following signal specific meta information:
   "params": {
     "id" : <unique signal id>,
     "time" : {
+      "timeFamily" : [ < time family > ],
       "rule": "explicit",
     },    
     "content": {
@@ -1366,19 +1396,25 @@ We'll get the following signal specific meta information:
           "name": "x",
           "dataType": "double",
           "rule": "explicit",
-          "unit": "m"
+          "interpretation": {
+            "unit": "m"
+          }
         },
         {
           "name": "y",
           "dataType": "double",
           "rule": "explicit",
-          "unit": "m"
+          "interpretation": {
+            "unit": "m"
+          }
         },
         {
           "name": "z",
           "dataType": "double",
           "rule": "explicit",
-          "unit": "m"
+          "interpretation": {
+            "unit": "m"
+          }
         }
       ]
     }
@@ -1405,7 +1441,8 @@ One combined value consists of the following:
 - some scalar values
   * distortion: The Total Harmonic Distortion (according to IEC 61000-4-7).
   * fundamental frquency: Average fundamental frequency.
-  * dcAmplitude: The amplitude of the DC component.
+  
+          "dataType": "double",* dcAmplitude: The amplitude of the DC component.
   * cycleCount: The number of cycles in the window (according to IEC 61000-4-7)
   * harmonicCount: The number of harmonic orders (0 ... (MAX_HARMONIC_ORDERS = 50)).
 - an array of structures with information about the heamonics.
@@ -1425,6 +1462,7 @@ We'll get the following signal specific meta information:
   "params": {
     "id" : <unique signal id>,
     "time" : {
+      "timeFamily" : [ < time family > ],
       "rule": "explicit",
     },
     "content": {
@@ -1443,13 +1481,17 @@ We'll get the following signal specific meta information:
           "name": "fundamentalFrequency",
           "dataType": "double",
           "rule": "explicit",
-          "unit": "Hz"
+          "interpretation": {
+            "unit": "Hz"
+          }
         },
         {
           "name": "dcAmplitude",
           "dataType": "double",
           "rule": "explicit",
-          "unit": "V"
+          "interpretation": {
+            "unit": "V"
+          }
         },
         {
           "name": "cycleCount",
@@ -1458,7 +1500,7 @@ We'll get the following signal specific meta information:
         },
         {
           "name": "harmonicCount",
-          "dataType": "unit32",
+          "dataType": "uint32",
           "rule": "explicit"
         },
         {
@@ -1475,8 +1517,10 @@ We'll get the following signal specific meta information:
               {
                 "name": "phase",
                 "dataType": "double",
-                "unit": "rad",
                 "rule": "explicit"
+                "interpretation": {
+                  "unit": "rad"
+                }
               }
             ]
           }
@@ -1505,7 +1549,7 @@ time stamp (uint64)
 distortion (double)
 fundemantal frequency (double)
 dc amplitude (double)
-cycle count (unit32)
+cycle count (uint32)
 harmonics count (uint32)
   
 harmonic 1
