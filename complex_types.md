@@ -416,7 +416,7 @@ This gives information about the time on the device.
 }
 ~~~~
 
-- `Epoch`: Start time all time stamps are based on. It is a [TAI (no leap seconds) time](#https://en.wikipedia.org/wiki/International_Atomic_Time) given in ISO8601 format
+- `Epoch`: Start time all time stamps are based on. It is a [TAI (no leap seconds) time](#https://en.wikipedia.org/wiki/International_Atomic_Time) given in ISO8601 format (example: 1970-01-01 for the UNIX epoch)
 
 
 ### Synchronization meta Information
