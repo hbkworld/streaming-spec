@@ -506,7 +506,7 @@ Each member...
 - MUST have the property `rule`
 - MUST have the property `dataType`
 - MAY have a [`unit` object`](#unit-object)
-- MAY have a `function` object containing optional information about compound types for the client.
+- MAY have a `interpretation` object containing optional information about how to interprete the signal
 
 Those propertiest are described using a signal member object:
 
@@ -516,7 +516,7 @@ Those propertiest are described using a signal member object:
   "rule": <type of rule as string>,
   "dataType": <data type as string>,
   "unit": <optional unit of the member>,
-  "function": { <optional> }
+  "interpretation": { <optional> }
 }
 ~~~~
 
@@ -961,14 +961,14 @@ The signal consists of a spectum
 Several amplitude values over the frequency.
 We combine array, struct and base data types.
 
-In addition we introduce the `function` object which helps the client to inteprete the data.
+In addition we introduce the `interpretation` object which helps the client to inteprete the data.
 
 ~~~~ {.javascript}
 {
   "id" : <unique signal id>,
   "typeDefinition" : {
     "name": "spectrum",
-    "function" : {
+    "interpretation" : {
       "type": "spectrum"
     },
     "dataType" : "array",
@@ -998,7 +998,7 @@ In addition we introduce the `function` object which helps the client to intepre
 }
 ~~~~
 
-- `function/type`: Depending on the type, the client expects a specified structure.
+- `interpretation/type`: Depending on the type, the client expects a specified structure.
 - `array/count`: The number of points in each spectrum
 - struct member `amplitude`: Describes the measured values (i.e. amplitude, attenuation).
 - struct member `frequency`: Describes the range in the spectral domain (i.e. frequency)
@@ -1044,13 +1044,13 @@ Meta information describing the signal:
     "id" : <unique signal id>,
     "typeDefinition" : {
       "name": "spectrumWithPeakValues",
-      "function" : {
+      "interpretation" : {
         "type": "spectrumWithPeakValues"
       },
       "struct": [
         {
           "name": "spectrum",
-          "function" : { 
+          "interpretation" : { 
             "type": "spectrum"
           },
           "dataType": "array",
@@ -1159,14 +1159,14 @@ Above we described two alternatives describing the histrogram within the signal 
     "id" : <unique signal id>,
     "typeDefinition" : {
       "name": "Statistic",
-      "function" : { 
+      "interpretation" : { 
         "type": "statistic"
       },
       "dataType": "struct",
       "struct": [
         {
           "name": "histogram",
-          "function" : { 
+          "interpretation" : { 
             "type": "histogram"
           },
           "dataType": "array",
@@ -1214,12 +1214,12 @@ Above we described two alternatives describing the histrogram within the signal 
 ~~~~
 
 Within there is a object describing a histrogram. It has the following members:
-- `function/type`: Depending on the type, the client expects a specified structure.
+- `interpretation/type`: Depending on the type, the client expects a specified structure.
 - `array/count`: The number of classes in each histogram
 - struct member `count`: Value of the counter
 - struct member `class`: Class
 
-It has its own function description.
+It has its own `interpretation` object.
 
 
 
@@ -1278,7 +1278,7 @@ We'll get the following signal specific meta information:
           },
           {
             "name": "fft",
-            "function": {
+            "interpretation": {
               "type": "spectrum"
             },
             "dataType" : "array",
@@ -1363,7 +1363,7 @@ We'll get the following signal specific meta information:
     "id" : <unique signal id>,
     "typeDefinition": {
       "name": "coordinate",
-      "function" : {
+      "interpretation" : {
         "type": "cartesianCoordinate"
       },
       "dataType": "struct",
@@ -1441,7 +1441,7 @@ We'll get the following signal specific meta information:
     "id" : <unique signal id>,
     "typeDefinition": {
       "name": "harmonicAnalysis",
-      "function": {
+      "interpretation": {
         "type": "harmonicAnalysis"
       },
       "dataType": "struct",
