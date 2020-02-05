@@ -485,19 +485,19 @@ Each signal is described in a signal related meta information `signal`.
 
 ~~~~ {.javascript}
 {
-  "typeDefinition": {
+  "content": {
     <contains at least one signl member description>
   },
-  "signalData": {
+  "data": {
     "endian": <string>
   }
 }
 ~~~~
 
-#### Signal Type Definition
+#### Signal Content
 
 A signal value of a signal consist of one or more members.
-All members and their properties are described in the `typeDefinition` object in the `signal` meta information.
+All members and their properties are described in the `content` object in the `signal` meta information.
 [There are some example of signal descriptions in a separate chapter](#Examples-for-Signal-Descriptions).
 
 Each member... 
@@ -709,7 +709,7 @@ The device sends the following signal-specific meta information.
   "method": "signal",
   "params" : {
     "id": <unique signal id>,
-    "typeDefinition" : {
+    "content" : {
       "name": "voltage",
       "rule": "explicit",
       "dataType": "float",
@@ -758,7 +758,7 @@ The device sends the following signal-specific meta information:
   "method": "signal",
   "params" : {
     "id" : <unique signal id>,
-    "typeDefinition" : {
+    "content" : {
 		"name": "decoder",
 		"rule": "explicit",
 		"dataType": "uint32",
@@ -799,7 +799,7 @@ This is for counting events that happens at any time (explicit rule).
   "method": "signal",
   "params" : {
     "id": <unique signal id>,
-    "typeDefinition" : {
+    "content" : {
       "name": "counter",
       "dataType": "uint32",
       "rule" : "linear",
@@ -841,7 +841,7 @@ time stamp (uint64)
   "method": "signal",
   "params" : {
     "id" : <unique signal id>,
-    "typeDefinition" : {
+    "content" : {
       "name": "angle",
       "rule": "explicit",
       "dataType": "double"
@@ -883,7 +883,7 @@ angle (double)
   "method": "signal",
   "params" : {
     "id" : <unique signal id>,
-    "typeDefinition" : {
+    "content" : {
       "name": "angle",
       "rule": "linear",
       "linear": {
@@ -922,7 +922,7 @@ We get a (partial) meta information with a `start` value of the counter every ti
 {
   "method": "signal",
   "params" : {
-    "typeDefinition" : {
+    "content" : {
       "linear" : {
         "start" : 0
       }
@@ -966,7 +966,7 @@ In addition we introduce the `interpretation` object which helps the client to i
 ~~~~ {.javascript}
 {
   "id" : <unique signal id>,
-  "typeDefinition" : {
+  "content" : {
     "name": "spectrum",
     "interpretation" : {
       "type": "spectrum"
@@ -1042,7 +1042,7 @@ Meta information describing the signal:
   "method": "signal",
   "params": {
     "id" : <unique signal id>,
-    "typeDefinition" : {
+    "content" : {
       "name": "spectrumWithPeakValues",
       "interpretation" : {
         "type": "spectrumWithPeakValues"
@@ -1157,7 +1157,7 @@ Above we described two alternatives describing the histrogram within the signal 
   "method": "signal",
   "params": {
     "id" : <unique signal id>,
-    "typeDefinition" : {
+    "content" : {
       "name": "Statistic",
       "interpretation" : { 
         "type": "statistic"
@@ -1264,7 +1264,7 @@ We'll get the following signal specific meta information:
   "method": "signal",
   "params": {
     "id" : <unique signal id>,
-    "typeDefinition" : {
+    "content" : {
       "name": "run up",
       "dataType" : "array",
       "array": {
@@ -1361,7 +1361,7 @@ We'll get the following signal specific meta information:
   "method": "signal",
   "params": {
     "id" : <unique signal id>,
-    "typeDefinition": {
+    "content": {
       "name": "coordinate",
       "interpretation" : {
         "type": "cartesianCoordinate"
@@ -1439,7 +1439,7 @@ We'll get the following signal specific meta information:
   "method": "signal",
   "params": {
     "id" : <unique signal id>,
-    "typeDefinition": {
+    "content": {
       "name": "harmonicAnalysis",
       "interpretation": {
         "type": "harmonicAnalysis"
