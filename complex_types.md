@@ -96,7 +96,8 @@ follows. This 32 bit word is always transmitted in little endian.
 
 ## Notation
 
-We use camel case for all keywords (example: "johnSmith")
+We use [camel case](#https://en.wikipedia.org/wiki/Camel_case) for all keywords (example: "johnSmith")
+
 
 ## Signal Data
 
