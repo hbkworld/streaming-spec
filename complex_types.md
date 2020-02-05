@@ -494,7 +494,7 @@ Each signal is described in a signal related meta information `signal`.
 }
 ~~~~
 
-#### Signa Type Definition
+#### Signal Type Definition
 
 A signal value of a signal consist of one or more members.
 All members and their properties are described in the `typeDefinition` object in the `signal` meta information.
@@ -502,9 +502,9 @@ All members and their properties are described in the `typeDefinition` object in
 
 Each member... 
 
-- MUST have a property `name`
-- MUST have a property `rule`
-- MUST have a property `dataType`
+- MUST have the property `name`
+- MUST have the property `rule`
+- MUST have the property `dataType`
 - MAY have a [`unit` object`](#unit-object)
 - MAY have a `function` object containing optional information about compound types for the client.
 
@@ -579,8 +579,8 @@ The time format is expressed within the `time` meta information:
 ~~~~
 
 - `timeFormat`: The time format being used.
-- `nextTime`: Details about the NExT time being used
-- `epoch`: Startpoint of the time stamp counter. If the device does not have an absolute time, this is not send.
+- `nextTime`: Details about the NExT time being usedbg
+s is not send.
 
 ##### Time Family Examples
 
@@ -1481,10 +1481,12 @@ We'll get the following signal specific meta information:
             "struct": [
               {
                 "name": "amplitude",
+                "dataType": "double",
                 "rule": "explicit"
               },
               {
                 "name": "phase",
+                "dataType": "double",
                 "unit": "rad",
                 "rule": "explicit"
               }
