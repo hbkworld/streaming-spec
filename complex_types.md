@@ -605,12 +605,12 @@ The time object is expressed as follows:
 ~~~~ {.javascript}
 {
   "time": {
-    "timeFamily" : 
-        0..255, // primeFactorExponent_0
-        0..255, // primeFactorExponent_1
-        0..255, // primeFactorExponent_2
-        0..255, // primeFactorExponent_3
-    ]
+    "timeFamily" : {
+      "2" : 0..255, // Exponent for prime factor 2
+      "3" : 0..255, // Exponent for prime factor 3
+      "5" : 0..255, // Exponent for prime factor 5
+      "7" : 0..255, // Exponent for prime factor 7
+    }
     "rule" : ...
   }
 }
