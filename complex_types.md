@@ -94,6 +94,11 @@ follows. This 32 bit word is always transmitted in little endian.
 - Meta Data
 - Function Data
 
+## Notation
+
+We use [camel case](#https://en.wikipedia.org/wiki/Camel_case) for all keywords (example: "johnSmith")
+
+
 ## Signal Data
 
 The `Data` section contains signal data (measurement data acquired by the device) related to the
@@ -229,7 +234,7 @@ A linear axis is described as follows:
 - `linear/delta`: The difference between two values
 
 
-### constant Rule
+### Constant Rule
 The rule is simple: There is a start value. The value equals the start value until a new start value is posted.
 
 ~~~~ {.javascript}
@@ -397,6 +402,42 @@ This Meta information MUST be send directly after the [Version Meta Information]
      The key `<command_interface>` MUST be a String which specifies the name of
      the [command interface](#command-interfaces). The associated Object value
      describes the command interface in further detail.
+     
+### Time Meta Information
+
+This gives information about the time on the device.
+
+~~~~ {.javascript}
+{
+  "method": "time",
+  "params": {
+    "epoch": <string> // always in ISO8601 format
+  }
+}
+~~~~
+
+- `Epoch`: Start time all time stamps are based on. It is a [TAI (no leap seconds) time](#https://en.wikipedia.org/wiki/International_Atomic_Time) given in ISO8601 format
+
+
+### Synchronization meta Information
+
+It carries information about the time synchronization status
+
+~~~~ {.javascript}
+{
+  "method": "sync",
+  "params": {
+    {
+	  "syncType" : <type of time synchronization>,
+	  "<type of time synchronization>" : {
+		<object with parameters specific to the syncType (i.e. sync source url or name)>
+	  },
+	  "inSync" : <true or false depending on whether the sync threshold is met>
+    }    
+  }
+}
+~~~~
+
 
 ### Error
 
@@ -485,19 +526,22 @@ Each signal is described in a signal related meta information `signal`.
 
 ~~~~ {.javascript}
 {
-  "typeDefinition": {
-    <contains at least one signl member description>
+  "content": {
+    <contains at least one signal member description>
   },
-  "signalData": {
-    "endian": <string>
+  "time": {
+    <time family and rule>
+  },
+  "data": {
+    "endian": "little"|"big"
   }
 }
 ~~~~
 
-#### Signal Type Definition
+#### Signal Content Object
 
 A signal value of a signal consist of one or more members.
-All members and their properties are described in the `typeDefinition` object in the `signal` meta information.
+All members and their properties are described in the `content` object in the `signal` meta information.
 [There are some example of signal descriptions in a separate chapter](#Examples-for-Signal-Descriptions).
 
 Each member... 
@@ -505,44 +549,78 @@ Each member...
 - MUST have the property `name`
 - MUST have the property `rule`
 - MUST have the property `dataType`
-- MAY have a [`unit` object`](#unit-object)
-- MAY have a `function` object containing optional information about compound types for the client.
+- MAY have a `interpretation` object containing optional information about how to interprete the signal
 
-Those propertiest are described using a signal member object:
+Those properties are described using a signal member object:
 
 ~~~~ {.javascript}
 {
   "name": <string>,
   "rule": <type of rule as string>,
   "dataType": <data type as string>,
-  "unit": <optional unit of the member>,
-  "function": { <optional> }
+  "interpretation": { <optional> }
 }
 ~~~~
 
 A signal with just one member has just one [base data type](#base-data-types) value. When there are more than one members, [struct](#struct) and [array](#array) are used to describe the structure.
 
-#### Signal Data
+##### Signal Member Interpretation
 
-The signal meta information conatins an object `signalData` describing the signal data.
+Contains information that is not necessary for processing the protocol but for further interpretation on the client.
+The optional `unit` of the member is to be found there.
 
--`"endian"`: Describes the byte endianess of the [Signal Data](#signal-data) and timestamps, either
+~~~~ {.javascript}
+{
+  "name": <string>,
+  "rule": <type of rule as string>,
+  "dataType": <data type as string>,
+  "interpretation": {
+    "unit": <optional unit of the member>,
+  }
+}
+~~~~
+
+
+
+#### Signal Data Object
+
+The signal meta information conatins an object `data` describing the signal data.
+
+
+-`"endian"`: Describes the byte endianess of the including timestamps, either
 
   - "big"; Big endian byte order (network byte order).
   - "little"; Little endian byte order.
 
 
-### Time Meta Information
+#### Time Object
 
-Each signal has a time information which is described in a separate `time` meta information.
+Each signal has a time information which is described in a `time object`.
 
-The time is mandatory for each signal. It is not part of the signal value.
+The time object is mandatory for each signal.
 It can follow an implicit rule (most likely equidistant or linear) or may be explicit.
 
+The time object is expressed as follows:
 
-#### NExT Time Format
+~~~~ {.javascript}
+{
+  "time": {
+    "timeFamily" : 
+        0..255, // primeFactorExponent_0
+        0..255, // primeFactorExponent_1
+        0..255, // primeFactorExponent_2
+        0..255, // primeFactorExponent_3
+    ]
+    "rule" : ...
+  }
+}
+~~~~
 
-A 64 bit counter running with a base frequency is being used to express the time. It has a start time (`epoch`).
+- `timeFamily`: The time prime factor exponents defining the time family
+
+#### Time Family
+
+A 64 bit counter running with a base frequency is being used to express the time. It has a start time (`epoch`), that is send with the stream related time meta information.
 different frequencies, so called time families, can be used to accomodate specific requirements.
 
 The base frequency is expressed using prime factor exponents. It works as follows:
@@ -555,42 +633,10 @@ T = 2^-primeFactorExponent_0 * 3^-primeFactorExponent_1 * 5^-primeFactorExponent
 
 prime factor exponents range form 0 to 255.
 
-
-The time format is expressed within the `time` meta information:
-
-~~~~ {.javascript}
-{
-  "method": "time",
-  "params": {
-    "timeFormat": "nextTime",    
-    "nextTime" : {
-      "primeFactorExponents" : [
-        0..255, // primeFactorExponent_0
-        0..255, // primeFactorExponent_1
-        0..255, // primeFactorExponent_2
-        0..255, // primeFactorExponent_3
-      ]
-    },
-    "scale": <string>, // optional, e.g. "utc", "tai", "gps"
-    "epoch": <string> // optional, always in ISO8601 format
-    "rule" : ...
-  }
-}
-~~~~
-
-- `timeFormat`: The time format being used.
-- `nextTime`: Details about the NExT time being usedbg
-s is not send.
-
-##### Time Family Examples
+##### Examples
 
 44100 Hz = 2^2 * 3^2 * 5^2 * 7^2
 65536 Hz = 2^16 * 3^0 * 5^0 * 7^0
-
-#### Epoch
-
-The default start epoch is january 1st 1970 00:00 (unix epoch). Another epoch might be given.
-
 
 #### Linear Time
 Equidistant time is described as a [linear implicit rule](#Linear_Rule).
@@ -607,19 +653,17 @@ Both can be delivered by a separate, signal specific, meta information.
 
 ~~~~ {.javascript}
 {
-  "method": "time",
-  "params": {
+  "time" : {
+    ...
     "rule": "linear",
     "linear": {      
       "start": uint64,
       "delta": uint64
     }
+  }
 }
 ~~~~
 
-
-
-- `method`: Type of meta information
 - `rule`: type of rule
 - `linear/start`: The absolute timestamp for the next value point.
 - `linear/delta`: The time difference between two value points
@@ -629,14 +673,12 @@ Time is delivered as absolute time stamp for each value.
 
 ~~~~ {.javascript}
 {
-  "method": "time",
-  "params": {
+  "time" : {
+    ...
     "rule": "explicit"
   }
 }
 ~~~~
-
-- `method`: Type of meta information
 
 ### Unit Object
 
@@ -701,7 +743,7 @@ The signal has 1 scalar value. Synchronous output rate is 100 Hz
 - This member is a scaled 32 bit float base data type which is explicit
 - The time is linear.
 
-The device sends the following signal-specific meta information.
+The device sends the following `signal` meta information.
 
 
 ~~~~ {.javascript}
@@ -709,26 +751,23 @@ The device sends the following signal-specific meta information.
   "method": "signal",
   "params" : {
     "id": <unique signal id>,
-    "typeDefinition" : {
+    "time" : {
+      "timeFamily" : [ < time family > ],
+      "rule": "linear",
+      "linear": {
+        "start": <uint64>,
+        "delta": <uint64>
+      }
+    },
+    "content" : {
       "name": "voltage",
       "rule": "explicit",
       "dataType": "float",
-      "unit": "V"
+      "interpretation": {
+        "unit": "V",
+      }
     }
   }
-}
-~~~~
-
-~~~~ {.javascript}
-{
-  "method": "time",
-  "params" : {
-    "rule": "linear",
-    "linear": {
-      "start": "2007-12-24T18:21:16,3Z",
-      "delta": "10 ms"
-    }
-  ]
 }
 ~~~~
 
@@ -751,31 +790,29 @@ The signal has a simple scalar member.
 - The member is explicit.
 - The time is explicit.
 
-The device sends the following signal-specific meta information:
+The device sends the following `signal` meta information:
 
 ~~~~ {.javascript}
 {
   "method": "signal",
   "params" : {
     "id" : <unique signal id>,
-    "typeDefinition" : {
-		"name": "decoder",
-		"rule": "explicit",
-		"dataType": "uint32",
-		"unit": "decoder unit"
+	"time" : {
+      "timeFamily" : [ < time family > ],
+      "rule": "explicit",
+    },
+    "content" : {
+	  "name": "decoder",
+	  "rule": "explicit",
+	  "dataType": "uint32",
+	  "interpretation": {
+        "unit": "decoder unit",
+      }
 	}
   }
 }
 ~~~~
 
-~~~~ {.javascript}
-{
-  "method": "time",
-  "params" : {
-    "rule": "explicit"
-  }
-}
-~~~~
 
 Transferred signal data for one signal value:
 
@@ -799,7 +836,11 @@ This is for counting events that happens at any time (explicit rule).
   "method": "signal",
   "params" : {
     "id": <unique signal id>,
-    "typeDefinition" : {
+	"time" : {
+      "timeFamily" : [ < time family > ],
+      "rule": "explicit",
+    },
+    "content" : {
       "name": "counter",
       "dataType": "uint32",
       "rule" : "linear",
@@ -807,16 +848,7 @@ This is for counting events that happens at any time (explicit rule).
         "start" : 0,
         "delta" : 2
       }
-    }
-  }
-}
-~~~~
-
-~~~~ {.javascript}
-{
-  "method": "time",
-  "params" : {
-    "rule": "explicit"
+	}
   }
 }
 ~~~~
@@ -841,20 +873,15 @@ time stamp (uint64)
   "method": "signal",
   "params" : {
     "id" : <unique signal id>,
-    "typeDefinition" : {
+  	"time" : {
+      "timeFamily" : [ < time family > ],
+      "rule": "explicit",
+    },
+    "content" : {
       "name": "angle",
       "rule": "explicit",
       "dataType": "double"
     }
-  }
-}
-~~~~
-
-~~~~ {.javascript}
-{
-  "method": "time",
-  "params" : {
-    "rule": "explicit",
   }
 }
 ~~~~
@@ -875,7 +902,7 @@ angle (double)
 - The counter representing the angle follows a linear rule, it can go back and forth
 - Absolute start position when crossing a start position.
 - No initial absolute value.
-- The time is explicit.
+- The `time` is explicit.
 
 
 ~~~~ {.javascript}
@@ -883,23 +910,18 @@ angle (double)
   "method": "signal",
   "params" : {
     "id" : <unique signal id>,
-    "typeDefinition" : {
+   	"time" : {
+      "timeFamily" : [ < time family > ],
+      "rule": "explicit",
+    },
+    "content" : {
       "name": "angle",
       "rule": "linear",
       "linear": {
-        "delta": 1,
+        "delta": 1
       },
       "dataType": "i32"
     }
-  }
-}
-~~~~
-
-~~~~ {.javascript}
-{
-  "method": "time",
-  "params" : {
-    "rule": "explicit",
   }
 }
 ~~~~
@@ -922,7 +944,7 @@ We get a (partial) meta information with a `start` value of the counter every ti
 {
   "method": "signal",
   "params" : {
-    "typeDefinition" : {
+    "content" : {
       "linear" : {
         "start" : 0
       }
@@ -961,14 +983,18 @@ The signal consists of a spectum
 Several amplitude values over the frequency.
 We combine array, struct and base data types.
 
-In addition we introduce the `function` object which helps the client to inteprete the data.
+In addition we introduce the `interpretation` object which helps the client to inteprete the data.
 
 ~~~~ {.javascript}
 {
   "id" : <unique signal id>,
-  "typeDefinition" : {
+  "time" : {
+    "timeFamily" : [ < time family > ],
+    "rule": "explicit",
+  },
+  "content" : {
     "name": "spectrum",
-    "function" : {
+    "interpretation" : {
       "type": "spectrum"
     },
     "dataType" : "array",
@@ -979,17 +1005,21 @@ In addition we introduce the `function` object which helps the client to intepre
         {
           "name": "amplitude",
           "dataType": "double",
-          "unit": "dB",
-          "rule": "explicit"
+          "rule": "explicit",
+          "interpretation": {
+            "unit": "dB"
+          },
         },
         {
           "name": "frequency",
           "dataType": "double",
-          "unit": "Hz",
           "rule": "linear",
           "linear": {
             "delta": 10.0,
             "start": 1000.0
+          },
+          "interpretation": {
+            "unit": "Hz"
           }
         }
       ]
@@ -998,23 +1028,13 @@ In addition we introduce the `function` object which helps the client to intepre
 }
 ~~~~
 
-- `function/type`: Depending on the type, the client expects a specified structure.
+- `interpretation/type`: Depending on the type, the client expects a specified structure.
 - `array/count`: The number of points in each spectrum
 - struct member `amplitude`: Describes the measured values (i.e. amplitude, attenuation).
 - struct member `frequency`: Describes the range in the spectral domain (i.e. frequency)
 
 Only struct member `amplitude` is explicit, hence this is the data to be transferred.
 
-
-
-~~~~ {.javascript}
-{
-  "method": "time",
-  "params" : {
-    "rule": "explicit"
-  ]
-}
-~~~~
 
 Transferred signal data for one signal value:
 One absolute time stamp followed by 1024 amplitude double values. There will be no frequency values because they are implicit.
@@ -1042,15 +1062,19 @@ Meta information describing the signal:
   "method": "signal",
   "params": {
     "id" : <unique signal id>,
-    "typeDefinition" : {
+    "time" : {
+      "timeFamily" : [ < time family > ],
+      "rule": "explicit",
+    }, 
+    "content" : {
       "name": "spectrumWithPeakValues",
-      "function" : {
+      "interpretation" : {
         "type": "spectrumWithPeakValues"
       },
       "struct": [
         {
           "name": "spectrum",
-          "function" : { 
+          "interpretation" : { 
             "type": "spectrum"
           },
           "dataType": "array",
@@ -1061,17 +1085,21 @@ Meta information describing the signal:
               {
                 "name": "amplitude",
                 "dataType": "double",
-                "unit": "dB",
-                "rule": "explicit"
+                "rule": "explicit",
+                "interpretation": {
+                  "unit": "dB"
+                }
               },
               {
                 "name": "frequency",
                 "dataType": "double",
-                "unit": "Hz",
                 "rule": "linear",
                 "linear": {
                   "delta": 10,
                   "start": 1000
+                },
+                "interpretation": {
+                  "unit": "Hz"
                 }
               }
             ]
@@ -1087,30 +1115,28 @@ Meta information describing the signal:
               {
                 "name": "frequency",
                 "dataType": "double",
-                "unit": "Hz"
+                "rule": "explicit",
+                "interpretation": {
+                  "unit": "Hz"
+                }
               },
               {
                 "name": "amplitude",
                 "dataType": "double",
-                "unit": "dB"
+                "rule": "explicit",
+                "interpretation": {
+                  "unit": "dB"
+                }
               }
             ]
           }
         }
       ]
-    }
+    }   
   }
 }
 ~~~~
 
-~~~~ {.javascript}
-{
-  "method": "time",
-  "params" : {
-    "rule": "explicit"
-  }
-}
-~~~~
 
 Transferred signal data for one signal value:
 
@@ -1157,16 +1183,20 @@ Above we described two alternatives describing the histrogram within the signal 
   "method": "signal",
   "params": {
     "id" : <unique signal id>,
-    "typeDefinition" : {
+    "time" : {
+      "timeFamily" : [ < time family > ],
+      "rule": "explicit",
+    },
+    "content" : {
       "name": "Statistic",
-      "function" : { 
+      "interpretation" : { 
         "type": "statistic"
       },
       "dataType": "struct",
       "struct": [
         {
           "name": "histogram",
-          "function" : { 
+          "interpretation" : { 
             "type": "histogram"
           },
           "dataType": "array",
@@ -1182,11 +1212,13 @@ Above we described two alternatives describing the histrogram within the signal 
               {
                 "name": "class",
                 "dataType": "double",
-                "unit": "Hz",
                 "rule": "linear",
                 "linear": {
                   "delta": 1,
                   "start": 50
+                },
+                "interpretation": {
+                  "unit": "Hz"
                 }
               }
             ]
@@ -1214,24 +1246,13 @@ Above we described two alternatives describing the histrogram within the signal 
 ~~~~
 
 Within there is a object describing a histrogram. It has the following members:
-- `function/type`: Depending on the type, the client expects a specified structure.
+- `interpretation/type`: Depending on the type, the client expects a specified structure.
 - `array/count`: The number of classes in each histogram
 - struct member `count`: Value of the counter
 - struct member `class`: Class
 
-It has its own function description.
+It has its own `interpretation` object.
 
-
-
-
-~~~~ {.javascript}
-{
-  "method": "time",
-  "params" : {
-    "rule": "explicit"
-  ]
-}
-~~~~
 
 Transferred signal data for one signal value:
 
@@ -1264,7 +1285,11 @@ We'll get the following signal specific meta information:
   "method": "signal",
   "params": {
     "id" : <unique signal id>,
-    "typeDefinition" : {
+    "time" : {
+      "timeFamily" : [ < time family > ],
+      "rule": "explicit",
+    },
+    "content" : {
       "name": "run up",
       "dataType" : "array",
       "array": {
@@ -1278,7 +1303,7 @@ We'll get the following signal specific meta information:
           },
           {
             "name": "fft",
-            "function": {
+            "interpretation": {
               "type": "spectrum"
             },
             "dataType" : "array",
@@ -1289,17 +1314,21 @@ We'll get the following signal specific meta information:
                 {
                   "name": "amplitude",
                   "dataType": "double",
-                  "unit": "dB",
                   "rule": "explicit"
+                  "interpretation": {
+                    "unit": "dB"
+                  }
                 },
                 {
                   "name": "frequency",
                   "dataType": "double",
-                  "unit": "Hz",
                   "rule": "linear",
                   "linear": {
                     "delta": 10,
                     "start": 1000
+                  },
+                  "interpretation": {
+                    "unit": "Hz"
                   }
                 }
               ]
@@ -1308,15 +1337,6 @@ We'll get the following signal specific meta information:
         ]
       }
     }
-  }
-}
-~~~~
-
-~~~~ {.javascript}
-{
-  "method": "time",
-  "params" : {
-    "rule": "explicit"
   }
 }
 ~~~~
@@ -1361,9 +1381,13 @@ We'll get the following signal specific meta information:
   "method": "signal",
   "params": {
     "id" : <unique signal id>,
-    "typeDefinition": {
+    "time" : {
+      "timeFamily" : [ < time family > ],
+      "rule": "explicit",
+    },    
+    "content": {
       "name": "coordinate",
-      "function" : {
+      "interpretation" : {
         "type": "cartesianCoordinate"
       },
       "dataType": "struct",
@@ -1372,32 +1396,29 @@ We'll get the following signal specific meta information:
           "name": "x",
           "dataType": "double",
           "rule": "explicit",
-          "unit": "m"
+          "interpretation": {
+            "unit": "m"
+          }
         },
         {
           "name": "y",
           "dataType": "double",
           "rule": "explicit",
-          "unit": "m"
+          "interpretation": {
+            "unit": "m"
+          }
         },
         {
           "name": "z",
           "dataType": "double",
           "rule": "explicit",
-          "unit": "m"
+          "interpretation": {
+            "unit": "m"
+          }
         }
       ]
     }
     
-  }
-}
-~~~~
-
-~~~~ {.javascript}
-{
-  "method": "time",
-  "params" : {
-    "rule": "explicit"
   }
 }
 ~~~~
@@ -1420,7 +1441,8 @@ One combined value consists of the following:
 - some scalar values
   * distortion: The Total Harmonic Distortion (according to IEC 61000-4-7).
   * fundamental frquency: Average fundamental frequency.
-  * dcAmplitude: The amplitude of the DC component.
+  
+          "dataType": "double",* dcAmplitude: The amplitude of the DC component.
   * cycleCount: The number of cycles in the window (according to IEC 61000-4-7)
   * harmonicCount: The number of harmonic orders (0 ... (MAX_HARMONIC_ORDERS = 50)).
 - an array of structures with information about the heamonics.
@@ -1439,9 +1461,13 @@ We'll get the following signal specific meta information:
   "method": "signal",
   "params": {
     "id" : <unique signal id>,
-    "typeDefinition": {
+    "time" : {
+      "timeFamily" : [ < time family > ],
+      "rule": "explicit",
+    },
+    "content": {
       "name": "harmonicAnalysis",
-      "function": {
+      "interpretation": {
         "type": "harmonicAnalysis"
       },
       "dataType": "struct",
@@ -1455,13 +1481,17 @@ We'll get the following signal specific meta information:
           "name": "fundamentalFrequency",
           "dataType": "double",
           "rule": "explicit",
-          "unit": "Hz"
+          "interpretation": {
+            "unit": "Hz"
+          }
         },
         {
           "name": "dcAmplitude",
           "dataType": "double",
           "rule": "explicit",
-          "unit": "V"
+          "interpretation": {
+            "unit": "V"
+          }
         },
         {
           "name": "cycleCount",
@@ -1470,7 +1500,7 @@ We'll get the following signal specific meta information:
         },
         {
           "name": "harmonicCount",
-          "dataType": "unit32",
+          "dataType": "uint32",
           "rule": "explicit"
         },
         {
@@ -1487,23 +1517,16 @@ We'll get the following signal specific meta information:
               {
                 "name": "phase",
                 "dataType": "double",
-                "unit": "rad",
                 "rule": "explicit"
+                "interpretation": {
+                  "unit": "rad"
+                }
               }
             ]
           }
         }
       ]
     }
-  }
-}
-~~~~
-
-~~~~ {.javascript}
-{
-  "method": "time",
-  "params" : {
-    "rule": "explicit",
   }
 }
 ~~~~
@@ -1526,7 +1549,7 @@ time stamp (uint64)
 distortion (double)
 fundemantal frequency (double)
 dc amplitude (double)
-cycle count (unit32)
+cycle count (uint32)
 harmonics count (uint32)
   
 harmonic 1
