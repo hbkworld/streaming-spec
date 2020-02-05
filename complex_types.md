@@ -94,6 +94,10 @@ follows. This 32 bit word is always transmitted in little endian.
 - Meta Data
 - Function Data
 
+## Notation
+
+We use camel case for all keywords (example: "johnSmith")
+
 ## Signal Data
 
 The `Data` section contains signal data (measurement data acquired by the device) related to the
