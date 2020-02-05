@@ -625,11 +625,11 @@ different frequencies, so called time families, can be used to accomodate specif
 
 The base frequency is expressed using prime factor exponents. It works as follows:
 
-f = 2^primeFactorExponent_0 * 3^primeFactorExponent_1 * 5^primeFactorExponent_2 * 7^primeFactorExponent_3 Hz
+f = 2^primeFactorExponent_2 * 3^primeFactorExponent_3 * 5^primeFactorExponent_5 * 7^primeFactorExponent_7 Hz
 
 This calculates a frequency. If the sign of all prime factor exponents is being inverted, the period time is calculated.
 
-T = 2^-primeFactorExponent_0 * 3^-primeFactorExponent_1 * 5^-primeFactorExponent_2 * 7^-primeFactorExponent_3 s
+T = 2^-primeFactorExponent_2 * 3^-primeFactorExponent_3 * 5^-primeFactorExponent_5 * 7^-primeFactorExponent_7 s
 
 prime factor exponents range form 0 to 255.
 
