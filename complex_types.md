@@ -116,6 +116,13 @@ device like changes of the output rate or time resynchronization.
 A Meta information block always consists of a Metainfo_Type and a Metainfo_Data block.
 
 
+
+### Notifications
+
+Since the configuration of a signal may change at any time, updated meta information may be notified at any time. Only the changed parameters will be transferred,
+hence only parts of the meta information will be transferred.
+
+
 ![A Meta Information block](images/meta_block.png)
 
 ### Metainfo_Type
@@ -129,10 +136,6 @@ This 32 bit word is always transmitted in little endian.
 The endianness of the meta information Metainfo_Data block depends on the meta information format.
 
 
-### Notifications
-
-Since the configuration of a signal may change at any time, updated meta information may be notified at any time. Only the changed parameters will be transferred,
-hence only parts of the meta information will be transferred.
 
 
 ## Data Types
@@ -172,6 +175,28 @@ An array of members of the same data type. The number of elements is fixed.
 - `array/count`: Number of elements in the array.
 - `<member description>`: Might be a base data type, another array or a struct
 
+#### Transferred Data
+
+The explicit content of the `count` array mebmers ist transferred.
+
+### Dynamic Array
+
+An array of members of the same data type. The number of elements is dynamic.
+
+~~~~ {.javascript}
+{
+  "dataType" : "dynamicArray",
+  "array": {
+    <member description>
+  }
+}
+~~~~
+
+- `<member description>`: Might be a base data type, another array or a struct
+
+#### Transferred Data
+
+A uint32 with the number of members followed by the explicit content of the members.
 
 ### Struct
 
@@ -1445,8 +1470,7 @@ One combined value consists of the following:
   
           "dataType": "double",* dcAmplitude: The amplitude of the DC component.
   * cycleCount: The number of cycles in the window (according to IEC 61000-4-7)
-  * harmonicCount: The number of harmonic orders (0 ... (MAX_HARMONIC_ORDERS = 50)).
-- an array of structures with information about the heamonics.
+- an dynamic array of structures with information about the heamonics.
   * amplitude: Amplitude of the n-th hramonics
   * phase: Phase of the n-th hramonics
 
@@ -1500,15 +1524,9 @@ We'll get the following signal specific meta information:
           "rule": "explicit"
         },
         {
-          "name": "harmonicCount",
-          "dataType": "uint32",
-          "rule": "explicit"
-        },
-        {
           "name": "harmonics",
-          "dataType": "array",
+          "dataType": "dynamicArray",
           "array": {
-            "count": 50,
             "struct": [
               {
                 "name": "amplitude",
@@ -1540,7 +1558,7 @@ Transferred signal data for one signal value:
 - a double value with the dc amplitude
 - an unsigned integer with the cycle count
 - an unsigned integer with the harmonics count
-- array with 50 harmonic structs each containing:
+- dynamic array with n harmonic structs each containing:
   * a double value with the amplitude of the harmonic
   * a double value with the phase of the harmonic
   
@@ -1552,7 +1570,8 @@ fundemantal frequency (double)
 dc amplitude (double)
 cycle count (uint32)
 harmonics count (uint32)
-  
+
+harmonic count n (uint32)  
 harmonic 1
 amplitude of harmonic 1 (double)
 phase of harmonic 1 (double)
@@ -1560,9 +1579,9 @@ harmonic 2
 amplitude of harmonic 2 (double)
 phase of harmonic 2 (double)
 ...
-harmonic 50
-amplitude of harmonic 50 (double)
-phase of harmonic 50 (double)
+harmonic n
+amplitude of harmonic n (double)
+phase of harmonic n (double)
 ~~~~
   
 
