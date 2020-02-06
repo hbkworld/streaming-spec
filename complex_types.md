@@ -513,6 +513,8 @@ If signals disappear while being connected, there MUST be an `unavailable` with 
 ~~~~
 
 
+## Signal Specific Meta Information
+
 ### Subscribe Related Information
 
 The string value of the subscribe key always carries the unique signal id of the signal.
@@ -541,9 +543,6 @@ No more data with the same `Signal_Number` MUST be sent after the unsubscribe ac
   "method": "unsubscribe"
 }
 ~~~~
-
-
-## Signal Specific Meta Information
 
 
 ### Signal Description
