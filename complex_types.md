@@ -446,7 +446,7 @@ This gives information about the time on the device.
 - `Epoch`: Start time all time stamps are based on. It is a [TAI (no leap seconds) time](#https://en.wikipedia.org/wiki/International_Atomic_Time) given in ISO8601 format (example: 1970-01-01 for the UNIX epoch)
 
 
-### Synchronization meta Information
+### Synchronization Meta Information
 
 It carries information about the time synchronization status
 
@@ -1620,3 +1620,7 @@ Transferred signal data for one signal value:
 time stamp (uint64)
 string length n (uint32)  
 n bytes of binary data
+
+# Todo
+
+- More discussion about details concerning [Time Meta Information](#time-meta-information) and [Synchronization Meta Information](#synchronization-meta-information)
