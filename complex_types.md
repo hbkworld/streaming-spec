@@ -661,6 +661,7 @@ prime factor exponents range form 0 to 255.
 ##### Examples
 
 44100 Hz = 2^2 * 3^2 * 5^2 * 7^2
+
 65536 Hz = 2^16 * 3^0 * 5^0 * 7^0
 
 #### Linear Time
