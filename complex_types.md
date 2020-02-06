@@ -186,7 +186,7 @@ An array of members of the same data type. The number of elements is dynamic.
 ~~~~ {.javascript}
 {
   "dataType" : "dynamicArray",
-  "array": {
+  "dynamicArray": {
     <member description>
   }
 }
@@ -778,7 +778,7 @@ The device sends the following `signal` meta information.
   "params" : {
     "id": <unique signal id>,
     "time" : {
-      "timeFamily" : [ < time family > ],
+      "timeFamily" : { < time family > },
       "rule": "linear",
       "linear": {
         "start": <uint64>,
@@ -824,7 +824,7 @@ The device sends the following `signal` meta information:
   "params" : {
     "id" : <unique signal id>,
 	"time" : {
-      "timeFamily" : [ < time family > ],
+      "timeFamily" : { < time family > },
       "rule": "explicit",
     },
     "content" : {
@@ -863,7 +863,7 @@ This is for counting events that happens at any time (explicit rule).
   "params" : {
     "id": <unique signal id>,
 	"time" : {
-      "timeFamily" : [ < time family > ],
+      "timeFamily" : { < time family > },
       "rule": "explicit",
     },
     "content" : {
@@ -900,7 +900,7 @@ time stamp (uint64)
   "params" : {
     "id" : <unique signal id>,
   	"time" : {
-      "timeFamily" : [ < time family > ],
+      "timeFamily" : { < time family > },
       "rule": "explicit",
     },
     "content" : {
@@ -937,7 +937,7 @@ angle (double)
   "params" : {
     "id" : <unique signal id>,
    	"time" : {
-      "timeFamily" : [ < time family > ],
+      "timeFamily" : { < time family > },
       "rule": "explicit",
     },
     "content" : {
@@ -1015,7 +1015,7 @@ In addition we introduce the `interpretation` object which helps the client to i
 {
   "id" : <unique signal id>,
   "time" : {
-    "timeFamily" : [ < time family > ],
+    "timeFamily" : { < time family > },
     "rule": "explicit",
   },
   "content" : {
@@ -1089,7 +1089,7 @@ Meta information describing the signal:
   "params": {
     "id" : <unique signal id>,
     "time" : {
-      "timeFamily" : [ < time family > ],
+      "timeFamily" : { < time family > },
       "rule": "explicit",
     }, 
     "content" : {
@@ -1210,7 +1210,7 @@ Above we described two alternatives describing the histrogram within the signal 
   "params": {
     "id" : <unique signal id>,
     "time" : {
-      "timeFamily" : [ < time family > ],
+      "timeFamily" : { < time family > },
       "rule": "explicit",
     },
     "content" : {
@@ -1312,7 +1312,7 @@ We'll get the following signal specific meta information:
   "params": {
     "id" : <unique signal id>,
     "time" : {
-      "timeFamily" : [ < time family > ],
+      "timeFamily" : { < time family > },
       "rule": "explicit",
     },
     "content" : {
@@ -1408,7 +1408,7 @@ We'll get the following signal specific meta information:
   "params": {
     "id" : <unique signal id>,
     "time" : {
-      "timeFamily" : [ < time family > ],
+      "timeFamily" : { < time family > },
       "rule": "explicit",
     },    
     "content": {
@@ -1487,7 +1487,7 @@ We'll get the following signal specific meta information:
   "params": {
     "id" : <unique signal id>,
     "time" : {
-      "timeFamily" : [ < time family > ],
+      "timeFamily" : { < time family > },
       "rule": "explicit",
     },
     "content": {
@@ -1526,7 +1526,7 @@ We'll get the following signal specific meta information:
         {
           "name": "harmonics",
           "dataType": "dynamicArray",
-          "array": {
+          "dynamicArray": {
             "struct": [
               {
                 "name": "amplitude",
@@ -1557,7 +1557,7 @@ Transferred signal data for one signal value:
 - a double value fundemantal frequency
 - a double value with the dc amplitude
 - an unsigned integer with the cycle count
-- an unsigned integer with the harmonics count
+- dynamic array member count n
 - dynamic array with n harmonic structs each containing:
   * a double value with the amplitude of the harmonic
   * a double value with the phase of the harmonic
@@ -1566,12 +1566,11 @@ Transferred signal data for one signal value:
 ~~~~
 time stamp (uint64)
 distortion (double)
-fundemantal frequency (double)
+fundamental frequency (double)
 dc amplitude (double)
 cycle count (uint32)
-harmonics count (uint32)
 
-harmonic count n (uint32)  
+harmonic array member count n (uint32)  
 harmonic 1
 amplitude of harmonic 1 (double)
 phase of harmonic 1 (double)
@@ -1584,4 +1583,40 @@ amplitude of harmonic n (double)
 phase of harmonic n (double)
 ~~~~
   
+## Binary data of variable length (Binary Large Object)
 
+This can be used to transfer any binary data of variable length.
+
+~~~~ {.javascript}
+{
+  "method": "signal",
+  "params": {
+    "id" : <unique signal id>,
+    "time" : {
+      "timeFamily" : { < time family > },
+      "rule": "explicit"
+    },
+    "content": {    
+      "name": "blob",
+      "interpretation": {
+        "type": "blob"
+      },
+      "dataType": "dynamicArray",
+      "dynamicArray": {
+        "name": "bytes",
+        "dataType": uint8,
+        "rule": "explicit"
+      }
+    }
+  }
+}
+~~~~
+
+Transferred signal data for one signal value:
+
+- 1 time stamp as uint64
+- dynamic array with n characters
+
+time stamp (uint64)
+string length n (uint32)  
+n bytes of binary data
