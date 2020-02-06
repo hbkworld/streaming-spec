@@ -776,7 +776,6 @@ The device sends the following `signal` meta information.
 {
   "method": "signal",
   "params" : {
-    "id": <unique signal id>,
     "time" : {
       "timeFamily" : { < time family > },
       "rule": "linear",
@@ -822,7 +821,6 @@ The device sends the following `signal` meta information:
 {
   "method": "signal",
   "params" : {
-    "id" : <unique signal id>,
 	"time" : {
       "timeFamily" : { < time family > },
       "rule": "explicit",
@@ -861,7 +859,6 @@ This is for counting events that happens at any time (explicit rule).
 {
   "method": "signal",
   "params" : {
-    "id": <unique signal id>,
 	"time" : {
       "timeFamily" : { < time family > },
       "rule": "explicit",
@@ -898,7 +895,6 @@ time stamp (uint64)
 {
   "method": "signal",
   "params" : {
-    "id" : <unique signal id>,
   	"time" : {
       "timeFamily" : { < time family > },
       "rule": "explicit",
@@ -935,7 +931,6 @@ angle (double)
 {
   "method": "signal",
   "params" : {
-    "id" : <unique signal id>,
    	"time" : {
       "timeFamily" : { < time family > },
       "rule": "explicit",
@@ -1013,7 +1008,6 @@ In addition we introduce the `interpretation` object which helps the client to i
 
 ~~~~ {.javascript}
 {
-  "id" : <unique signal id>,
   "time" : {
     "timeFamily" : { < time family > },
     "rule": "explicit",
@@ -1087,7 +1081,6 @@ Meta information describing the signal:
 {
   "method": "signal",
   "params": {
-    "id" : <unique signal id>,
     "time" : {
       "timeFamily" : { < time family > },
       "rule": "explicit",
@@ -1208,7 +1201,6 @@ Above we described two alternatives describing the histrogram within the signal 
 {
   "method": "signal",
   "params": {
-    "id" : <unique signal id>,
     "time" : {
       "timeFamily" : { < time family > },
       "rule": "explicit",
@@ -1310,7 +1302,6 @@ We'll get the following signal specific meta information:
 {
   "method": "signal",
   "params": {
-    "id" : <unique signal id>,
     "time" : {
       "timeFamily" : { < time family > },
       "rule": "explicit",
@@ -1406,7 +1397,6 @@ We'll get the following signal specific meta information:
 {
   "method": "signal",
   "params": {
-    "id" : <unique signal id>,
     "time" : {
       "timeFamily" : { < time family > },
       "rule": "explicit",
@@ -1485,7 +1475,6 @@ We'll get the following signal specific meta information:
 {
   "method": "signal",
   "params": {
-    "id" : <unique signal id>,
     "time" : {
       "timeFamily" : { < time family > },
       "rule": "explicit",
@@ -1591,7 +1580,6 @@ This can be used to transfer any binary data of variable length.
 {
   "method": "signal",
   "params": {
-    "id" : <unique signal id>,
     "time" : {
       "timeFamily" : { < time family > },
       "rule": "explicit"
