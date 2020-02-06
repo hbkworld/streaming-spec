@@ -83,9 +83,9 @@ follows. This 32 bit word is always transmitted in little endian.
 
 ## Terminology
 
-- Signal: A signal is a data source delivering signal values. On the transport layer, each signal has a unique `Signal Number`. On the representation layer, each signal has a Unique `Signal Id`.
-- Signal Number: Each signal has a number that is unique on the device. It is used to differentiate the signals efficiently.
-- Signal Id: Each signal has an id that is unique on the device. It is as string. It is used to deteremine the signal on the presentation layer.
+- Signal: A signal is a data source delivering signal values.
+- Signal Number: Identifies the signal on the transport layer.
+- Signal Id: Identifies the signal on the representation layer.
 
 - Signal Definition: A signal value consists at least of one member. Arrays and structs can be used to combine several members to a compound signal value. The resulting structure is the signal definition.
 - Member: A member is a base data type carrying some measured information.
@@ -102,7 +102,7 @@ We use [camel case](#https://en.wikipedia.org/wiki/Camel_case) for all keywords 
 ## Signal Data
 
 The `Data` section contains signal data (measurement data acquired by the device) related to the
-respective `Signal_Number`. [Meta Information](#meta-information) MAY be necessary to interpret Signal Data.
+respective `Signal_Number`. [Meta Information](#meta-information) are necessary to interpret Signal Data.
 The signal data might be delivered in big or little endian.
 
 ## Meta Information
@@ -120,13 +120,13 @@ A Meta information block always consists of a Metainfo_Type and a Metainfo_Data 
 
 ### Metainfo_Type
 
-The Metainfo_Type indicates how data in the Metainfo_Data block is
-encoded. This 32 bit word is always transmitted in little endian.
-
-The endianness of the meta information Metainfo_Data block depends on the meta information format.
+The Metainfo_Type indicates the protocol of the data in the Metainfo_Data.
+This 32 bit word is always transmitted in little endian.
 
 - json is not a binary format, hence there is not endianness
 - msgpack uses big endian.
+
+The endianness of the meta information Metainfo_Data block depends on the meta information format.
 
 
 ### Notifications
@@ -348,7 +348,9 @@ Everything concerning the stream ([Signal Number](#signal-number) `= 0` on the t
 ~~~~ {.javascript}
 {
   "method": "apiVersion",
-  "params": ["1.0.0"]
+  "params": {
+    "version": "1.0.0"
+   }
 }
 ~~~~
 
@@ -432,7 +434,7 @@ It carries information about the time synchronization status
 	  "<type of time synchronization>" : {
 		<object with parameters specific to the syncType (i.e. sync source url or name)>
 	  },
-	  "inSync" : <true or false depending on whether the sync threshold is met>
+	  "quality" : <quality of synchronization>
     }    
   }
 }
@@ -586,8 +588,7 @@ The optional `unit` of the member is to be found there.
 
 The signal meta information conatins an object `data` describing the signal data.
 
-
--`"endian"`: Describes the byte endianess of the including timestamps, either
+-`"endian"`: Describes the byte endianess of the transferred signal data.
 
   - "big"; Big endian byte order (network byte order).
   - "little"; Little endian byte order.
