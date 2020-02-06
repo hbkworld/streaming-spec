@@ -791,6 +791,9 @@ The device sends the following `signal` meta information.
       "interpretation": {
         "unit": "V",
       }
+    },
+    "data": {
+      "endian": "little"
     }
   }
 }
@@ -832,6 +835,9 @@ The device sends the following `signal` meta information:
 	  "interpretation": {
         "unit": "decoder unit",
       }
+    },
+    "data": {
+      "endian": "little"
 	}
   }
 }
@@ -871,6 +877,9 @@ This is for counting events that happens at any time (explicit rule).
         "start" : 0,
         "delta" : 2
       }
+    },
+    "data": {
+      "endian": "little"
 	}
   }
 }
@@ -903,6 +912,9 @@ time stamp (uint64)
       "name": "angle",
       "rule": "explicit",
       "dataType": "double"
+    },
+    "data": {
+      "endian": "little"
     }
   }
 }
@@ -942,6 +954,9 @@ angle (double)
         "delta": 1
       },
       "dataType": "i32"
+    },
+    "data": {
+      "endian": "little"
     }
   }
 }
@@ -1044,6 +1059,9 @@ In addition we introduce the `interpretation` object which helps the client to i
         }
       ]
     }
+  },
+  "data": {
+    "endian": "little"
   }
 }
 ~~~~
@@ -1151,6 +1169,9 @@ Meta information describing the signal:
           }
         }
       ]
+    },
+    "data": {
+      "endian": "little"
     }   
   }
 }
@@ -1258,6 +1279,9 @@ Above we described two alternatives describing the histrogram within the signal 
           "rule": "explicit"
         }
       ]
+    },
+    "data": {
+      "endian": "little"
     }
   }
 }
@@ -1353,6 +1377,9 @@ We'll get the following signal specific meta information:
           }
         ]
       }
+    },
+    "data": {
+      "endian": "little"
     }
   }
 }
@@ -1433,8 +1460,10 @@ We'll get the following signal specific meta information:
           }
         }
       ]
-    }
-    
+    },
+    "data": {
+      "endian": "little"
+    }    
   }
 }
 ~~~~
@@ -1534,6 +1563,9 @@ We'll get the following signal specific meta information:
           }
         }
       ]
+    },
+    "data": {
+      "endian": "little"
     }
   }
 }
@@ -1595,6 +1627,9 @@ This can be used to transfer any binary data of variable length.
         "dataType": uint8,
         "rule": "explicit"
       }
+    },
+    "data": {
+      "endian": "little"
     }
   }
 }
