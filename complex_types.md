@@ -560,6 +560,7 @@ Each signal is described in a signal related meta information `signal`.
   },
   "data": {
     "endian": "little"|"big"
+    "validity": "valid"|"unknown"|"clipped"|"settling"|"invalid"|"overrun"|"syncFailure"|"calibrationFailure"
   }
 }
 ~~~~
@@ -658,11 +659,10 @@ T = 2^-primeFactorExponent_2 * 3^-primeFactorExponent_3 * 5^-primeFactorExponent
 
 prime factor exponents range form 0 to 255.
 
-##### Examples
+Here are some time family examples:
 
-44100 Hz = 2^2 * 3^2 * 5^2 * 7^2
-
-65536 Hz = 2^16 * 3^0 * 5^0 * 7^0
+- 44100 Hz = 2^2 * 3^2 * 5^2 * 7^2
+- 65536 Hz = 2^16
 
 #### Linear Time
 Equidistant time is described as a [linear implicit rule](#Linear_Rule).
@@ -706,27 +706,44 @@ Time is delivered as absolute time stamp for each value.
 }
 ~~~~
 
-### Unit Object
+### Data Object
 
-to be done:
-
-- Units can be fairly complex ("V" "kg*m/s^2=N" "Nm") they need to be described. 
-- Do we use SI units only? (cd, kg, m, s, A, K, mol) (everything is mertic)
-- Should the units be understood to make calcultations using them (2500 g = 2.5 kg)
+- `endian`: Signal data MAY be transferred in little or big endian format.
+- `validity`: Tells wheter the signal data is valid or why not.
   
-## Measured Data
+## Signal Data
 
 After the meta information describing the signal has been received, measured values are to be interpreted as follows:
 
 - The size of a complete signal value derives from the sum of the sizes of all explicit members
 - Members are send in the same sequence as in the meta information describing the signal
 - Only members with an explicit rule are transferred.
-- Non explicit members are calculated according their rule (i.e. constant, linear). They take no room within the transferred measured data blocks.
+- Non explicit members are calculated according their rule (i.e. constant, linear). They take no room within the transferred signal data blocks.
 
   
-# Command Interfaces
+# Command Interface
 
-to be done
+The command interface is used to subscribe/unsubscribe signals to/from an existing stream.
+There are just those two methods available.
+
+## Workflow
+
+When connecting to the HBK streaming server. The client will receive some information telling about the stream (see [stream related meta information](#stream-related-meta-information)).
+This includes the [available signals](#available-signals). As a result, the client knows the [signal ids](#signal-id) of all signals that MAY be subscribed.
+
+The command interface is used to subscribe/unsubscribe any available signal at any time.
+
+# Signal Member Interpretation
+
+Each signal member described MAY have an optional interpretation object. This contains information about further interpretation of the member and possible submembers
+
+## `type`
+
+Tells that this is something the client software know how to handle. For example the member and all its submembers are to be interpreted as a spectrum
+
+## `unit`
+
+This is also information that is not necessary for processing the data but to interprete it.
 
 # Optional Features / Meta Information
 
@@ -1640,4 +1657,27 @@ n bytes of binary data
 
 # Todo
 
+## Time
+
 - More discussion about details concerning [Time Meta Information](#time-meta-information) and [Synchronization Meta Information](#synchronization-meta-information)
+
+## Signal Validity
+
+- See [signal data object](#data-object)
+- Are the possible values correct?
+- Is there only one value possible at a time or can it be a combination? The latter one makes it to be a bit mask
+
+## [Signal Member Interpretation](#signal-member-interpretation)
+
+- Needs to be discussed
+
+### Unit
+
+- Units can be fairly complex ("V" "kg*m/s^2=N" "Nm") they need to be described. 
+- Do we use SI units only? (cd, kg, m, s, A, K, mol) (everything is mertic)
+- Should the units be understood to make calcultations using them (2500 g = 2.5 kg)
+
+## [Command Interface](#command-interface)
+
+- Workflow needs discussion
+
