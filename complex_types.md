@@ -7,7 +7,7 @@ author: Version 0.0
 # Overview
 
 The data streaming mechanism is intended to enable client programs to receive
-(measurement) data from (measurement) data acquisition devices, further called devices.
+data from data acquisition devices, further called devices.
 The protocol was designed with the following constraints in mind:
 
 -   Use only one socket connection per instance of data acquisition to
@@ -33,9 +33,9 @@ allow to subscribe or unsubscribe signals to a streaming instance.
 # Transport Layer 
 
 The transport layer consists of a header and a variable length
-block of data. Everything on the transport layer is send in little endian.
+block of data. Everything on the transport layer is sent in little endian format.
 
-The header has 32 bit in little endian. The structure of the header is depicted below.
+The header has 32 bit in little endian format. The structure of the header is depicted below.
 
 ![A single block on transport layer](images/transport.png)
 
@@ -166,7 +166,7 @@ An array of members of the same data type. The number of elements is fixed.
 {
   "dataType" : "array",
   "array": {
-    "count": 50,
+    "count": <number of elements>,
     <member description>
   }
 }
@@ -610,7 +610,7 @@ The optional `unit` of the member is to be found there.
 
 #### Signal Data Object
 
-The signal meta information conatins an object `data` describing the signal data.
+The signal meta information contains an object `data` describing the signal data.
 
 -`"endian"`: Describes the byte endianess of the transferred signal data.
 
@@ -777,11 +777,11 @@ The device sends the following `signal` meta information.
   "method": "signal",
   "params" : {
     "time" : {
-      "timeFamily" : { < time family > },
+      "timeFamily" : { "2" : 32, "3" : 0, "5" : 0, "7" : 0 },
       "rule": "linear",
       "linear": {
-        "start": <uint64>,
-        "delta": <uint64>
+        "start": 6790580007803552000
+        "delta": 4294967296
       }
     },
     "content" : {
@@ -825,7 +825,7 @@ The device sends the following `signal` meta information:
   "method": "signal",
   "params" : {
 	"time" : {
-      "timeFamily" : { < time family > },
+      "timeFamily" : { "2" : 32, "3" : 0, "5" : 0, "7" : 0 }
       "rule": "explicit",
     },
     "content" : {
@@ -866,7 +866,7 @@ This is for counting events that happens at any time (explicit rule).
   "method": "signal",
   "params" : {
 	"time" : {
-      "timeFamily" : { < time family > },
+      "timeFamily" : { "2" : 32, "3" : 0, "5" : 0, "7" : 0 }
       "rule": "explicit",
     },
     "content" : {
@@ -905,7 +905,7 @@ time stamp (uint64)
   "method": "signal",
   "params" : {
   	"time" : {
-      "timeFamily" : { < time family > },
+      "timeFamily" : { "2" : 32, "3" : 0, "5" : 0, "7" : 0 }
       "rule": "explicit",
     },
     "content" : {
@@ -944,7 +944,7 @@ angle (double)
   "method": "signal",
   "params" : {
    	"time" : {
-      "timeFamily" : { < time family > },
+      "timeFamily" : { "2" : 32, "3" : 0, "5" : 0, "7" : 0 }
       "rule": "explicit",
     },
     "content" : {
@@ -953,7 +953,7 @@ angle (double)
       "linear": {
         "delta": 1
       },
-      "dataType": "i32"
+      "dataType": "int32"
     },
     "data": {
       "endian": "little"
@@ -964,7 +964,7 @@ angle (double)
 
 
 This is similar to the simple counter. 
-`angle` changes by a known amount of 1. Only time stamps are being reansferred.
+`angle` changes by a known amount of 1. Only time stamps are being transferred.
 
 Transferred signal data for one signal value:
 
@@ -1019,12 +1019,12 @@ The signal consists of a spectum
 Several amplitude values over the frequency.
 We combine array, struct and base data types.
 
-In addition we introduce the `interpretation` object which helps the client to inteprete the data.
+In addition the example shows the `interpretation` object which helps the client to inteprete the data.
 
 ~~~~ {.javascript}
 {
   "time" : {
-    "timeFamily" : { < time family > },
+    "timeFamily" : { "2" : 32, "3" : 0, "5" : 0, "7" : 0 }
     "rule": "explicit",
   },
   "content" : {
@@ -1100,7 +1100,7 @@ Meta information describing the signal:
   "method": "signal",
   "params": {
     "time" : {
-      "timeFamily" : { < time family > },
+      "timeFamily" : { "2" : 32, "3" : 0, "5" : 0, "7" : 0 }
       "rule": "explicit",
     }, 
     "content" : {
@@ -1215,19 +1215,16 @@ Often there also is a lower than lowest and higher than highest counter, and for
 Example: 50 - 99 dB statistics:
 It is made up of a struct containing an histogram with 50 classes (bins) and three additional counters for the lower than, higher than and total count.
 
-
-Above we described two alternatives describing the histrogram within the signal meta information:
-
 ~~~~ {.javascript}
 {
   "method": "signal",
   "params": {
     "time" : {
-      "timeFamily" : { < time family > },
+      "timeFamily" : { "2" : 32, "3" : 0, "5" : 0, "7" : 0 }
       "rule": "explicit",
     },
     "content" : {
-      "name": "Statistic",
+      "name": "soundLevelStatistics",
       "interpretation" : { 
         "type": "statistic"
       },
@@ -1317,8 +1314,8 @@ total counter (uint64)
 
 ## Run up
 
-This is an array of 15 structs containing a fft and a frequency.
-Fft amplitudes and frenqeuncy are explicit.
+This is an array of 15 structs containing a FFT and a frequency.
+FFT amplitudes and frenqeuncy are explicit.
 
 We'll get the following signal specific meta information:
 
@@ -1327,7 +1324,7 @@ We'll get the following signal specific meta information:
   "method": "signal",
   "params": {
     "time" : {
-      "timeFamily" : { < time family > },
+      "timeFamily" : { "2" : 32, "3" : 0, "5" : 0, "7" : 0 }
       "rule": "explicit",
     },
     "content" : {
@@ -1345,7 +1342,7 @@ We'll get the following signal specific meta information:
           {
             "name": "fft",
             "interpretation": {
-              "type": "spectrum"
+              "type": "autoSpectrum"
             },
             "dataType" : "array",
             "array": {
@@ -1425,7 +1422,7 @@ We'll get the following signal specific meta information:
   "method": "signal",
   "params": {
     "time" : {
-      "timeFamily" : { < time family > },
+      "timeFamily" : { "2" : 32, "3" : 0, "5" : 0, "7" : 0 }
       "rule": "explicit",
     },    
     "content": {
@@ -1468,7 +1465,7 @@ We'll get the following signal specific meta information:
 }
 ~~~~
 
-Transferred signal data for one signal value: One abolute time stamp and three double values.
+Transferred signal data for one signal value: One absolute time stamp and three double values.
 
 ~~~~
 time stamp (uint64)
@@ -1489,14 +1486,11 @@ One combined value consists of the following:
   
           "dataType": "double",* dcAmplitude: The amplitude of the DC component.
   * cycleCount: The number of cycles in the window (according to IEC 61000-4-7)
-- an dynamic array of structures with information about the heamonics.
-  * amplitude: Amplitude of the n-th hramonics
-  * phase: Phase of the n-th hramonics
+- a dynamic array of structures with information about the harmonics.
+  * amplitude: Amplitude of the n-th harmonics
+  * phase: Phase of the n-th harmonics
 
 All elements are explicit.
-
-Right now we have arrays of fxed size only. Hence we always get 50 elements
-event if the count is much smaller.
 
 We'll get the following signal specific meta information:
 
@@ -1505,7 +1499,7 @@ We'll get the following signal specific meta information:
   "method": "signal",
   "params": {
     "time" : {
-      "timeFamily" : { < time family > },
+      "timeFamily" : { "2" : 32, "3" : 0, "5" : 0, "7" : 0 }
       "rule": "explicit",
     },
     "content": {
@@ -1606,14 +1600,14 @@ phase of harmonic n (double)
   
 ## Binary data of variable length (Binary Large Object)
 
-This can be used to transfer any binary data of variable length.
+This can be used to transfer any binary data of variable length. Each `dynamicArray` will tell about its actual member count.
 
 ~~~~ {.javascript}
 {
   "method": "signal",
   "params": {
     "time" : {
-      "timeFamily" : { < time family > },
+      "timeFamily" : { "2" : 32, "3" : 0, "5" : 0, "7" : 0 }
       "rule": "explicit"
     },
     "content": {    
