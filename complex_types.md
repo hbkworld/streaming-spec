@@ -1681,3 +1681,34 @@ n bytes of binary data
 
 - Workflow needs discussion
 
+# Matthias
+
+## Several Cards Behind One Streaming Server
+
+There is one streaming server for the rack containing up to 17 cards.
+Cards have a slot number ranging from 1 to 17 (not an index that would be 0 to 16).
+
+### Signal Number 
+
+The transport protocol has 20 bit for the signal number. This allows up to 2^20 = 1,048,576 signals per streaming server.
+We might use the uppermost 5 bits to represent the slot number. This leaves 2^15 = 32,768 signals per card in the rack.
+
+The question is, were the bits representing the slot number are being set. To minimize processing on the frame, this should be done on the card.
+When used as a single card, 0 is being used as slot number.
+
+### Signal Id
+
+The signal id has a the slot number a prefix `<slot number>:<signal id>` 
+Again, this should be done on the card to reduce processing on the frame. When used in signle frame, there should be no prefix at all.
+
+
+examples: 
+
+ - in frame
+   * `1:Analog_Input_1`
+   * `2:Analog_Input_1`
+   
+ - as single card
+   * `Analog_Input_1`
+   
+   
